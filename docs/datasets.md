@@ -30,7 +30,12 @@ The first real training adapter should consume:
 - valid-area mask,
 - optional vector map ground truth.
 
+Check the local layout with:
+
+```bash
+PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
+```
+
 ## Satellite Patches
 
 The project still needs a concrete satellite source. Until that is selected, the dataset adapter should expose `satellite_patch_path` and keep satellite alignment logic isolated from the model.
-

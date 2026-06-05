@@ -2,11 +2,19 @@
 
 ## Environment
 
+Use Python 3.10 or 3.11 for the training environment. The local macOS default Python may be newer than the PyTorch wheels supported by the project; `scripts/setup_env.sh` checks this before installing.
+
 Use the scripted setup for a local virtual environment:
 
 ```bash
 bash scripts/setup_env.sh .venv
 source .venv/bin/activate
+```
+
+If needed:
+
+```bash
+PYTHON_BIN=python3.10 bash scripts/setup_env.sh .venv
 ```
 
 For a conda workflow:
@@ -52,3 +60,10 @@ PYTHONPATH=src python scripts/evaluate.py --checkpoint outputs/synthetic/synthet
 
 This checks the model/loss/train/eval plumbing. Real nuScenes training still requires implementing the dataset adapter and selecting the concrete G3T/VGGT heads to fine-tune.
 
+## nuScenes Layout Check
+
+After downloading nuScenes:
+
+```bash
+PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
+```
