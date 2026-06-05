@@ -94,3 +94,9 @@ Generate the manifest with:
 ```bash
 PYTHONPATH=src python scripts/generate_manifest.py --root data/nuscenes --version v1.0-mini
 ```
+
+Validate it before training:
+
+```bash
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
+```

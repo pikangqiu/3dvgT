@@ -13,7 +13,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Git repository | Ready locally | commits through `8c98a62` |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py` |
-| Real nuScenes data loading | Partial scaffold | layout inspection and JSONL manifest loading exist; SDK-based sample manifest generation still needs camera, calibration, ego pose, satellite patch, valid mask, optional LiDAR/map targets |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, and manifest path validation exist; satellite patch extraction and tensor dataset loading still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
@@ -62,7 +62,7 @@ bash scripts/publish_github.sh VggT
 
 ## Next Implementation Milestones
 
-1. Extend the nuScenes adapter from layout/manifest inspection to SDK-based real sample manifest generation.
+1. Extend preprocessing from manifest generation/validation to actual satellite patch extraction and tensor dataset loading.
 2. Select and implement satellite patch source/alignment.
 3. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads.
 4. Extend metrics beyond smoke values to real reconstruction metrics: scale-aligned pointmap accuracy/completeness, gravity error, and sequence drift.

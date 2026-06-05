@@ -52,6 +52,14 @@ PYTHONPATH=src python scripts/generate_manifest.py \
 
 This records the expected satellite patch path for each sample. The actual satellite patch extraction/alignment step still needs to create those images.
 
+Validate a generated manifest before training:
+
+```bash
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
+```
+
+The validator checks camera image paths, satellite patches, and optional valid-mask/depth/vector-map files referenced by the manifest.
+
 Check the local layout with:
 
 ```bash
