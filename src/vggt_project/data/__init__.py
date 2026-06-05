@@ -34,6 +34,8 @@ __all__ = [
     "LidarPointmapReport",
     "materialize_lidar_pointmap_manifest",
     "lidar_points_to_ego_pointmap",
+    "LidarSupervisionReport",
+    "materialize_lidar_supervision_manifest",
 ]
 
 
@@ -54,4 +56,11 @@ def __getattr__(name: str):
         from vggt_project.data import nuscenes_pointmap
 
         return getattr(nuscenes_pointmap, name)
+    if name in {
+        "LidarSupervisionReport",
+        "materialize_lidar_supervision_manifest",
+    }:
+        from vggt_project.data import supervision_pipeline
+
+        return getattr(supervision_pipeline, name)
     raise AttributeError(name)

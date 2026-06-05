@@ -169,17 +169,28 @@ PYTHONPATH=src python scripts/generate_lidar_pointmap_targets.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.pointmap.jsonl
 ```
 
+Alternatively, generate depth and pointmap supervision in one pass:
+
+```bash
+PYTHONPATH=src python scripts/generate_lidar_supervision.py \
+  data/manifests/nuscenes-mini.smoke.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --output data/manifests/nuscenes-mini.supervised.jsonl
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
+```
+
 Smoke-test real file loading:
 
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.pointmap.jsonl \
+  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 PYTHONPATH=src python scripts/evaluate.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.pointmap.jsonl \
+  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
   --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 ```
 

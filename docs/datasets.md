@@ -145,6 +145,16 @@ PYTHONPATH=src python scripts/generate_lidar_pointmap_targets.py \
 
 This writes `.npy` pointmap files and updates `pointmap_path` in the output manifest. The current scaffold treats these as ego-frame pointmap supervision. A future G3T/VGGT adapter should replace or augment them with camera/gravity-aligned pointmap targets.
 
+Or generate both LiDAR depth and pointmap supervision in one pass:
+
+```bash
+PYTHONPATH=src python scripts/generate_lidar_supervision.py \
+  data/manifests/nuscenes-mini.smoke.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --output data/manifests/nuscenes-mini.supervised.jsonl
+```
+
 ## Manifest Smoke Training
 
 After validation, a manifest can be used to smoke-test real image loading:
@@ -152,7 +162,7 @@ After validation, a manifest can be used to smoke-test real image loading:
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.pointmap.jsonl \
+  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 ```
