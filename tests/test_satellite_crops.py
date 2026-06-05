@@ -7,6 +7,91 @@ from pathlib import Path
 
 @unittest.skipUnless(find_spec("PIL"), "Pillow is required for satellite crop tests")
 class SatelliteCropsTest(unittest.TestCase):
+    def test_validate_satellite_raster_config_reports_manifest_location_coverage(self) -> None:
+        from PIL import Image
+
+        from vggt_project.data.satellite_crops import validate_satellite_raster_config
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "rasters").mkdir()
+            Image.new("RGB", (8, 8)).save(root / "rasters/boston.png")
+            config = root / "satellite_config.json"
+            config.write_text(
+                '{"boston-seaport":{'
+                '"raster_path":"rasters/boston.png",'
+                '"origin_ego_xy_m":[0.0,0.0],'
+                '"origin_pixel_xy":[0.0,0.0],'
+                '"meters_per_pixel":1.0'
+                "}}\n",
+                encoding="utf-8",
+            )
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.jpg"],'
+                '"satellite_patch_path":"placeholder/sample-1.png",'
+                '"map_location":"singapore-onenorth",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+
+            report = validate_satellite_raster_config(config, manifest_path=manifest)
+
+        self.assertFalse(report.ready)
+        self.assertEqual(report.missing_manifest_locations, ("singapore-onenorth",))
+
+    def test_validate_satellite_raster_config_reports_missing_file_and_bad_fields(self) -> None:
+        from vggt_project.data.satellite_crops import validate_satellite_raster_config
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            config = root / "satellite_config.json"
+            config.write_text(
+                '{"boston-seaport":{'
+                '"raster_path":"rasters/missing.png",'
+                '"origin_ego_xy_m":[0.0],'
+                '"origin_pixel_xy":["bad",0.0],'
+                '"meters_per_pixel":0.0'
+                "}}\n",
+                encoding="utf-8",
+            )
+
+            report = validate_satellite_raster_config(config)
+
+        fields = {(issue.map_location, issue.field) for issue in report.invalid_specs}
+        self.assertFalse(report.ready)
+        self.assertEqual(len(report.missing_raster_paths), 1)
+        self.assertIn(("boston-seaport", "origin_ego_xy_m"), fields)
+        self.assertIn(("boston-seaport", "origin_pixel_xy"), fields)
+        self.assertIn(("boston-seaport", "meters_per_pixel"), fields)
+
+    def test_validate_satellite_raster_config_accepts_ready_config(self) -> None:
+        from PIL import Image
+
+        from vggt_project.data.satellite_crops import validate_satellite_raster_config
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "rasters").mkdir()
+            Image.new("RGB", (8, 8)).save(root / "rasters/boston.png")
+            config = root / "satellite_config.json"
+            config.write_text(
+                '{"boston-seaport":{'
+                '"raster_path":"rasters/boston.png",'
+                '"origin_ego_xy_m":[0.0,0.0],'
+                '"origin_pixel_xy":[0.0,0.0],'
+                '"meters_per_pixel":1.0'
+                "}}\n",
+                encoding="utf-8",
+            )
+
+            report = validate_satellite_raster_config(config)
+
+        self.assertTrue(report.ready)
+        self.assertEqual(report.map_locations, ("boston-seaport",))
+
     def test_materialize_satellite_crops_from_raster_config(self) -> None:
         from PIL import Image
 

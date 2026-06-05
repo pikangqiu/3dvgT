@@ -47,6 +47,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/split_manifest.py",
             "scripts/materialize_manifest_assets.py",
             "scripts/materialize_satellite_crops.py",
+            "scripts/check_satellite_rasters.py",
             "scripts/generate_lidar_depth_targets.py",
             "scripts/generate_lidar_pointmap_targets.py",
             "scripts/generate_lidar_supervision.py",
@@ -82,6 +83,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "dataset_setup": (
             "scripts/prepare_nuscenes.sh",
             "scripts/check_nuscenes.py",
+            "configs/satellite_rasters.example.json",
             "docs/datasets.md",
         ),
         "reference_setup": (
@@ -102,7 +104,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
 
     items = tuple(_audit_item(resolved, name, paths) for name, paths in item_specs.items())
     remaining_gaps = (
-        "real satellite patch extraction requires user-provided satellite rasters/config, though crop materialization is now scripted",
+        "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "G3T/VGGT camera-level pointmap/pose targets and occupancy target generation are not implemented, though LiDAR ego-frame pointmap target generation is wired",
         "G3T/VGGT head adapter and fine-tuning path are not implemented",
         "multi-camera pointmap and camera-specific G3T/VGGT pose heads are not implemented, though scaffold camera-depth supervision is wired",

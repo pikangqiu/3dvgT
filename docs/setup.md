@@ -140,6 +140,11 @@ PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.
 If local satellite rasters are available, replace placeholder patches with real crops:
 
 ```bash
+mkdir -p data/satellite_rasters
+cp configs/satellite_rasters.example.json data/satellite_rasters/config.json
+PYTHONPATH=src python scripts/check_satellite_rasters.py \
+  --config data/satellite_rasters/config.json \
+  --manifest data/manifests/nuscenes-mini.jsonl
 PYTHONPATH=src python scripts/materialize_satellite_crops.py \
   data/manifests/nuscenes-mini.jsonl \
   --config data/satellite_rasters/config.json \

@@ -1,0 +1,14 @@
+{
+  "boston-seaport": {
+    "raster_path": "boston-seaport.png",
+    "origin_ego_xy_m": [0.0, 0.0],
+    "origin_pixel_xy": [1024.0, 1024.0],
+    "meters_per_pixel": 0.2
+  },
+  "singapore-onenorth": {
+    "raster_path": "singapore-onenorth.png",
+    "origin_ego_xy_m": [0.0, 0.0],
+    "origin_pixel_xy": [1024.0, 1024.0],
+    "meters_per_pixel": 0.2
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth prediction, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth prediction, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, satellite raster config validation, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, single- or multi-camera depth, mask, LiDAR-derived pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, G3T-style pointmap target generation, camera-level/G3T pose target wiring, camera-specific pointmap/pose heads, concrete G3T/VGGT head integration, and GPU environment validation.
 
@@ -15,7 +15,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py`; manifest batches include `camera_images` for camera-specific scaffold heads |
-| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, local raster satellite crop materialization, single- or multi-camera LiDAR-projected camera depth target generation, LiDAR-to-ego pointmap target generation, real-file smoke tensor loading, optional depth/mask/pointmap target image/array loading, and ego-pose-derived pose targets exist; real satellite raster sourcing, G3T-style pointmap target generation, and G3T/VGGT camera-pose adapter wiring still need implementation |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, local raster satellite config validation/crop materialization, single- or multi-camera LiDAR-projected camera depth target generation, LiDAR-to-ego pointmap target generation, real-file smoke tensor loading, optional depth/mask/pointmap target image/array loading, and ego-pose-derived pose targets exist; real satellite raster sourcing, G3T-style pointmap target generation, and G3T/VGGT camera-pose adapter wiring still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py`; includes shared BEV/satellite latent heads and a camera-specific depth head for manifest batches |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, single- or multi-camera depth, local pose, relative pose losses in `src/vggt_project/losses.py`; multi-camera depth loss uses `camera_depths` when the model predicts them |
@@ -30,7 +30,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
 | Manifest asset materialization | Smoke-only scripted | `scripts/materialize_manifest_assets.py`; creates placeholder satellite patches and optional valid masks for pipeline testing |
-| Satellite crop materialization | Scripted | `scripts/materialize_satellite_crops.py`; crops patches from user-provided local satellite rasters using ego pose metadata |
+| Satellite raster config/crop materialization | Scripted | `configs/satellite_rasters.example.json`, `scripts/check_satellite_rasters.py`, and `scripts/materialize_satellite_crops.py`; validates raster paths/map-location coverage and crops patches from user-provided local satellite rasters using ego pose metadata |
 | LiDAR depth target generation | Scripted for one or more cameras | `scripts/generate_lidar_depth_targets.py`; projects `LIDAR_TOP` to `CAM_FRONT` by default and accepts repeated/comma-separated `--camera` values |
 | LiDAR pointmap target generation | Scripted | `scripts/generate_lidar_pointmap_targets.py`; transforms `LIDAR_TOP` points into ego-frame `.npy` pointmap targets |
 | LiDAR supervision pipeline | Scripted | `scripts/generate_lidar_supervision.py`; generates single- or multi-camera depth plus pointmap targets and writes one final supervised manifest |
@@ -51,6 +51,7 @@ PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py --help
+PYTHONPATH=src python3 scripts/check_satellite_rasters.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_pointmap_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py --help

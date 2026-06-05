@@ -38,6 +38,8 @@ __all__ = [
     "materialize_lidar_supervision_manifest",
     "ManifestSplitReport",
     "split_manifest_by_scene",
+    "SatelliteRasterConfigReport",
+    "validate_satellite_raster_config",
 ]
 
 
@@ -72,4 +74,11 @@ def __getattr__(name: str):
         from vggt_project.data import manifest_split
 
         return getattr(manifest_split, name)
+    if name in {
+        "SatelliteRasterConfigReport",
+        "validate_satellite_raster_config",
+    }:
+        from vggt_project.data import satellite_crops
+
+        return getattr(satellite_crops, name)
     raise AttributeError(name)

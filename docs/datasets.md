@@ -98,6 +98,11 @@ The generated satellite images are deterministic placeholders, not real geospati
 When local satellite rasters are available, crop real patches from a raster config:
 
 ```bash
+mkdir -p data/satellite_rasters
+cp configs/satellite_rasters.example.json data/satellite_rasters/config.json
+PYTHONPATH=src python scripts/check_satellite_rasters.py \
+  --config data/satellite_rasters/config.json \
+  --manifest data/manifests/nuscenes-mini.jsonl
 PYTHONPATH=src python scripts/materialize_satellite_crops.py \
   data/manifests/nuscenes-mini.jsonl \
   --config data/satellite_rasters/config.json \
@@ -118,6 +123,8 @@ The config maps each `map_location` to a raster and a linear ego-meter to pixel 
   }
 }
 ```
+
+`check_satellite_rasters.py` validates required fields, local raster paths, positive `meters_per_pixel`, and coverage of every manifest `map_location` before crop generation.
 
 Generate camera-depth targets from nuScenes `LIDAR_TOP` for the manifest:
 
