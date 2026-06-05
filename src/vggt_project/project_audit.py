@@ -66,6 +66,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "experiment_config": (
             "configs/reconstruction_first.yaml",
             "src/vggt_project/experiments.py",
+            "scripts/run_experiment.py",
         ),
         "environment": (
             "requirements.txt",

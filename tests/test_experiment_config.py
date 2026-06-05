@@ -3,7 +3,11 @@ import unittest
 from importlib.util import find_spec
 from pathlib import Path
 
-from vggt_project.experiments import ExperimentRunConfig, load_experiment_config
+from vggt_project.experiments import (
+    ExperimentRunConfig,
+    load_experiment_config,
+    run_experiment_from_config,
+)
 
 
 class ExperimentConfigTest(unittest.TestCase):
@@ -68,6 +72,37 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.training_mode, "synthetic")
         self.assertEqual(config.output_dir, Path("outputs/from-yaml"))
         self.assertEqual(config.epochs, 5)
+
+    def test_run_experiment_from_config_writes_report(self) -> None:
+        def train_fn(config: ExperimentRunConfig) -> dict[str, float]:
+            self.assertEqual(config.training_mode, "synthetic")
+            return {"loss": 1.0, "checkpoint": str(config.checkpoint)}
+
+        def evaluate_fn(config: ExperimentRunConfig) -> dict[str, float]:
+            return {"loss": 0.5, "depth_mae": 0.25}
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            report_path = Path(temp_dir) / "report.json"
+            config = ExperimentRunConfig(
+                training_mode="synthetic",
+                output_dir=Path(temp_dir) / "out",
+                checkpoint=Path(temp_dir) / "out" / "synthetic_scaffold.pt",
+            )
+
+            report = run_experiment_from_config(
+                config,
+                report_path=report_path,
+                train_fn=train_fn,
+                evaluate_fn=evaluate_fn,
+            )
+            written_report = report_path.read_text(encoding="utf-8")
+            report_exists = report_path.exists()
+
+        self.assertTrue(report_exists)
+        self.assertIn('"train_metrics"', written_report)
+        self.assertEqual(report["mode"], "synthetic")
+        self.assertEqual(report["train_metrics"]["loss"], 1.0)
+        self.assertEqual(report["eval_metrics"]["depth_mae"], 0.25)
 
     @unittest.skipUnless(
         find_spec("PIL") and find_spec("torch") and find_spec("yaml"),

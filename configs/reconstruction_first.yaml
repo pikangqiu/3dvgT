@@ -74,7 +74,7 @@ evaluation:
 
 runtime:
   data:
-    manifest_path: data/manifests/nuscenes-mini.depth.jsonl
+    manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     image_size: 32
     point_count: 128
   training:

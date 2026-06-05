@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch, an end-to-end smoke pipeline, project-status audit scripts, environment scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, and research baseline notes.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, mask, LiDAR-derived pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, G3T-style pointmap target generation, camera-level/G3T pose target wiring, multi-camera target wiring, concrete G3T/VGGT head integration, and GPU environment validation.
 
@@ -23,6 +23,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Train loop | Smoke-verified scaffold | synthetic train and manifest-smoke train completed in `/tmp/vggt-satellite-smoke` |
 | Eval/inference loop | Smoke-verified scaffold | synthetic eval completed against `/tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt`; manifest-smoke eval is implemented and covered by tests |
 | Experiment config dispatch | Scripted | `configs/reconstruction_first.yaml` can drive current scaffold train/eval through `scripts/train.py --config ...` and `scripts/evaluate.py --config ...` |
+| Experiment report pipeline | Scripted | `scripts/run_experiment.py` runs config-driven train+eval and writes a JSON report |
 | End-to-end smoke pipeline | Smoke-verified scaffold | `scripts/run_smoke_pipeline.py` creates toy image/depth/mask files, trains, and evaluates |
 | Environment setup | Smoke-verified script | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended; PyTorch 2.12.0 imported |
 | G3T weight download | Scripted | `scripts/download_weights.py` |
@@ -50,6 +51,7 @@ PYTHONPATH=src python3 scripts/materialize_manifest_assets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_pointmap_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py --help
+PYTHONPATH=src python3 scripts/run_experiment.py --help
 PYTHONPATH=src python3 scripts/run_smoke_pipeline.py --help
 python3 -m compileall src scripts tests
 ```
@@ -65,6 +67,7 @@ PYTHONPATH=src python scripts/evaluate.py --checkpoint outputs/synthetic/synthet
 PYTHONPATH=src python scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json
 PYTHONPATH=src python scripts/run_smoke_pipeline.py --output-dir outputs/smoke-pipeline --epochs 1
 ```
 

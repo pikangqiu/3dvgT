@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import json
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from vggt_project.evaluation import evaluate_manifest_smoke, evaluate_synthetic
 from vggt_project.training import train_manifest_smoke, train_synthetic
@@ -107,6 +108,28 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
     raise ValueError(f"Unsupported evaluation mode: {config.training_mode}")
 
 
+def run_experiment_from_config(
+    config: ExperimentRunConfig,
+    *,
+    report_path: Path,
+    train_fn: Callable[[ExperimentRunConfig], dict[str, Any]] = train_from_config,
+    evaluate_fn: Callable[[ExperimentRunConfig], dict[str, Any]] = evaluate_from_config,
+) -> dict[str, Any]:
+    """Run train+eval from one config and persist a JSON experiment report."""
+
+    train_metrics = train_fn(config)
+    eval_metrics = evaluate_fn(config)
+    report = {
+        "mode": config.training_mode,
+        "config": _jsonable_config(config),
+        "train_metrics": train_metrics,
+        "eval_metrics": eval_metrics,
+    }
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+    return report
+
+
 def _mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
@@ -129,3 +152,13 @@ def _default_checkpoint(mode: str, output_dir: Path) -> Path:
     if mode == "manifest-smoke":
         return output_dir / "manifest_smoke_scaffold.pt"
     return output_dir / "synthetic_scaffold.pt"
+
+
+def _jsonable_config(config: ExperimentRunConfig) -> dict[str, Any]:
+    data = asdict(config)
+    for key, value in list(data.items()):
+        if isinstance(value, Path):
+            data[key] = str(value)
+        elif value is None:
+            data[key] = None
+    return data

@@ -28,6 +28,7 @@ This repository now contains a runnable scaffold for the project structure:
 - ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
+- config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
@@ -63,6 +64,7 @@ PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/ma
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.supervised.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json
 ```
 
 ## Layout
