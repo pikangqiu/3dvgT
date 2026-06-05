@@ -19,6 +19,7 @@ class ProjectAuditTest(unittest.TestCase):
             "weights",
             "dataset_setup",
             "reference_setup",
+            "github_ci",
             "benchmarks",
         ):
             self.assertIn(name, items_by_name)

@@ -29,6 +29,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Manifest asset materialization | Smoke-only scripted | `scripts/materialize_manifest_assets.py`; creates placeholder satellite patches and optional valid masks for pipeline testing |
 | LiDAR depth target generation | Scripted for one camera | `scripts/generate_lidar_depth_targets.py`; projects `LIDAR_TOP` to `CAM_FRONT` by default |
 | GitHub upload | Blocked by auth | `gh` installed, but `gh auth status` reports no logged-in host |
+| GitHub CI | Scripted | `.github/workflows/ci.yml` runs lightweight tests, project audit, reference dry-run, and compile checks |
 
 ## Commands
 

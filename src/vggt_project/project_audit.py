@@ -75,6 +75,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/check_references.py",
             "refs/README.md",
         ),
+        "github_ci": (".github/workflows/ci.yml",),
         "benchmarks": (
             "docs/research_survey.md",
             "refs/benchmarks/README.md",

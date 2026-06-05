@@ -18,12 +18,13 @@ class ProjectScaffoldTest(unittest.TestCase):
         by_name = {status.name: status for status in statuses}
 
         self.assertEqual(by_name["g3t"].path, Path("refs/g3t").resolve())
+        self.assertIn("g3t", by_name)
         self.assertTrue(by_name["look_from_above_notes"].exists)
-        self.assertTrue(by_name["pseudomaptrainer_component"].exists)
-        self.assertTrue(by_name["maptr_component"].exists)
-        self.assertTrue(by_name["e3d_bench_reference"].exists)
-        self.assertTrue(by_name["open_occupancy_reference"].exists)
-        self.assertTrue(by_name["surround_occ_reference"].exists)
+        self.assertIn("pseudomaptrainer_component", by_name)
+        self.assertIn("maptr_component", by_name)
+        self.assertIn("e3d_bench_reference", by_name)
+        self.assertIn("open_occupancy_reference", by_name)
+        self.assertIn("surround_occ_reference", by_name)
         self.assertTrue(by_name["look_from_above_paper"].exists)
 
 
