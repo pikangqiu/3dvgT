@@ -1,7 +1,9 @@
 import unittest
+from importlib.util import find_spec
 
 
 class ReconstructionMetricsTest(unittest.TestCase):
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
     def test_depth_and_pointmap_metrics_are_reported_as_floats(self) -> None:
         import torch
 

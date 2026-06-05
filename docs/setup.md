@@ -88,3 +88,9 @@ from vggt_project.data import load_manifest
 
 samples = load_manifest(Path("data/manifests/nuscenes-mini.jsonl"))
 ```
+
+Generate the manifest with:
+
+```bash
+PYTHONPATH=src python scripts/generate_manifest.py --root data/nuscenes --version v1.0-mini
+```
