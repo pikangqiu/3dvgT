@@ -1,0 +1,64 @@
+project:
+  name: vggt_satellite_reconstruction
+  deadline: "2026-06-25"
+  framing: 3d_reconstruction_first
+
+references:
+  g3t:
+    path: refs/g3t
+    remote: https://github.com/g3t-paper/g3t.git
+    role: gravity_aligned_reconstruction_reference
+  look_from_above:
+    paper: 859_Look_from_Above_Satellite_.pdf
+    notes_path: refs/look-from-above
+    role: satellite_bev_alignment_and_nuscenes_mapping_reference
+    public_code_status: not_found
+
+data:
+  dataset: nuScenes
+  expected_inputs:
+    - multi_view_camera_images
+    - camera_calibration
+    - ego_pose
+    - bev_features_or_bev_raster
+    - aligned_satellite_patch
+    - optional_lidar_or_depth_proxy
+    - optional_vector_map_gt
+
+model:
+  encoder:
+    image_branch: multi_view_image_encoder
+    bev_branch: bev_lifting_and_bev_encoder
+    satellite_branch: satellite_patch_encoder
+    fusion: bev_satellite_cross_view_fusion
+  reconstruction_heads:
+    - gravity_aligned_pointmap
+    - depth
+    - local_camera_to_gravity_pose
+    - relative_yaw_translation
+  auxiliary_heads:
+    - bev_occupancy
+    - vectorized_map_optional
+
+training:
+  primary_losses:
+    - pointmap_reconstruction
+    - depth_reconstruction
+    - pose_consistency
+    - gravity_alignment
+  auxiliary_losses:
+    - bev_occupancy_optional
+    - vector_map_optional
+    - valid_area_masking
+
+evaluation:
+  primary_metrics:
+    - pointmap_accuracy
+    - depth_error
+    - camera_pose_error
+    - gravity_alignment_error
+    - long_sequence_alignment_drift
+  auxiliary_metrics:
+    - vector_map_map
+    - bev_occupancy_iou
+

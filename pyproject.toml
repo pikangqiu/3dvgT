@@ -1,0 +1,14 @@
+[project]
+name = "vggt-satellite-reconstruction"
+version = "0.1.0"
+description = "Satellite-guided and BEV-guided G3T-style 3D reconstruction research scaffold."
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "scripts"]
+

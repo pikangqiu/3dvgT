@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Data and model outputs
+/data/
+/datasets/
+/outputs/
+/checkpoints/
+/runs/
+/wandb/
+
+# Reference repositories are cloned locally and should not be vendored by default.
+refs/g3t/
+refs/look-from-above-code/
+
+# System files
+.DS_Store
