@@ -18,6 +18,7 @@ This repository now contains a runnable scaffold for the project structure:
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - training environment readiness checks,
+- satellite raster readiness checks integrated into training preflight,
 - external reference repository setup script,
 - nuScenes manifest generation and loading scaffolds,
 - manifest asset materialization for smoke satellite patches and valid masks,

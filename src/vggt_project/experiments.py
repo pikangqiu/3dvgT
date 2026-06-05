@@ -19,6 +19,7 @@ class ExperimentRunConfig:
     manifest_path: Path | None = None
     train_manifest_path: Path | None = None
     eval_manifest_path: Path | None = None
+    satellite_raster_config_path: Path | None = None
     device: str | None = None
     seed: int | None = None
     output_dir: Path = Path("outputs/synthetic")
@@ -53,6 +54,7 @@ class ExperimentRunConfig:
             manifest_path=manifest,
             train_manifest_path=train_manifest,
             eval_manifest_path=eval_manifest,
+            satellite_raster_config_path=_optional_path(data.get("satellite_raster_config_path")),
             device=runtime.get("device"),
             seed=_optional_int(runtime.get("seed")),
             output_dir=output_dir,

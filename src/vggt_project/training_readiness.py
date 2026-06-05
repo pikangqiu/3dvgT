@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
 
+from vggt_project.data.satellite_crops import validate_satellite_raster_config
 from vggt_project.experiments import ExperimentRunConfig
 
 
@@ -25,6 +26,7 @@ class TrainingReadinessReport:
     device: str | None
     device_available: bool
     missing_paths: dict[str, str]
+    config_errors: tuple[str, ...]
     dependencies: tuple[DependencyStatus, ...]
 
     @property
@@ -48,7 +50,8 @@ def check_training_readiness(
     device_probe = device_probe or probe_device_available
     dependencies = dependency_probe()
     device_available = device_probe(config.device)
-    ready = not missing_paths and not any(
+    config_errors = _config_errors(config)
+    ready = not missing_paths and not config_errors and not any(
         not dependency.available for dependency in dependencies
     ) and device_available
     return TrainingReadinessReport(
@@ -57,6 +60,7 @@ def check_training_readiness(
         device=config.device,
         device_available=device_available,
         missing_paths=missing_paths,
+        config_errors=config_errors,
         dependencies=dependencies,
     )
 
@@ -112,6 +116,12 @@ def format_training_readiness_report(report: TrainingReadinessReport) -> str:
     else:
         for name, path in report.missing_paths.items():
             lines.append(f"- {name}: missing {path}")
+    lines.append("config_errors:")
+    if not report.config_errors:
+        lines.append("- none")
+    else:
+        for error in report.config_errors:
+            lines.append(f"- {error}")
     return "\n".join(lines)
 
 
@@ -121,10 +131,37 @@ def _missing_config_paths(config: ExperimentRunConfig) -> dict[str, str]:
         "manifest_path": config.manifest_path,
         "train_manifest_path": config.train_manifest_path,
         "eval_manifest_path": config.eval_manifest_path,
+        "satellite_raster_config_path": config.satellite_raster_config_path,
     }.items():
         if path is not None and not Path(path).exists():
             missing[name] = str(path)
     return missing
+
+
+def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    if config.satellite_raster_config_path is None:
+        return ()
+    config_path = Path(config.satellite_raster_config_path)
+    if not config_path.exists():
+        return ()
+
+    manifest_path = _existing_manifest_for_satellite_check(config)
+    report = validate_satellite_raster_config(config_path, manifest_path=manifest_path)
+    errors: list[str] = []
+    for location in report.missing_manifest_locations:
+        errors.append(f"satellite_raster_config missing map_location {location}")
+    for path in report.missing_raster_paths:
+        errors.append(f"satellite raster missing {path}")
+    for issue in report.invalid_specs:
+        errors.append(f"satellite_raster_config {issue.map_location}.{issue.field}: {issue.reason}")
+    return tuple(errors)
+
+
+def _existing_manifest_for_satellite_check(config: ExperimentRunConfig) -> Path | None:
+    for path in (config.train_manifest_path, config.manifest_path, config.eval_manifest_path):
+        if path is not None and Path(path).exists():
+            return Path(path)
+    return None
 
 
 def _dependency_status(name: str) -> DependencyStatus:

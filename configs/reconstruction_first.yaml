@@ -79,6 +79,7 @@ runtime:
     manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     train_manifest_path: data/manifests/nuscenes-mini.train.jsonl
     eval_manifest_path: data/manifests/nuscenes-mini.val.jsonl
+    satellite_raster_config_path: data/satellite_rasters/config.json
     image_size: 32
     point_count: 128
   training:

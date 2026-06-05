@@ -31,6 +31,7 @@ class ExperimentConfigTest(unittest.TestCase):
                         "manifest_path": "data/manifests/train.jsonl",
                         "train_manifest_path": "data/manifests/train.split.jsonl",
                         "eval_manifest_path": "data/manifests/val.split.jsonl",
+                        "satellite_raster_config_path": "data/satellite_rasters/config.json",
                         "image_size": 64,
                         "point_count": 256,
                     },
@@ -54,6 +55,7 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.manifest_path, Path("data/manifests/train.jsonl"))
         self.assertEqual(config.train_manifest_path, Path("data/manifests/train.split.jsonl"))
         self.assertEqual(config.eval_manifest_path, Path("data/manifests/val.split.jsonl"))
+        self.assertEqual(config.satellite_raster_config_path, Path("data/satellite_rasters/config.json"))
         self.assertEqual(config.output_dir, Path("outputs/train"))
         self.assertEqual(config.checkpoint, Path("outputs/train/manifest_smoke_scaffold.pt"))
         self.assertEqual(config.epochs, 2)
