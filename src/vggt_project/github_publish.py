@@ -21,7 +21,7 @@ class GitHubPublishPreflightReport:
 
     @property
     def ready_to_publish(self) -> bool:
-        return self.clean_worktree and self.gh_authenticated
+        return bool(self.clean_worktree and self.current_branch and (self.has_origin or self.gh_authenticated))
 
 
 def run_publish_preflight(
@@ -46,11 +46,11 @@ def run_publish_preflight(
         next_steps.append("commit or stash local changes before publishing")
     if not current_branch:
         next_steps.append("create or check out a branch before publishing")
-    if not gh_authenticated:
+    if not has_origin and not gh_authenticated:
         next_steps.append("gh auth login")
-    if gh_authenticated and not has_origin:
+    if not has_origin and gh_authenticated:
         next_steps.append("run: bash scripts/publish_github.sh VggT")
-    if gh_authenticated and has_origin:
+    if has_origin:
         next_steps.append(f"run: git push -u origin {current_branch}")
 
     return GitHubPublishPreflightReport(
