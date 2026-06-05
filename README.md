@@ -14,11 +14,12 @@ This repository now contains a runnable scaffold for the project structure:
 - data contracts and synthetic smoke-test data,
 - a minimal satellite/BEV-conditioned reconstruction model scaffold,
 - reconstruction losses,
+- reconstruction metrics,
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs the nuScenes dataset adapter, concrete satellite patch source/alignment, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs SDK-based nuScenes manifest generation, concrete satellite patch source/alignment, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 

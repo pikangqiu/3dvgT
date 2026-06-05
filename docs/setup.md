@@ -77,3 +77,14 @@ After downloading nuScenes:
 ```bash
 PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
 ```
+
+## Real Data Manifest
+
+Once nuScenes and satellite patches are prepared, create a JSONL manifest and load it with:
+
+```python
+from pathlib import Path
+from vggt_project.data import load_manifest
+
+samples = load_manifest(Path("data/manifests/nuscenes-mini.jsonl"))
+```

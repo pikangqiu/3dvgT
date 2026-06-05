@@ -6,6 +6,7 @@ from pathlib import Path
 
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
+from vggt_project.metrics import reconstruction_metrics
 from vggt_project.models.scaffold import SatelliteBEVG3TScaffold
 
 
@@ -34,10 +35,11 @@ def evaluate_synthetic(checkpoint: Path, batch_size: int = 4, device: str | None
                 key: value.to(device)
                 for key, value in tensor_tuple_to_batch(tensors).items()
             }
-            metrics = detach_float_metrics(reconstruction_losses(model(batch), batch))
+            prediction = model(batch)
+            metrics = detach_float_metrics(reconstruction_losses(prediction, batch))
+            metrics.update(reconstruction_metrics(prediction, batch))
             for key, value in metrics.items():
                 accum[key] = accum.get(key, 0.0) + value
             count += 1
 
     return {key: value / max(count, 1) for key, value in accum.items()}
-

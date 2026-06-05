@@ -6,6 +6,7 @@ from vggt_project.data.nuscenes_adapter import (
     NuScenesRootStatus,
     inspect_nuscenes_root,
 )
+from vggt_project.data.manifest import load_manifest
 
 __all__ = [
     "AlignedNuScenesSample",
@@ -13,4 +14,5 @@ __all__ = [
     "NuScenesAdapterConfig",
     "NuScenesRootStatus",
     "inspect_nuscenes_root",
+    "load_manifest",
 ]
