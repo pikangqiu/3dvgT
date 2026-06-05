@@ -17,6 +17,8 @@ class ExperimentRunConfig:
 
     training_mode: str = "synthetic"
     manifest_path: Path | None = None
+    train_manifest_path: Path | None = None
+    eval_manifest_path: Path | None = None
     output_dir: Path = Path("outputs/synthetic")
     checkpoint: Path = Path("outputs/synthetic/synthetic_scaffold.pt")
     epochs: int = 1
@@ -34,6 +36,12 @@ class ExperimentRunConfig:
 
         mode = str(training.get("mode", "synthetic"))
         manifest = _optional_path(training.get("manifest_path", data.get("manifest_path")))
+        train_manifest = _optional_path(
+            training.get("manifest_path", data.get("train_manifest_path", data.get("manifest_path")))
+        )
+        eval_manifest = _optional_path(
+            evaluation.get("manifest_path", data.get("eval_manifest_path", data.get("manifest_path")))
+        )
         output_dir = _path(training.get("output_dir", _default_output_dir(mode)))
         checkpoint = _path(evaluation.get("checkpoint", _default_checkpoint(mode, output_dir)))
         batch_size = int(training.get("batch_size", evaluation.get("batch_size", 4)))
@@ -41,6 +49,8 @@ class ExperimentRunConfig:
         return cls(
             training_mode=mode,
             manifest_path=manifest,
+            train_manifest_path=train_manifest,
+            eval_manifest_path=eval_manifest,
             output_dir=output_dir,
             checkpoint=checkpoint,
             epochs=int(training.get("epochs", 1)),
@@ -76,10 +86,13 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             learning_rate=config.learning_rate,
         )
     if config.training_mode == "manifest-smoke":
-        if config.manifest_path is None:
-            raise ValueError("manifest-smoke training requires runtime.data.manifest_path")
+        manifest_path = config.train_manifest_path or config.manifest_path
+        if manifest_path is None:
+            raise ValueError(
+                "manifest-smoke training requires runtime.data.train_manifest_path or runtime.data.manifest_path"
+            )
         return train_manifest_smoke(
-            manifest_path=config.manifest_path,
+            manifest_path=manifest_path,
             output_dir=config.output_dir,
             epochs=config.epochs,
             batch_size=config.batch_size,
@@ -96,11 +109,14 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
     if config.training_mode == "synthetic":
         return evaluate_synthetic(checkpoint=config.checkpoint, batch_size=config.batch_size)
     if config.training_mode == "manifest-smoke":
-        if config.manifest_path is None:
-            raise ValueError("manifest-smoke evaluation requires runtime.data.manifest_path")
+        manifest_path = config.eval_manifest_path or config.manifest_path
+        if manifest_path is None:
+            raise ValueError(
+                "manifest-smoke evaluation requires runtime.data.eval_manifest_path or runtime.data.manifest_path"
+            )
         return evaluate_manifest_smoke(
             checkpoint=config.checkpoint,
-            manifest_path=config.manifest_path,
+            manifest_path=manifest_path,
             batch_size=config.batch_size,
             image_size=config.image_size,
             point_count=config.point_count,

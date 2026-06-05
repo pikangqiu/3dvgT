@@ -201,6 +201,16 @@ PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yam
 PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
 ```
 
+`configs/reconstruction_first.yaml` supports either one shared manifest or separate train/eval manifests:
+
+```yaml
+runtime:
+  data:
+    manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
+    train_manifest_path: data/manifests/nuscenes-train.supervised.jsonl
+    eval_manifest_path: data/manifests/nuscenes-val.supervised.jsonl
+```
+
 For a single train+eval run with a JSON report:
 
 ```bash

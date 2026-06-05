@@ -27,6 +27,8 @@ class ExperimentConfigTest(unittest.TestCase):
                 "runtime": {
                     "data": {
                         "manifest_path": "data/manifests/train.jsonl",
+                        "train_manifest_path": "data/manifests/train.split.jsonl",
+                        "eval_manifest_path": "data/manifests/val.split.jsonl",
                         "image_size": 64,
                         "point_count": 256,
                     },
@@ -46,6 +48,8 @@ class ExperimentConfigTest(unittest.TestCase):
 
         self.assertEqual(config.training_mode, "manifest-smoke")
         self.assertEqual(config.manifest_path, Path("data/manifests/train.jsonl"))
+        self.assertEqual(config.train_manifest_path, Path("data/manifests/train.split.jsonl"))
+        self.assertEqual(config.eval_manifest_path, Path("data/manifests/val.split.jsonl"))
         self.assertEqual(config.output_dir, Path("outputs/train"))
         self.assertEqual(config.checkpoint, Path("outputs/train/manifest_smoke_scaffold.pt"))
         self.assertEqual(config.epochs, 2)
@@ -53,6 +57,39 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.learning_rate, 0.0002)
         self.assertEqual(config.image_size, 64)
         self.assertEqual(config.point_count, 256)
+
+    def test_train_and_eval_dispatch_use_split_manifests(self) -> None:
+        from vggt_project import experiments
+
+        seen: dict[str, Path] = {}
+
+        def fake_train_manifest_smoke(**kwargs) -> dict[str, float]:
+            seen["train_manifest"] = kwargs["manifest_path"]
+            return {"loss": 1.0}
+
+        def fake_evaluate_manifest_smoke(**kwargs) -> dict[str, float]:
+            seen["eval_manifest"] = kwargs["manifest_path"]
+            return {"loss": 0.5}
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            train_manifest_path=Path("train.jsonl"),
+            eval_manifest_path=Path("val.jsonl"),
+            checkpoint=Path("checkpoint.pt"),
+        )
+        original_train = experiments.train_manifest_smoke
+        original_eval = experiments.evaluate_manifest_smoke
+        experiments.train_manifest_smoke = fake_train_manifest_smoke
+        experiments.evaluate_manifest_smoke = fake_evaluate_manifest_smoke
+        try:
+            experiments.train_from_config(config)
+            experiments.evaluate_from_config(config)
+        finally:
+            experiments.train_manifest_smoke = original_train
+            experiments.evaluate_manifest_smoke = original_eval
+
+        self.assertEqual(seen["train_manifest"], Path("train.jsonl"))
+        self.assertEqual(seen["eval_manifest"], Path("val.jsonl"))
 
     @unittest.skipUnless(find_spec("yaml"), "PyYAML is required to load YAML configs")
     def test_load_experiment_config_from_yaml(self) -> None:

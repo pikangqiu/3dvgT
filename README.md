@@ -28,6 +28,7 @@ This repository now contains a runnable scaffold for the project structure:
 - ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
+- train/eval manifest split support in experiment configs,
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
