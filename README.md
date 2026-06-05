@@ -21,6 +21,7 @@ This repository now contains a runnable scaffold for the project structure:
 - manifest asset materialization for smoke satellite patches and valid masks,
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
 - manifest smoke training from real image files,
+- one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
 The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real pointmap/pose supervision generation, multi-camera target wiring, and integration with selected G3T/VGGT heads.
@@ -35,6 +36,7 @@ PYTHONPATH=src python3 scripts/check_references.py
 After installing dependencies:
 
 ```bash
+PYTHONPATH=src python3 scripts/run_smoke_pipeline.py --output-dir outputs/smoke-pipeline --epochs 1
 PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl

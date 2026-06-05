@@ -54,7 +54,15 @@ VGGT/MapTR/PseudoMapTrainer weights should be downloaded from their own referenc
 
 ## Smoke Training
 
-The current training entrypoint supports a synthetic smoke test:
+The fastest end-to-end check creates a toy manifest, trains from image files, and evaluates the produced checkpoint:
+
+```bash
+PYTHONPATH=src python scripts/run_smoke_pipeline.py --output-dir outputs/smoke-pipeline --epochs 1
+```
+
+This is an environment and plumbing check. It is not a real experiment because the images and depth/mask targets are generated toy data.
+
+The current training entrypoint also supports a synthetic smoke test:
 
 ```bash
 PYTHONPATH=src python scripts/train.py --mode synthetic --epochs 1
