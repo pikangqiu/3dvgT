@@ -66,6 +66,17 @@ PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.
 
 The validator checks camera image paths, satellite patches, and optional valid-mask/depth/vector-map files referenced by the manifest.
 
+For smoke testing only, materialize placeholder satellite patches and optional all-valid masks:
+
+```bash
+PYTHONPATH=src python scripts/materialize_manifest_assets.py \
+  data/manifests/nuscenes-mini.jsonl \
+  --create-valid-masks \
+  --output data/manifests/nuscenes-mini.smoke.jsonl
+```
+
+The generated satellite images are deterministic placeholders, not real geospatial crops. Use them only to test the data/training pipe before the real satellite source is selected.
+
 ## Manifest Smoke Training
 
 After validation, a manifest can be used to smoke-test real image loading:
@@ -88,4 +99,12 @@ PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v
 
 ## Satellite Patches
 
-The project still needs a concrete satellite source. Until that is selected, the dataset adapter should expose `satellite_patch_path` and keep satellite alignment logic isolated from the model.
+The project still needs a concrete satellite source. Until that is selected, the dataset adapter exposes `satellite_patch_path` and keeps satellite alignment logic isolated from the model.
+
+The future real implementation should:
+
+- use ego pose/GPS metadata to select a satellite tile or mosaic,
+- crop a metric-aligned top-down patch around each nuScenes sample,
+- save the crop to the manifest `satellite_patch_path`,
+- write a valid-area mask for regions covered by the crop,
+- keep placeholder assets out of real experiment tables.

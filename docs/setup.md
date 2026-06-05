@@ -101,10 +101,20 @@ Validate it before training:
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
 ```
 
+For smoke testing before real satellite crops exist:
+
+```bash
+PYTHONPATH=src python scripts/materialize_manifest_assets.py \
+  data/manifests/nuscenes-mini.jsonl \
+  --create-valid-masks \
+  --output data/manifests/nuscenes-mini.smoke.jsonl
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.smoke.jsonl
+```
+
 Smoke-test real file loading:
 
 ```bash
-PYTHONPATH=src python scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.jsonl --epochs 1
+PYTHONPATH=src python scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.smoke.jsonl --epochs 1
 ```
 
 If `lidar_depth_path` or `valid_area_mask_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Pointmap and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.

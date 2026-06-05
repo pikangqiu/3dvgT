@@ -8,12 +8,15 @@ Primary candidates:
 
 - E3D-Bench for general end-to-end 3D geometric foundation model evaluation.
 - Occ3D-nuScenes for autonomous-driving 3D occupancy geometry.
+- OpenScene for a larger nuPlan-derived occupancy benchmark when scaling beyond nuScenes-mini.
+- UniOcc for current-frame and future-frame occupancy prediction/forecasting.
 - DrivingForward and DGGT as driving-scene feed-forward reconstruction baselines.
 
 Auxiliary mapping candidates:
 
 - MapTR/MapTRv2 for vectorized HD map heads and nuScenes map mAP.
 - PseudoMapTrainer for pseudo-label generation without HD maps.
+- SG-BEV as a satellite-guided BEV fusion reference, useful for the cross-view feature alignment design even though its task is segmentation rather than 3D reconstruction.
 
 ## Baseline Families
 
@@ -47,12 +50,14 @@ Auxiliary mapping candidates:
 | --- | --- | --- | --- |
 | E3D-Bench | Main external GFM benchmark | Covers sparse-view depth, video depth, 3D reconstruction, multi-view pose, and novel view synthesis for end-to-end 3D geometric foundation models | depth, reconstruction accuracy/completeness, pose, NVS metrics, latency/memory |
 | Occ3D-nuScenes | Main driving geometry benchmark | nuScenes-derived occupancy gives autonomous-driving 3D geometry targets when dense pointmaps are hard to obtain | mIoU, IoU, semantic occupancy accuracy |
+| OpenScene | Scale-up occupancy benchmark | Larger nuPlan-derived benchmark with occupancy labels and CVPR Autonomous Grand Challenge relevance | occupancy IoU/mIoU, flow-aware future extensions |
 | DrivingForward | Direct driving reconstruction baseline | Feed-forward Gaussian splatting on nuScenes surround-view inputs is close to our reconstruction-first framing | rendered RGB/depth quality, reconstruction quality |
 | DGGT | Direct dynamic driving reconstruction baseline | Feed-forward 4D driving reconstruction with nuScenes/Argoverse2/Waymo generalization settings | reconstruction and cross-dataset generalization metrics |
 | UniOcc | Secondary benchmark for future extension | Adds unified occupancy prediction/forecasting across nuScenes, Waymo, CARLA, and OpenCOOD | current/future occupancy mIoU/IoU, flow consistency |
 | OpenOccupancy / SurroundOcc | Secondary occupancy baselines | Mature nuScenes semantic occupancy baselines and codebases | occupancy mIoU/IoU |
 | MapTR / MapTRv2 | Auxiliary map-head benchmark | Useful only for vectorized map auxiliary head, not primary reconstruction claim | vector map mAP |
 | PseudoMapTrainer | Auxiliary pseudo-label benchmark | Useful for valid-area masking and pseudo-label learning without HD maps | pseudo-label map mAP, observed-area metrics |
+| SG-BEV | Satellite-BEV fusion design reference | Shows satellite-guided BEV fusion and reprojection ideas for cross-view alignment, but not a 3D reconstruction benchmark | segmentation mIoU only as auxiliary evidence |
 
 ## Recommended First Paper Table
 
@@ -92,9 +97,14 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - VGGT official repository: https://github.com/facebookresearch/vggt
 - E3D-Bench project page: https://research.nvidia.com/labs/avg/publication/cong.liang.etal.arxiv2025/
 - E3D-Bench code/project: https://e3dbench.github.io/ and https://github.com/VITA-Group/E3D-Bench
+- E3D-Bench arXiv: https://arxiv.org/abs/2506.01933
 - Occ3D benchmark page: https://tsinghua-mars-lab.github.io/Occ3D/
+- Occ3D arXiv: https://arxiv.org/abs/2304.14365
+- OpenScene repository: https://github.com/OpenDriveLab/OpenScene
 - OpenOccupancy repository: https://github.com/JeffWang987/OpenOccupancy
 - SurroundOcc repository: https://github.com/weiyithu/SurroundOcc
+- UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
+- SG-BEV CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/papers/Ye_SG-BEV_Satellite-Guided_BEV_Fusion_for_Cross-View_Semantic_Segmentation_CVPR_2024_paper.pdf
 - DrivingForward project page: https://fangzhou2000.github.io/projects/drivingforward/
 - DGGT official repository: https://github.com/xiaomi-research/dggt
 - Drive-OccWorld project page: https://drive-occworld.github.io/
@@ -104,7 +114,6 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - `refs/benchmarks/E3D-Bench` at `11d82b4`.
 - `refs/benchmarks/OpenOccupancy` at `eafd14f`.
 - `refs/benchmarks/SurroundOcc` at `419bf5b`.
-- UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
 - nuScenes devkit: https://github.com/nutonomy/nuscenes-devkit
 - MapTR paper/repository: https://arxiv.org/abs/2208.14437 and https://github.com/hustvl/MapTR
 - PseudoMapTrainer repository: https://github.com/boschresearch/PseudoMapTrainer

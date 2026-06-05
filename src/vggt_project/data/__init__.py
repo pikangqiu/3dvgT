@@ -13,6 +13,7 @@ from vggt_project.data.manifest_validation import (
     validate_manifest_paths,
 )
 from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
+from vggt_project.data.manifest_assets import ManifestAssetReport, materialize_manifest_assets
 
 __all__ = [
     "AlignedNuScenesSample",
@@ -25,4 +26,6 @@ __all__ = [
     "MissingManifestPath",
     "validate_manifest_paths",
     "ManifestTensorDataset",
+    "ManifestAssetReport",
+    "materialize_manifest_assets",
 ]

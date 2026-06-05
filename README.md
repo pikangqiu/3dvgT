@@ -18,10 +18,11 @@ This repository now contains a runnable scaffold for the project structure:
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - nuScenes manifest generation and loading scaffolds,
+- manifest asset materialization for smoke satellite patches and valid masks,
 - manifest smoke training from real image files,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs SDK-based nuScenes manifest generation, concrete satellite patch source/alignment, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real pointmap/pose supervision generation, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 
@@ -35,7 +36,8 @@ After installing dependencies:
 ```bash
 PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
-PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.jsonl --epochs 1
+PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
+PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.smoke.jsonl --epochs 1
 ```
 
 ## Layout
