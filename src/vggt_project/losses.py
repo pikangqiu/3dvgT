@@ -18,10 +18,7 @@ def reconstruction_losses(prediction: dict, batch: dict) -> dict:
 
     depth_loss = depth_abs_error(prediction, batch).mean_loss
 
-    point_loss = F.smooth_l1_loss(
-        prediction["gravity_aligned_pointmap"],
-        batch["target_pointmap"],
-    )
+    point_loss = pointmap_loss(prediction, batch)
     local_pose_loss = F.mse_loss(
         prediction["local_camera_to_gravity_pose"],
         batch["target_local_camera_to_gravity_pose"],
@@ -38,6 +35,28 @@ def reconstruction_losses(prediction: dict, batch: dict) -> dict:
         "local_pose": local_pose_loss.detach(),
         "relative_pose": relative_pose_loss.detach(),
     }
+
+
+def pointmap_loss(prediction: dict, batch: dict):
+    """Prefer camera-level pointmap supervision when present."""
+
+    from torch.nn import functional as F
+
+    target_camera_pointmaps = batch.get("target_camera_pointmaps")
+    if target_camera_pointmaps is not None and target_camera_pointmaps.numel() > 0:
+        predicted_camera_pointmaps = prediction.get("camera_pointmaps")
+        if predicted_camera_pointmaps is not None:
+            pointmap_prediction = predicted_camera_pointmaps
+        else:
+            pointmap_prediction = prediction["gravity_aligned_pointmap"].unsqueeze(1).expand_as(
+                target_camera_pointmaps
+            )
+        return F.smooth_l1_loss(pointmap_prediction, target_camera_pointmaps)
+
+    return F.smooth_l1_loss(
+        prediction["gravity_aligned_pointmap"],
+        batch["target_pointmap"],
+    )
 
 
 def depth_abs_error(prediction: dict, batch: dict) -> DepthAbsError:

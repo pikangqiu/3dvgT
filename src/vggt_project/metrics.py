@@ -11,14 +11,10 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
     from vggt_project.losses import depth_abs_error
 
     depth_mae = depth_abs_error(prediction, batch).mean_loss
-    pointmap_metrics = scale_aligned_pointmap_metrics(
-        prediction["gravity_aligned_pointmap"],
-        batch["target_pointmap"],
-    )
+    predicted_pointmaps, target_pointmaps = _pointmap_metric_pair(prediction, batch)
+    pointmap_metrics = scale_aligned_pointmap_metrics(predicted_pointmaps, target_pointmaps)
 
-    pointmap_l1 = (
-        prediction["gravity_aligned_pointmap"] - batch["target_pointmap"]
-    ).abs().mean()
+    pointmap_l1 = (predicted_pointmaps - target_pointmaps).abs().mean()
     gravity_error_deg = quaternion_angular_error_deg(
         prediction["local_camera_to_gravity_pose"],
         batch["target_local_camera_to_gravity_pose"],
@@ -64,6 +60,24 @@ def scale_aligned_pointmap_metrics(predicted, target) -> dict:
         "completeness": completeness,
         "chamfer": accuracy + completeness,
     }
+
+
+def _pointmap_metric_pair(prediction: dict, batch: dict):
+    target_camera_pointmaps = batch.get("target_camera_pointmaps")
+    if target_camera_pointmaps is not None and target_camera_pointmaps.numel() > 0:
+        predicted_camera_pointmaps = prediction.get("camera_pointmaps")
+        if predicted_camera_pointmaps is not None:
+            predicted = predicted_camera_pointmaps
+        else:
+            predicted = prediction["gravity_aligned_pointmap"].unsqueeze(1).expand_as(
+                target_camera_pointmaps
+            )
+        return _flatten_camera_pointmaps(predicted), _flatten_camera_pointmaps(target_camera_pointmaps)
+    return prediction["gravity_aligned_pointmap"], batch["target_pointmap"]
+
+
+def _flatten_camera_pointmaps(pointmaps):
+    return pointmaps.reshape(pointmaps.shape[0] * pointmaps.shape[1], pointmaps.shape[2], pointmaps.shape[3])
 
 
 def quaternion_angular_error_deg(predicted, target):

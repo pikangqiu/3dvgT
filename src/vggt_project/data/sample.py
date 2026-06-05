@@ -38,6 +38,7 @@ class AlignedNuScenesSample:
     lidar_depth_path: Path | None = None
     lidar_depth_paths: dict[str, Path] | None = None
     pointmap_path: Path | None = None
+    pointmap_paths: dict[str, Path] | None = None
     vector_map_path: Path | None = None
     ego_translation: tuple[float, float, float] | None = None
     ego_rotation: tuple[float, float, float, float] | None = None

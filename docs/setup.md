@@ -254,4 +254,4 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
 
 This readiness check validates configured manifests, dependencies, requested device, and the optional `satellite_raster_config_path` if it is present.
 
-If `lidar_depth_path`, `valid_area_mask_path`, or `pointmap_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Camera-level/G3T pointmap and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.
+If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. True G3T/VGGT camera-level pointmap target generation and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.

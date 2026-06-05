@@ -26,11 +26,11 @@ This repository now contains a runnable scaffold for the project structure:
 - satellite raster config template and validation,
 - nuScenes LiDAR-to-camera depth target generation for single- or multi-camera manifest supervision,
 - multi-camera depth target loading plus loss/metric supervision,
-- camera-specific depth head in the current scaffold model,
+- camera-specific depth and pointmap heads in the current scaffold model,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
 - scene-level train/eval manifest splitting,
-- optional manifest pointmap target loading,
+- optional sample-level or camera-level manifest pointmap target loading,
 - ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
@@ -40,7 +40,7 @@ This repository now contains a runnable scaffold for the project structure:
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, G3T-style pointmap target generation, camera-level/G3T pose target wiring, camera-specific pointmap/pose heads, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 

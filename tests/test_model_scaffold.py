@@ -20,6 +20,7 @@ class ModelScaffoldTest(unittest.TestCase):
 
         self.assertEqual(tuple(prediction["depth"].shape), (2, 1, 16, 16))
         self.assertEqual(tuple(prediction["camera_depths"].shape), (2, 3, 1, 16, 16))
+        self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (2, 3, 4, 3))
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for model scaffold tests")
     def test_model_keeps_camera_depths_absent_for_synthetic_batches(self) -> None:
@@ -36,6 +37,7 @@ class ModelScaffoldTest(unittest.TestCase):
         prediction = model(batch)
 
         self.assertIsNone(prediction["camera_depths"])
+        self.assertIsNone(prediction["camera_pointmaps"])
 
 
 if __name__ == "__main__":

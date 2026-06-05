@@ -164,6 +164,64 @@ class ManifestTensorDatasetTest(unittest.TestCase):
         )
 
     @unittest.skipUnless(
+        find_spec("PIL") and find_spec("torch") and find_spec("numpy"),
+        "Pillow, torch, and numpy are required for pointmap target tests",
+    )
+    def test_multi_camera_pointmap_targets_are_loaded_as_stack(self) -> None:
+        import numpy as np
+        import torch
+        from PIL import Image
+
+        from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "samples/CAM_BACK").mkdir(parents=True)
+            (root / "sat").mkdir()
+            (root / "targets").mkdir()
+            Image.new("RGB", (8, 8), color=(255, 0, 0)).save(root / "samples/CAM_FRONT/a.png")
+            Image.new("RGB", (8, 8), color=(0, 0, 255)).save(root / "samples/CAM_BACK/b.png")
+            Image.new("RGB", (8, 8), color=(0, 255, 0)).save(root / "sat/patch.png")
+            np.save(root / "targets/front_pointmap.npy", np.asarray([[1.0, 0.0, 0.0]], dtype=np.float32))
+            np.save(root / "targets/back_pointmap.npy", np.asarray([[3.0, 0.0, 0.0]], dtype=np.float32))
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.png","samples/CAM_BACK/b.png"],'
+                '"camera_names":["CAM_FRONT","CAM_BACK"],'
+                '"satellite_patch_path":"sat/patch.png",'
+                '"pointmap_paths":{'
+                '"CAM_FRONT":"targets/front_pointmap.npy",'
+                '"CAM_BACK":"targets/back_pointmap.npy"},'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+
+            item = ManifestTensorDataset(manifest, image_size=16, point_count=2)[0]
+
+        self.assertEqual(tuple(item["target_camera_pointmaps"].shape), (2, 2, 3))
+        self.assertTrue(
+            torch.allclose(
+                item["target_camera_pointmaps"],
+                torch.tensor(
+                    [
+                        [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                        [[3.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    ],
+                    dtype=torch.float32,
+                ),
+            )
+        )
+        self.assertTrue(
+            torch.allclose(
+                item["target_pointmap"],
+                torch.tensor([[2.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=torch.float32),
+            )
+        )
+
+    @unittest.skipUnless(
         find_spec("PIL") and find_spec("torch"),
         "Pillow and torch are required for manifest tensor dataset tests",
     )

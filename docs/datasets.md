@@ -54,11 +54,12 @@ Optional supervision fields currently supported by `ManifestTensorDataset`:
 - `lidar_depth_paths`: optional `{camera_name: depth_path}` mapping loaded as `target_camera_depths`; losses and metrics use this multi-camera stack when present, while `target_depth` remains as a backward-compatible mean target.
 - `valid_area_mask_path`: grayscale image loaded as `valid_area_mask`.
 - `pointmap_path`: `.npy` array or `.npz` file with a `pointmap` array, loaded as `target_pointmap` with shape `point_count x 3` after truncation or zero-padding.
+- `pointmap_paths`: optional `{camera_name: pointmap_path}` mapping loaded as `target_camera_pointmaps`; losses and metrics use this camera-level stack when present, while `target_pointmap` remains as a backward-compatible mean target if no sample-level `pointmap_path` is provided.
 - `vector_map_path`: validated by `validate_manifest.py`, but not yet loaded into model targets.
 
 If `ego_translation` and `ego_rotation` are present, `ManifestTensorDataset` also creates:
 
-- `camera_images`: tensor stack from `camera_paths`, used by the current scaffold's camera-specific depth head.
+- `camera_images`: tensor stack from `camera_paths`, used by the current scaffold's camera-specific depth and pointmap heads.
 - `target_local_camera_to_gravity_pose`: normalized ego quaternion, used as the current scaffold pose target.
 - `target_relative_yaw_translation`: yaw plus scene-relative translation `[yaw, dx, dy, dz]`, using the first ego pose in each scene as the origin.
 
@@ -82,7 +83,7 @@ Validate a generated manifest before training:
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
 ```
 
-The validator checks camera image paths, satellite patches, and optional valid-mask/depth/pointmap/vector-map files referenced by the manifest, including every camera entry in `lidar_depth_paths`.
+The validator checks camera image paths, satellite patches, and optional valid-mask/depth/pointmap/vector-map files referenced by the manifest, including every camera entry in `lidar_depth_paths` and `pointmap_paths`.
 
 For smoke testing only, materialize placeholder satellite patches and optional all-valid masks:
 
@@ -192,7 +193,7 @@ PYTHONPATH=src python scripts/train.py \
   --output-dir outputs/manifest-smoke
 ```
 
-This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load single- or multi-camera depth, masks, pointmap arrays, and ego-pose-derived pose targets. If `pointmap_path` is absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load single- or multi-camera depth, masks, sample-level or camera-level pointmap arrays, and ego-pose-derived pose targets. If both `pointmap_path` and `pointmap_paths` are absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
 
 Check the local layout with:
 

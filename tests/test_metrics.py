@@ -63,6 +63,63 @@ class ReconstructionMetricsTest(unittest.TestCase):
         self.assertAlmostEqual(metrics["depth_mae"], 2.0)
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_pointmap_metric_prefers_camera_specific_predictions(self) -> None:
+        import torch
+
+        from vggt_project.metrics import reconstruction_metrics
+
+        prediction = {
+            "gravity_aligned_pointmap": torch.zeros(1, 2, 3),
+            "camera_pointmaps": torch.tensor(
+                [[[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[3.0, 0.0, 0.0], [0.0, 0.0, 0.0]]]]
+            ),
+            "depth": torch.zeros(1, 1, 2, 2),
+            "local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "relative_yaw_translation": torch.zeros(1, 4),
+        }
+        batch = {
+            "target_pointmap": torch.zeros(1, 2, 3),
+            "target_camera_pointmaps": torch.tensor(
+                [[[[2.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[4.0, 0.0, 0.0], [0.0, 0.0, 0.0]]]]
+            ),
+            "target_depth": torch.zeros(1, 1, 2, 2),
+            "target_local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "target_relative_yaw_translation": torch.zeros(1, 4),
+            "valid_area_mask": torch.ones(1, 1, 2, 2),
+        }
+
+        metrics = reconstruction_metrics(prediction, batch)
+
+        self.assertAlmostEqual(metrics["pointmap_l1"], 1.0 / 6.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_pointmap_metric_expands_global_prediction_for_camera_targets(self) -> None:
+        import torch
+
+        from vggt_project.metrics import reconstruction_metrics
+
+        prediction = {
+            "gravity_aligned_pointmap": torch.tensor([[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]]]),
+            "depth": torch.zeros(1, 1, 2, 2),
+            "local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "relative_yaw_translation": torch.zeros(1, 4),
+        }
+        batch = {
+            "target_pointmap": torch.zeros(1, 2, 3),
+            "target_camera_pointmaps": torch.tensor(
+                [[[[2.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[4.0, 0.0, 0.0], [0.0, 0.0, 0.0]]]]
+            ),
+            "target_depth": torch.zeros(1, 1, 2, 2),
+            "target_local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "target_relative_yaw_translation": torch.zeros(1, 4),
+            "valid_area_mask": torch.ones(1, 1, 2, 2),
+        }
+
+        metrics = reconstruction_metrics(prediction, batch)
+
+        self.assertAlmostEqual(metrics["pointmap_l1"], 1.0 / 3.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
     def test_scale_aligned_pointmap_metrics_ignore_global_scale(self) -> None:
         import torch
 

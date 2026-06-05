@@ -3,7 +3,8 @@
 This dataset is a real-file smoke path: it reads camera and satellite images from
 disk and converts them to tensors shaped for the current scaffold model. It can
 load depth/mask targets and derive coarse ego-pose targets from manifest metadata.
-Pointmap targets remain placeholders until pointmap or occupancy labels are connected.
+Pointmap targets can be sample-level or camera-level arrays when preprocessing
+writes them into the manifest.
 """
 
 from __future__ import annotations
@@ -41,9 +42,12 @@ class ManifestTensorDataset:
             if target_camera_depths.numel() > 0
             else torch.zeros(1, self.image_size, self.image_size, dtype=torch.float32)
         )
+        target_camera_pointmaps = _load_camera_pointmap_tensors(sample, self.point_count)
         target_pointmap = (
             _load_pointmap_tensor(sample.pointmap_path, self.point_count)
             if sample.pointmap_path is not None
+            else target_camera_pointmaps.mean(dim=0)
+            if target_camera_pointmaps.numel() > 0
             else torch.zeros(self.point_count, 3, dtype=torch.float32)
         )
         valid_area_mask = (
@@ -57,6 +61,7 @@ class ManifestTensorDataset:
             "camera_images": camera_stack,
             "satellite_patch": satellite_patch,
             "target_pointmap": target_pointmap,
+            "target_camera_pointmaps": target_camera_pointmaps,
             "target_depth": target_depth,
             "target_camera_depths": target_camera_depths,
             "target_local_camera_to_gravity_pose": _pose_quaternion_tensor(sample),
@@ -103,6 +108,21 @@ def _load_camera_depth_tensors(sample, image_size: int):
     if sample.lidar_depth_path is not None:
         return _load_gray_tensor(sample.lidar_depth_path, image_size).unsqueeze(0)
     return torch.zeros(0, 1, image_size, image_size, dtype=torch.float32)
+
+
+def _load_camera_pointmap_tensors(sample, point_count: int):
+    import torch
+
+    if sample.pointmap_paths is None:
+        return torch.zeros(0, point_count, 3, dtype=torch.float32)
+    by_camera = [
+        sample.pointmap_paths[camera.camera_name]
+        for camera in sample.cameras
+        if camera.camera_name in sample.pointmap_paths
+    ]
+    if not by_camera:
+        return torch.zeros(0, point_count, 3, dtype=torch.float32)
+    return torch.stack([_load_pointmap_tensor(path, point_count) for path in by_camera], dim=0)
 
 
 def _expand_channels(tensor, channels: int):

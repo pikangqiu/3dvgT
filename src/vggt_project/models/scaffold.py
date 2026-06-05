@@ -50,6 +50,7 @@ class SatelliteBEVG3TScaffold:
                 self.point_head = nn.Linear(latent_dim, point_count * 3)
                 self.depth_head = nn.Linear(latent_dim, 32 * 32)
                 self.camera_depth_head = nn.Linear(latent_dim + 64, 32 * 32)
+                self.camera_point_head = nn.Linear(latent_dim + 64, point_count * 3)
                 self.local_pose_head = nn.Linear(latent_dim, 4)
                 self.relative_pose_head = nn.Linear(latent_dim, 4)
 
@@ -63,7 +64,7 @@ class SatelliteBEVG3TScaffold:
                 depth = self.depth_head(scene_latent).view(bev.shape[0], 1, 32, 32)
                 if depth.shape[-2:] != bev.shape[-2:]:
                     depth = F.interpolate(depth, size=bev.shape[-2:], mode="bilinear", align_corners=False)
-                camera_depths = self._predict_camera_depths(batch, scene_latent, bev.shape[-2:])
+                camera_outputs = self._predict_camera_outputs(batch, scene_latent, bev.shape[-2:])
 
                 local_pose = self.local_pose_head(scene_latent)
                 local_pose = F.normalize(local_pose, dim=1)
@@ -74,15 +75,16 @@ class SatelliteBEVG3TScaffold:
                         bev.shape[0], point_count, 3
                     ),
                     "depth": depth,
-                    "camera_depths": camera_depths,
+                    "camera_depths": camera_outputs["camera_depths"],
+                    "camera_pointmaps": camera_outputs["camera_pointmaps"],
                     "local_camera_to_gravity_pose": local_pose,
                     "relative_yaw_translation": self.relative_pose_head(scene_latent),
                 }
 
-            def _predict_camera_depths(self, batch: dict, scene_latent, output_size: tuple[int, int]):
+            def _predict_camera_outputs(self, batch: dict, scene_latent, output_size: tuple[int, int]):
                 camera_images = batch.get("camera_images")
                 if camera_images is None or camera_images.numel() == 0:
-                    return None
+                    return {"camera_depths": None, "camera_pointmaps": None}
 
                 batch_size, camera_count, channels, height, width = camera_images.shape
                 camera_flat = camera_images.reshape(batch_size * camera_count, channels, height, width)
@@ -104,6 +106,15 @@ class SatelliteBEVG3TScaffold:
                         mode="bilinear",
                         align_corners=False,
                     )
-                return camera_depths.reshape(batch_size, camera_count, 1, *output_size)
+                camera_pointmaps = self.camera_point_head(fused).view(
+                    batch_size,
+                    camera_count,
+                    point_count,
+                    3,
+                )
+                return {
+                    "camera_depths": camera_depths.reshape(batch_size, camera_count, 1, *output_size),
+                    "camera_pointmaps": camera_pointmaps,
+                }
 
         return _Model()
