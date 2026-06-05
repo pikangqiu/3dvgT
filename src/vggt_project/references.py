@@ -52,6 +52,26 @@ def collect_reference_status(paths: ReferencePaths | None = None) -> list[Refere
             details="paper-derived notes; public code repository not identified",
         ),
         ReferenceStatus(
+            name="pseudomaptrainer_component",
+            path=resolved.pseudomaptrainer,
+            exists=resolved.pseudomaptrainer.exists(),
+            details=(
+                f"git HEAD {_git_short_head(resolved.pseudomaptrainer)}"
+                if resolved.pseudomaptrainer.exists()
+                else "missing component reference"
+            ),
+        ),
+        ReferenceStatus(
+            name="maptr_component",
+            path=resolved.maptr,
+            exists=resolved.maptr.exists(),
+            details=(
+                f"git HEAD {_git_short_head(resolved.maptr)}"
+                if resolved.maptr.exists()
+                else "missing component reference"
+            ),
+        ),
+        ReferenceStatus(
             name="look_from_above_paper",
             path=resolved.look_from_above_paper,
             exists=resolved.look_from_above_paper.exists(),
@@ -68,4 +88,3 @@ def require_core_references(paths: ReferencePaths | None = None) -> None:
     if missing:
         joined = ", ".join(f"{item.name} at {item.path}" for item in missing)
         raise FileNotFoundError(f"Missing project references: {joined}")
-

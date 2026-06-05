@@ -54,6 +54,13 @@ Core ideas to borrow:
 
 As of the initial scaffold, no official public code repository for this anonymous ECCV 2026 submission has been identified. Do not substitute unrelated baseline repositories as "official" code. If a real code URL is provided later, clone it under `refs/look-from-above`.
 
+Component-level public reference code is available under `refs/look-from-above-components`:
+
+- `PseudoMapTrainer` for pseudo-label generation, semantic reconstruction, Gaussian-splatting-based mapping cues, and mask-aware training.
+- `MapTR` for nuScenes vectorized HD map prediction and MapTR-style auxiliary heads.
+
+These repositories can guide implementation, but they must not be described as the official Look from Above implementation.
+
 ## Model Direction
 
 The first target architecture should be:
@@ -109,4 +116,3 @@ The minimum ablation ladder should aim for:
 - Any function that transforms coordinates must state source frame, target frame, scale convention, and units.
 - Treat nuScenes calibration, ego pose, satellite alignment, BEV rasterization, and gravity/yaw conventions as high-risk areas requiring explicit tests or sanity checks.
 - Avoid claiming a result until the command, metric, or visualization proving it has been run.
-

@@ -27,3 +27,9 @@ For this project, the paper is not the main task definition. We borrow its data 
 
 No official public repository was identified during initial setup. If the user provides an official code URL later, clone it into this directory or replace this notes directory with a clone under `refs/look-from-above-code`.
 
+Component-level public references have been cloned under `refs/look-from-above-components/`:
+
+- `PseudoMapTrainer`: official implementation of the ICCV 2025 pseudo-label online mapping baseline cited by the paper.
+- `MapTR`: official implementation of the vectorized online HD map construction baseline/head family cited by the paper.
+
+Use these only as component references. Do not describe them as the Look from Above official code.

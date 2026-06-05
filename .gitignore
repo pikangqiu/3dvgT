@@ -21,6 +21,9 @@ env/
 # Reference repositories are cloned locally and should not be vendored by default.
 refs/g3t/
 refs/look-from-above-code/
+refs/look-from-above-components/*
+!refs/look-from-above-components/
+!refs/look-from-above-components/README.md
 
 # System files
 .DS_Store

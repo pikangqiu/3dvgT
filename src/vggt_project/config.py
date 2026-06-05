@@ -18,6 +18,8 @@ class ReferencePaths:
     root: Path = Path(".")
     g3t: Path = Path("refs/g3t")
     look_from_above_notes: Path = Path("refs/look-from-above")
+    pseudomaptrainer: Path = Path("refs/look-from-above-components/PseudoMapTrainer")
+    maptr: Path = Path("refs/look-from-above-components/MapTR")
     look_from_above_paper: Path = Path("859_Look_from_Above_Satellite_.pdf")
 
     def resolve(self) -> "ReferencePaths":
@@ -26,6 +28,8 @@ class ReferencePaths:
             root=root,
             g3t=(root / self.g3t).resolve(),
             look_from_above_notes=(root / self.look_from_above_notes).resolve(),
+            pseudomaptrainer=(root / self.pseudomaptrainer).resolve(),
+            maptr=(root / self.maptr).resolve(),
             look_from_above_paper=(root / self.look_from_above_paper).resolve(),
         )
 
@@ -63,4 +67,3 @@ class ProjectConfig:
     task_framing: str = "3d_reconstruction_first"
     references: ReferencePaths = field(default_factory=ReferencePaths)
     objective: ReconstructionObjective = field(default_factory=ReconstructionObjective)
-

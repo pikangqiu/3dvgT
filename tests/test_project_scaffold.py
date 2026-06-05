@@ -19,6 +19,8 @@ class ProjectScaffoldTest(unittest.TestCase):
 
         self.assertEqual(by_name["g3t"].path, Path("refs/g3t").resolve())
         self.assertTrue(by_name["look_from_above_notes"].exists)
+        self.assertTrue(by_name["pseudomaptrainer_component"].exists)
+        self.assertTrue(by_name["maptr_component"].exists)
         self.assertTrue(by_name["look_from_above_paper"].exists)
 
 

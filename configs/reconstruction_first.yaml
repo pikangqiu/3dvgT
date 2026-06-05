@@ -13,6 +13,15 @@ references:
     notes_path: refs/look-from-above
     role: satellite_bev_alignment_and_nuscenes_mapping_reference
     public_code_status: not_found
+    component_code_refs:
+      pseudomaptrainer:
+        path: refs/look-from-above-components/PseudoMapTrainer
+        remote: https://github.com/boschresearch/PseudoMapTrainer.git
+        role: pseudo_label_generation_and_mask_aware_training_reference
+      maptr:
+        path: refs/look-from-above-components/MapTR
+        remote: https://github.com/hustvl/MapTR.git
+        role: vectorized_hd_map_head_and_nuscenes_mapping_reference
 
 data:
   dataset: nuScenes
@@ -61,4 +70,3 @@ evaluation:
   auxiliary_metrics:
     - vector_map_map
     - bev_occupancy_iou
-
