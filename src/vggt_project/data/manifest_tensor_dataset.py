@@ -54,6 +54,7 @@ class ManifestTensorDataset:
 
         return {
             "bev_features": bev_features,
+            "camera_images": camera_stack,
             "satellite_patch": satellite_patch,
             "target_pointmap": target_pointmap,
             "target_depth": target_depth,

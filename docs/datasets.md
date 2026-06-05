@@ -58,6 +58,7 @@ Optional supervision fields currently supported by `ManifestTensorDataset`:
 
 If `ego_translation` and `ego_rotation` are present, `ManifestTensorDataset` also creates:
 
+- `camera_images`: tensor stack from `camera_paths`, used by the current scaffold's camera-specific depth head.
 - `target_local_camera_to_gravity_pose`: normalized ego quaternion, used as the current scaffold pose target.
 - `target_relative_yaw_translation`: yaw plus scene-relative translation `[yaw, dx, dy, dz]`, using the first ego pose in each scene as the origin.
 

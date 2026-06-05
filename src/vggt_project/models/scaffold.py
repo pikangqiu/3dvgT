@@ -34,6 +34,13 @@ class SatelliteBEVG3TScaffold:
                     nn.ReLU(inplace=True),
                     nn.AdaptiveAvgPool2d(1),
                 )
+                self.camera_encoder = nn.Sequential(
+                    nn.Conv2d(3, 32, kernel_size=3, padding=1),
+                    nn.ReLU(inplace=True),
+                    nn.Conv2d(32, 64, kernel_size=3, padding=1),
+                    nn.ReLU(inplace=True),
+                    nn.AdaptiveAvgPool2d(1),
+                )
                 self.fusion = nn.Sequential(
                     nn.Linear(128, latent_dim),
                     nn.ReLU(inplace=True),
@@ -42,6 +49,7 @@ class SatelliteBEVG3TScaffold:
                 )
                 self.point_head = nn.Linear(latent_dim, point_count * 3)
                 self.depth_head = nn.Linear(latent_dim, 32 * 32)
+                self.camera_depth_head = nn.Linear(latent_dim + 64, 32 * 32)
                 self.local_pose_head = nn.Linear(latent_dim, 4)
                 self.relative_pose_head = nn.Linear(latent_dim, 4)
 
@@ -55,6 +63,7 @@ class SatelliteBEVG3TScaffold:
                 depth = self.depth_head(scene_latent).view(bev.shape[0], 1, 32, 32)
                 if depth.shape[-2:] != bev.shape[-2:]:
                     depth = F.interpolate(depth, size=bev.shape[-2:], mode="bilinear", align_corners=False)
+                camera_depths = self._predict_camera_depths(batch, scene_latent, bev.shape[-2:])
 
                 local_pose = self.local_pose_head(scene_latent)
                 local_pose = F.normalize(local_pose, dim=1)
@@ -65,9 +74,36 @@ class SatelliteBEVG3TScaffold:
                         bev.shape[0], point_count, 3
                     ),
                     "depth": depth,
+                    "camera_depths": camera_depths,
                     "local_camera_to_gravity_pose": local_pose,
                     "relative_yaw_translation": self.relative_pose_head(scene_latent),
                 }
 
-        return _Model()
+            def _predict_camera_depths(self, batch: dict, scene_latent, output_size: tuple[int, int]):
+                camera_images = batch.get("camera_images")
+                if camera_images is None or camera_images.numel() == 0:
+                    return None
 
+                batch_size, camera_count, channels, height, width = camera_images.shape
+                camera_flat = camera_images.reshape(batch_size * camera_count, channels, height, width)
+                camera_latent = self.camera_encoder(camera_flat).flatten(1)
+                scene_repeated = scene_latent.unsqueeze(1).expand(
+                    batch_size,
+                    camera_count,
+                    scene_latent.shape[1],
+                )
+                fused = torch.cat(
+                    [scene_repeated.reshape(batch_size * camera_count, -1), camera_latent],
+                    dim=1,
+                )
+                camera_depths = self.camera_depth_head(fused).view(batch_size * camera_count, 1, 32, 32)
+                if camera_depths.shape[-2:] != output_size:
+                    camera_depths = F.interpolate(
+                        camera_depths,
+                        size=output_size,
+                        mode="bilinear",
+                        align_corners=False,
+                    )
+                return camera_depths.reshape(batch_size, camera_count, 1, *output_size)
+
+        return _Model()

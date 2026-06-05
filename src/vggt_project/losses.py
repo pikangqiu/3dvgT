@@ -44,7 +44,12 @@ def depth_abs_error(prediction: dict, batch: dict) -> DepthAbsError:
     valid = batch.get("valid_area_mask")
     target_camera_depths = batch.get("target_camera_depths")
     if target_camera_depths is not None and target_camera_depths.numel() > 0:
-        depth_error = prediction["depth"].unsqueeze(1) - target_camera_depths
+        predicted_camera_depths = prediction.get("camera_depths")
+        if predicted_camera_depths is not None:
+            depth_prediction = predicted_camera_depths
+        else:
+            depth_prediction = prediction["depth"].unsqueeze(1)
+        depth_error = depth_prediction - target_camera_depths
         if valid is not None:
             mask = valid.unsqueeze(1).expand_as(depth_error)
             mean_loss = (depth_error.abs() * mask).sum() / mask.sum().clamp_min(1.0)

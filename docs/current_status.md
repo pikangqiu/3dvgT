@@ -2,9 +2,9 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth prediction, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
 
-It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, single- or multi-camera depth, mask, LiDAR-derived pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, G3T-style pointmap target generation, camera-level/G3T pose target wiring, camera-specific reconstruction heads, concrete G3T/VGGT head integration, and GPU environment validation.
+It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, single- or multi-camera depth, mask, LiDAR-derived pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, G3T-style pointmap target generation, camera-level/G3T pose target wiring, camera-specific pointmap/pose heads, concrete G3T/VGGT head integration, and GPU environment validation.
 
 ## Module Status
 
@@ -14,12 +14,12 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Project status audit | Scripted | `scripts/audit_project_status.py` reports scaffold readiness and remaining real-training gaps |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos |
-| Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
+| Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py`; manifest batches include `camera_images` for camera-specific scaffold heads |
 | Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, local raster satellite crop materialization, single- or multi-camera LiDAR-projected camera depth target generation, LiDAR-to-ego pointmap target generation, real-file smoke tensor loading, optional depth/mask/pointmap target image/array loading, and ego-pose-derived pose targets exist; real satellite raster sourcing, G3T-style pointmap target generation, and G3T/VGGT camera-pose adapter wiring still need implementation |
-| Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
+| Model framework | Scaffolded | `src/vggt_project/models/scaffold.py`; includes shared BEV/satellite latent heads and a camera-specific depth head for manifest batches |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
-| Losses | Scaffolded | pointmap, single- or multi-camera depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
-| Evaluation metrics | Scaffolded | single- or multi-camera depth MAE, pointmap L1, local pose L2, relative pose L2 in `src/vggt_project/metrics.py` |
+| Losses | Scaffolded | pointmap, single- or multi-camera depth, local pose, relative pose losses in `src/vggt_project/losses.py`; multi-camera depth loss uses `camera_depths` when the model predicts them |
+| Evaluation metrics | Scaffolded | single- or multi-camera depth MAE, pointmap L1, local pose L2, relative pose L2 in `src/vggt_project/metrics.py`; multi-camera depth MAE uses `camera_depths` when available |
 | Train loop | Smoke-verified scaffold | synthetic train and manifest-smoke train completed in `/tmp/vggt-satellite-smoke` |
 | Eval/inference loop | Smoke-verified scaffold | synthetic eval completed against `/tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt`; manifest-smoke eval is implemented and covered by tests |
 | Experiment config dispatch | Scripted | `configs/reconstruction_first.yaml` can drive current scaffold train/eval through `scripts/train.py --config ...` and `scripts/evaluate.py --config ...`; `runtime.data.train_manifest_path` and `runtime.data.eval_manifest_path` support train/eval split manifests; `runtime.device` supports explicit `cuda`/`mps`/`cpu` selection; `runtime.seed` supports reproducible scaffold training runs |
@@ -96,6 +96,6 @@ git push
 1. Replace placeholder satellite materialization with actual satellite patch extraction.
 2. Replace ego-frame LiDAR pointmap targets and coarse ego-pose targets with camera-level G3T/VGGT pointmap/pose supervision.
 3. Select and implement satellite patch source/alignment.
-4. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads and camera-specific reconstruction heads.
+4. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads and camera-specific pointmap/pose heads.
 5. Extend metrics beyond smoke values to real reconstruction metrics: scale-aligned pointmap accuracy/completeness, gravity error, and sequence drift.
 6. Add optional MapTR-style vector map auxiliary supervision.

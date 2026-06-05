@@ -33,6 +33,7 @@ class ManifestTensorDatasetTest(unittest.TestCase):
             item = ManifestTensorDataset(manifest, image_size=16, point_count=4)[0]
 
         self.assertEqual(tuple(item["bev_features"].shape), (8, 16, 16))
+        self.assertEqual(tuple(item["camera_images"].shape), (1, 3, 16, 16))
         self.assertEqual(tuple(item["satellite_patch"].shape), (3, 16, 16))
         self.assertEqual(tuple(item["target_pointmap"].shape), (4, 3))
         self.assertEqual(tuple(item["target_depth"].shape), (1, 16, 16))
@@ -109,6 +110,7 @@ class ManifestTensorDatasetTest(unittest.TestCase):
             item = ManifestTensorDataset(manifest, image_size=16, point_count=4)[0]
 
         self.assertEqual(tuple(item["target_camera_depths"].shape), (2, 1, 16, 16))
+        self.assertEqual(tuple(item["camera_images"].shape), (2, 3, 16, 16))
         self.assertGreater(float(item["target_camera_depths"][0].mean()), 0.2)
         self.assertLess(float(item["target_camera_depths"][0].mean()), 0.3)
         self.assertGreater(float(item["target_camera_depths"][1].mean()), 0.7)
