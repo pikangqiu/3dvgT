@@ -39,11 +39,13 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "src/vggt_project/data/manifest_builder.py",
             "src/vggt_project/data/manifest_tensor_dataset.py",
             "src/vggt_project/data/nuscenes_depth.py",
+            "src/vggt_project/data/nuscenes_pointmap.py",
             "scripts/generate_manifest.py",
             "scripts/validate_manifest.py",
             "scripts/materialize_manifest_assets.py",
             "scripts/materialize_satellite_crops.py",
             "scripts/generate_lidar_depth_targets.py",
+            "scripts/generate_lidar_pointmap_targets.py",
         ),
         "model_framework": (
             "src/vggt_project/models/interfaces.py",
@@ -94,7 +96,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     items = tuple(_audit_item(resolved, name, paths) for name, paths in item_specs.items())
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though crop materialization is now scripted",
-        "real pointmap/occupancy target generation and camera-level G3T/VGGT pose targets are not implemented, though pointmap target loading is wired",
+        "G3T/VGGT camera-level pointmap/pose targets and occupancy target generation are not implemented, though LiDAR ego-frame pointmap target generation is wired",
         "G3T/VGGT head adapter and fine-tuning path are not implemented",
         "multi-camera depth/pointmap target wiring is not implemented",
         "GitHub upload still requires gh authentication and remote creation",

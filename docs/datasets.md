@@ -131,6 +131,20 @@ PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
 
 This projects LiDAR points into one camera image and writes an 8-bit normalized depth target. The default is `CAM_FRONT`, which is enough for the current scaffold depth loss but should be extended to per-camera or BEV/pointmap supervision for the real model.
 
+Generate an ego-frame pointmap target from nuScenes `LIDAR_TOP`:
+
+```bash
+PYTHONPATH=src python scripts/generate_lidar_pointmap_targets.py \
+  data/manifests/nuscenes-mini.depth.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --pointmap-dir pointmaps \
+  --max-points 4096 \
+  --output data/manifests/nuscenes-mini.pointmap.jsonl
+```
+
+This writes `.npy` pointmap files and updates `pointmap_path` in the output manifest. The current scaffold treats these as ego-frame pointmap supervision. A future G3T/VGGT adapter should replace or augment them with camera/gravity-aligned pointmap targets.
+
 ## Manifest Smoke Training
 
 After validation, a manifest can be used to smoke-test real image loading:
@@ -138,7 +152,7 @@ After validation, a manifest can be used to smoke-test real image loading:
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.depth.jsonl \
+  --manifest data/manifests/nuscenes-mini.pointmap.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 ```
