@@ -5,6 +5,7 @@ Satellite-guided and BEV-guided 3D reconstruction research scaffold.
 This project uses G3T as the main gravity-aligned reconstruction reference and uses the Look from Above paper as the main nuScenes satellite/BEV alignment paradigm reference.
 
 See `agent.md` for the research纲领 and working rules.
+See `docs/current_status.md` for the precise implementation status and remaining training gaps.
 
 ## Current Status
 
