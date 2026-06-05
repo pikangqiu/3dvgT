@@ -31,6 +31,7 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 ```

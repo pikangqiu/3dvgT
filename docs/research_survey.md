@@ -11,6 +11,9 @@ Primary candidates:
 - OpenScene for a larger nuPlan-derived occupancy benchmark when scaling beyond nuScenes-mini.
 - UniOcc for current-frame and future-frame occupancy prediction/forecasting.
 - DrivingForward and DGGT as driving-scene feed-forward reconstruction baselines.
+- ReconDrive as a 2026 feed-forward 4D Gaussian Splatting driving-scene reconstruction baseline that extends VGGT-style geometric features.
+- ParkRecon3D/ParkGaussian as a 2026 surround-view parking-scene reconstruction benchmark/baseline.
+- Perception-aware 3DGS as a 2026 evaluation direction for whether reconstructed driving scenes preserve downstream perception behavior.
 
 Auxiliary mapping candidates:
 
@@ -31,6 +34,10 @@ Auxiliary mapping candidates:
 
 - DrivingForward: feed-forward Gaussian splatting for nuScenes driving-scene reconstruction.
 - DGGT: feed-forward 4D dynamic driving reconstruction on Waymo, nuScenes, and Argoverse2.
+- ReconDrive: fast feed-forward 4D Gaussian Splatting for autonomous driving scene reconstruction, explicitly extending VGGT and benchmarking on nuScenes.
+- Nighttime Autonomous Driving Scene Reconstruction: 2026 ICRA direction for low-light driving-scene reconstruction on nuScenes/Waymo.
+- Real2Sim: physics-driven editable 4DGS for driving scenes, useful as a future simulation/editing comparison rather than first-table baseline.
+- Perception-aware 3DGS: evaluates reconstruction by downstream object-perception consistency, useful if our satellite prior claims improve driving-relevant geometry.
 
 ### Occupancy/scene geometry
 
@@ -53,6 +60,11 @@ Auxiliary mapping candidates:
 | OpenScene | Scale-up occupancy benchmark | Larger nuPlan-derived benchmark with occupancy labels and CVPR Autonomous Grand Challenge relevance | occupancy IoU/mIoU, flow-aware future extensions |
 | DrivingForward | Direct driving reconstruction baseline | Feed-forward Gaussian splatting on nuScenes surround-view inputs is close to our reconstruction-first framing | rendered RGB/depth quality, reconstruction quality |
 | DGGT | Direct dynamic driving reconstruction baseline | Feed-forward 4D driving reconstruction with nuScenes/Argoverse2/Waymo generalization settings | reconstruction and cross-dataset generalization metrics |
+| ReconDrive | 2026 direct feed-forward reconstruction baseline | Extends VGGT for fast 4D Gaussian generation and reports nuScenes reconstruction/NVS/perception results | reconstruction metrics, NVS metrics, perception preservation, runtime |
+| Perception-aware 3DGS | 2026 evaluation-oriented baseline | Argues visual similarity is insufficient and adds object/perception-aware reconstruction losses | perception consistency, object-zone quality, visual reconstruction metrics |
+| ParkRecon3D / ParkGaussian | 2026 niche reconstruction benchmark | Surround-view parking scene reconstruction benchmark with dense parking-slot annotations | reconstruction quality, slot-aware perception consistency |
+| Nighttime driving 3DGS | Robustness benchmark direction | Tests reconstruction under low-light driving scenes on nuScenes/Waymo | nighttime reconstruction quality, rendering metrics |
+| Real2Sim | Future simulation/editing comparison | Editable physics-aware 4DGS for Waymo driving scenes, less directly aligned with our first nuScenes reconstruction table | rendering, reconstruction, editing/physics consistency |
 | UniOcc | Secondary benchmark for future extension | Adds unified occupancy prediction/forecasting across nuScenes, Waymo, CARLA, and OpenCOOD | current/future occupancy mIoU/IoU, flow consistency |
 | OpenOccupancy / SurroundOcc | Secondary occupancy baselines | Mature nuScenes semantic occupancy baselines and codebases | occupancy mIoU/IoU |
 | MapTR / MapTRv2 | Auxiliary map-head benchmark | Useful only for vectorized map auxiliary head, not primary reconstruction claim | vector map mAP |
@@ -105,6 +117,11 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - SurroundOcc repository: https://github.com/weiyithu/SurroundOcc
 - UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
 - SG-BEV CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/papers/Ye_SG-BEV_Satellite-Guided_BEV_Fusion_for_Cross-View_Semantic_Segmentation_CVPR_2024_paper.pdf
+- ReconDrive arXiv 2026: https://arxiv.org/abs/2603.07552
+- Nighttime Autonomous Driving Scene Reconstruction arXiv 2026: https://arxiv.org/abs/2602.13549
+- Real2Sim arXiv 2026: https://arxiv.org/abs/2605.13591
+- ParkGaussian / ParkRecon3D arXiv 2026: https://arxiv.org/abs/2601.01386
+- Perception-aware 3DGS ICLR 2026 OpenReview: https://openreview.net/forum?id=PmQlMTBmpa
 - DrivingForward project page: https://fangzhou2000.github.io/projects/drivingforward/
 - DGGT official repository: https://github.com/xiaomi-research/dggt
 - Drive-OccWorld project page: https://drive-occworld.github.io/

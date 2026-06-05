@@ -39,6 +39,7 @@ Reference repositories are stored under `refs/` and are ignored by the main git 
 Run:
 
 ```bash
+PYTHONPATH=src python scripts/audit_project_status.py
 PYTHONPATH=src python scripts/check_references.py
 ```
 
