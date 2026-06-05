@@ -19,6 +19,7 @@ class ExperimentRunConfig:
     manifest_path: Path | None = None
     train_manifest_path: Path | None = None
     eval_manifest_path: Path | None = None
+    device: str | None = None
     output_dir: Path = Path("outputs/synthetic")
     checkpoint: Path = Path("outputs/synthetic/synthetic_scaffold.pt")
     epochs: int = 1
@@ -51,6 +52,7 @@ class ExperimentRunConfig:
             manifest_path=manifest,
             train_manifest_path=train_manifest,
             eval_manifest_path=eval_manifest,
+            device=runtime.get("device"),
             output_dir=output_dir,
             checkpoint=checkpoint,
             epochs=int(training.get("epochs", 1)),
@@ -84,6 +86,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             epochs=config.epochs,
             batch_size=config.batch_size,
             learning_rate=config.learning_rate,
+            device=config.device,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.train_manifest_path or config.manifest_path
@@ -99,6 +102,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             learning_rate=config.learning_rate,
             image_size=config.image_size,
             point_count=config.point_count,
+            device=config.device,
         )
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
 
@@ -107,7 +111,11 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
     """Dispatch scaffold evaluation from an experiment config."""
 
     if config.training_mode == "synthetic":
-        return evaluate_synthetic(checkpoint=config.checkpoint, batch_size=config.batch_size)
+        return evaluate_synthetic(
+            checkpoint=config.checkpoint,
+            batch_size=config.batch_size,
+            device=config.device,
+        )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.eval_manifest_path or config.manifest_path
         if manifest_path is None:
@@ -120,6 +128,7 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             batch_size=config.batch_size,
             image_size=config.image_size,
             point_count=config.point_count,
+            device=config.device,
         )
     raise ValueError(f"Unsupported evaluation mode: {config.training_mode}")
 

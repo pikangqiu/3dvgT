@@ -25,6 +25,7 @@ class ExperimentConfigTest(unittest.TestCase):
         config = ExperimentRunConfig.from_mapping(
             {
                 "runtime": {
+                    "device": "cpu",
                     "data": {
                         "manifest_path": "data/manifests/train.jsonl",
                         "train_manifest_path": "data/manifests/train.split.jsonl",
@@ -47,6 +48,7 @@ class ExperimentConfigTest(unittest.TestCase):
         )
 
         self.assertEqual(config.training_mode, "manifest-smoke")
+        self.assertEqual(config.device, "cpu")
         self.assertEqual(config.manifest_path, Path("data/manifests/train.jsonl"))
         self.assertEqual(config.train_manifest_path, Path("data/manifests/train.split.jsonl"))
         self.assertEqual(config.eval_manifest_path, Path("data/manifests/val.split.jsonl"))
@@ -62,13 +64,16 @@ class ExperimentConfigTest(unittest.TestCase):
         from vggt_project import experiments
 
         seen: dict[str, Path] = {}
+        devices: dict[str, str] = {}
 
         def fake_train_manifest_smoke(**kwargs) -> dict[str, float]:
             seen["train_manifest"] = kwargs["manifest_path"]
+            devices["train"] = kwargs["device"]
             return {"loss": 1.0}
 
         def fake_evaluate_manifest_smoke(**kwargs) -> dict[str, float]:
             seen["eval_manifest"] = kwargs["manifest_path"]
+            devices["eval"] = kwargs["device"]
             return {"loss": 0.5}
 
         config = ExperimentRunConfig(
@@ -76,6 +81,7 @@ class ExperimentConfigTest(unittest.TestCase):
             train_manifest_path=Path("train.jsonl"),
             eval_manifest_path=Path("val.jsonl"),
             checkpoint=Path("checkpoint.pt"),
+            device="cpu",
         )
         original_train = experiments.train_manifest_smoke
         original_eval = experiments.evaluate_manifest_smoke
@@ -90,6 +96,8 @@ class ExperimentConfigTest(unittest.TestCase):
 
         self.assertEqual(seen["train_manifest"], Path("train.jsonl"))
         self.assertEqual(seen["eval_manifest"], Path("val.jsonl"))
+        self.assertEqual(devices["train"], "cpu")
+        self.assertEqual(devices["eval"], "cpu")
 
     @unittest.skipUnless(find_spec("yaml"), "PyYAML is required to load YAML configs")
     def test_load_experiment_config_from_yaml(self) -> None:

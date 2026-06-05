@@ -21,6 +21,7 @@ def main() -> int:
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--image-size", type=int, default=32)
     parser.add_argument("--point-count", type=int, default=128)
+    parser.add_argument("--device", default=None)
     args = parser.parse_args()
 
     if args.config is not None:
@@ -31,6 +32,7 @@ def main() -> int:
             epochs=args.epochs,
             batch_size=args.batch_size,
             learning_rate=args.learning_rate,
+            device=args.device,
         )
     else:
         if args.manifest is None:
@@ -43,6 +45,7 @@ def main() -> int:
             learning_rate=args.learning_rate,
             image_size=args.image_size,
             point_count=args.point_count,
+            device=args.device,
         )
     for key, value in metrics.items():
         print(f"{key}: {value}")

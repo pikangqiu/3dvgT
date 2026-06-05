@@ -19,12 +19,17 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--image-size", type=int, default=32)
     parser.add_argument("--point-count", type=int, default=128)
+    parser.add_argument("--device", default=None)
     args = parser.parse_args()
 
     if args.config is not None:
         metrics = evaluate_from_config(load_experiment_config(args.config))
     elif args.mode == "synthetic":
-        metrics = evaluate_synthetic(checkpoint=args.checkpoint, batch_size=args.batch_size)
+        metrics = evaluate_synthetic(
+            checkpoint=args.checkpoint,
+            batch_size=args.batch_size,
+            device=args.device,
+        )
     else:
         if args.manifest is None:
             parser.error("--manifest is required for --mode manifest-smoke")
@@ -34,6 +39,7 @@ def main() -> int:
             batch_size=args.batch_size,
             image_size=args.image_size,
             point_count=args.point_count,
+            device=args.device,
         )
     for key, value in metrics.items():
         print(f"{key}: {value:.6f}")

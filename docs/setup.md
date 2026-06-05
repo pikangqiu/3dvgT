@@ -216,11 +216,14 @@ PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.
 
 ```yaml
 runtime:
+  device: null
   data:
     manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     train_manifest_path: data/manifests/nuscenes-train.supervised.jsonl
     eval_manifest_path: data/manifests/nuscenes-val.supervised.jsonl
 ```
+
+Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
 
 For a single train+eval run with a JSON report:
 

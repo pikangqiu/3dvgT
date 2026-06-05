@@ -73,6 +73,7 @@ evaluation:
     - bev_occupancy_iou
 
 runtime:
+  device: null
   data:
     manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     train_manifest_path: data/manifests/nuscenes-mini.train.jsonl

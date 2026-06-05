@@ -30,6 +30,7 @@ This repository now contains a runnable scaffold for the project structure:
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
 - train/eval manifest split support in experiment configs,
+- explicit train/eval device selection through config or CLI,
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
@@ -65,6 +66,7 @@ PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nusc
 PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
+PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json
