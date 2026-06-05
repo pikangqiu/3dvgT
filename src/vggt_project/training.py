@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
 from vggt_project.models.scaffold import SatelliteBEVG3TScaffold
@@ -53,3 +54,50 @@ def train_synthetic(
     last_metrics["checkpoint"] = str(checkpoint_path)
     return last_metrics
 
+
+def train_manifest_smoke(
+    manifest_path: Path,
+    output_dir: Path,
+    epochs: int = 1,
+    batch_size: int = 1,
+    learning_rate: float = 1e-3,
+    image_size: int = 32,
+    point_count: int = 128,
+    device: str | None = None,
+) -> dict[str, float]:
+    """Run smoke training from real image files listed in a manifest."""
+
+    import torch
+    from torch.utils.data import DataLoader
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    dataset = ManifestTensorDataset(
+        manifest_path=manifest_path,
+        image_size=image_size,
+        point_count=point_count,
+    )
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    model = SatelliteBEVG3TScaffold.build(point_count=point_count).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+
+    last_metrics: dict[str, float] = {}
+    for _epoch in range(epochs):
+        model.train()
+        for batch in loader:
+            batch = {
+                key: value.to(device)
+                for key, value in batch.items()
+                if hasattr(value, "to")
+            }
+            optimizer.zero_grad(set_to_none=True)
+            prediction = model(batch)
+            losses = reconstruction_losses(prediction, batch)
+            losses["loss"].backward()
+            optimizer.step()
+            last_metrics = detach_float_metrics(losses)
+
+    checkpoint_path = output_dir / "manifest_smoke_scaffold.pt"
+    torch.save({"model": model.state_dict(), "metrics": last_metrics}, checkpoint_path)
+    last_metrics["checkpoint"] = str(checkpoint_path)
+    return last_metrics

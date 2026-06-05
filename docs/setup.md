@@ -100,3 +100,9 @@ Validate it before training:
 ```bash
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
 ```
+
+Smoke-test real file loading:
+
+```bash
+PYTHONPATH=src python scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.jsonl --epochs 1
+```

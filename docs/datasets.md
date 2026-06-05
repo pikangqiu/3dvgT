@@ -60,6 +60,20 @@ PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.
 
 The validator checks camera image paths, satellite patches, and optional valid-mask/depth/vector-map files referenced by the manifest.
 
+## Manifest Smoke Training
+
+After validation, a manifest can be used to smoke-test real image loading:
+
+```bash
+PYTHONPATH=src python scripts/train.py \
+  --mode manifest-smoke \
+  --manifest data/manifests/nuscenes-mini.jsonl \
+  --epochs 1 \
+  --output-dir outputs/manifest-smoke
+```
+
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It still uses placeholder reconstruction targets, so it is a data-path smoke test rather than real supervised training.
+
 Check the local layout with:
 
 ```bash
