@@ -76,6 +76,10 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "refs/README.md",
         ),
         "github_ci": (".github/workflows/ci.yml",),
+        "github_publish": (
+            "scripts/check_github_publish.py",
+            "scripts/publish_github.sh",
+        ),
         "benchmarks": (
             "docs/research_survey.md",
             "refs/benchmarks/README.md",

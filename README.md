@@ -36,6 +36,14 @@ PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 ```
 
+Before publishing to GitHub:
+
+```bash
+PYTHONPATH=src python3 scripts/check_github_publish.py
+gh auth login
+bash scripts/publish_github.sh VggT
+```
+
 After installing dependencies:
 
 ```bash

@@ -20,6 +20,7 @@ class ProjectAuditTest(unittest.TestCase):
             "dataset_setup",
             "reference_setup",
             "github_ci",
+            "github_publish",
             "benchmarks",
         ):
             self.assertIn(name, items_by_name)

@@ -52,6 +52,14 @@ PYTHONPATH=src python scripts/setup_references.py
 
 The dry run prints the `git clone` commands without touching the network. The real run clones missing repositories under `refs/`.
 
+Before publishing to GitHub, check the local publishing state:
+
+```bash
+PYTHONPATH=src python scripts/check_github_publish.py
+```
+
+If it reports `gh_authenticated: false`, run `gh auth login` and then publish with `bash scripts/publish_github.sh VggT`.
+
 ## Weights
 
 Download G3T weights:
