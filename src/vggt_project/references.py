@@ -72,6 +72,36 @@ def collect_reference_status(paths: ReferencePaths | None = None) -> list[Refere
             ),
         ),
         ReferenceStatus(
+            name="e3d_bench_reference",
+            path=resolved.e3d_bench,
+            exists=resolved.e3d_bench.exists(),
+            details=(
+                f"git HEAD {_git_short_head(resolved.e3d_bench)}"
+                if resolved.e3d_bench.exists()
+                else "missing benchmark reference"
+            ),
+        ),
+        ReferenceStatus(
+            name="open_occupancy_reference",
+            path=resolved.open_occupancy,
+            exists=resolved.open_occupancy.exists(),
+            details=(
+                f"git HEAD {_git_short_head(resolved.open_occupancy)}"
+                if resolved.open_occupancy.exists()
+                else "missing benchmark reference"
+            ),
+        ),
+        ReferenceStatus(
+            name="surround_occ_reference",
+            path=resolved.surround_occ,
+            exists=resolved.surround_occ.exists(),
+            details=(
+                f"git HEAD {_git_short_head(resolved.surround_occ)}"
+                if resolved.surround_occ.exists()
+                else "missing benchmark reference"
+            ),
+        ),
+        ReferenceStatus(
             name="look_from_above_paper",
             path=resolved.look_from_above_paper,
             exists=resolved.look_from_above_paper.exists(),

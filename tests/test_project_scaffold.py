@@ -21,6 +21,9 @@ class ProjectScaffoldTest(unittest.TestCase):
         self.assertTrue(by_name["look_from_above_notes"].exists)
         self.assertTrue(by_name["pseudomaptrainer_component"].exists)
         self.assertTrue(by_name["maptr_component"].exists)
+        self.assertTrue(by_name["e3d_bench_reference"].exists)
+        self.assertTrue(by_name["open_occupancy_reference"].exists)
+        self.assertTrue(by_name["surround_occ_reference"].exists)
         self.assertTrue(by_name["look_from_above_paper"].exists)
 
 

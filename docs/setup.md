@@ -9,6 +9,7 @@ Use the scripted setup for a local virtual environment:
 ```bash
 bash scripts/setup_env.sh .venv
 source .venv/bin/activate
+export MPLCONFIGDIR=.venv/.matplotlib
 ```
 
 If needed:
@@ -16,6 +17,8 @@ If needed:
 ```bash
 PYTHON_BIN=python3.10 bash scripts/setup_env.sh .venv
 ```
+
+`MPLCONFIGDIR` matters because `nuscenes-devkit` imports matplotlib, which may otherwise try to write cache files under a non-writable home directory.
 
 For a conda workflow:
 
@@ -59,6 +62,13 @@ PYTHONPATH=src python scripts/evaluate.py --checkpoint outputs/synthetic/synthet
 ```
 
 This checks the model/loss/train/eval plumbing. Real nuScenes training still requires implementing the dataset adapter and selecting the concrete G3T/VGGT heads to fine-tune.
+
+Verified smoke environment:
+
+- Python: `/Users/eve_kang/.local/bin/python3.11`
+- Temporary venv: `/tmp/vggt-satellite-smoke`
+- Torch import: `2.12.0`
+- Synthetic train/eval completed with a checkpoint at `/tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt`
 
 ## nuScenes Layout Check
 

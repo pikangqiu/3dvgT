@@ -20,6 +20,9 @@ class ReferencePaths:
     look_from_above_notes: Path = Path("refs/look-from-above")
     pseudomaptrainer: Path = Path("refs/look-from-above-components/PseudoMapTrainer")
     maptr: Path = Path("refs/look-from-above-components/MapTR")
+    e3d_bench: Path = Path("refs/benchmarks/E3D-Bench")
+    open_occupancy: Path = Path("refs/benchmarks/OpenOccupancy")
+    surround_occ: Path = Path("refs/benchmarks/SurroundOcc")
     look_from_above_paper: Path = Path("859_Look_from_Above_Satellite_.pdf")
 
     def resolve(self) -> "ReferencePaths":
@@ -30,6 +33,9 @@ class ReferencePaths:
             look_from_above_notes=(root / self.look_from_above_notes).resolve(),
             pseudomaptrainer=(root / self.pseudomaptrainer).resolve(),
             maptr=(root / self.maptr).resolve(),
+            e3d_bench=(root / self.e3d_bench).resolve(),
+            open_occupancy=(root / self.open_occupancy).resolve(),
+            surround_occ=(root / self.surround_occ).resolve(),
             look_from_above_paper=(root / self.look_from_above_paper).resolve(),
         )
 

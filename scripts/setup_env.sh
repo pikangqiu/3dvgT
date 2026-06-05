@@ -17,9 +17,12 @@ esac
 
 "${PYTHON_BIN}" -m venv "${ENV_DIR}"
 source "${ENV_DIR}/bin/activate"
+mkdir -p "${ENV_DIR}/.matplotlib"
+export MPLCONFIGDIR="${ENV_DIR}/.matplotlib"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m pip install -e .
 
 echo "Environment ready at ${ENV_DIR}"
 echo "Activate with: source ${ENV_DIR}/bin/activate"
+echo "Recommended: export MPLCONFIGDIR=${ENV_DIR}/.matplotlib"

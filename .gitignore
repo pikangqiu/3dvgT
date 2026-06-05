@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -24,6 +25,9 @@ refs/look-from-above-code/
 refs/look-from-above-components/*
 !refs/look-from-above-components/
 !refs/look-from-above-components/README.md
+refs/benchmarks/*
+!refs/benchmarks/
+!refs/benchmarks/README.md
 
 # System files
 .DS_Store

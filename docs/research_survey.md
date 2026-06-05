@@ -98,6 +98,12 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - DrivingForward project page: https://fangzhou2000.github.io/projects/drivingforward/
 - DGGT official repository: https://github.com/xiaomi-research/dggt
 - Drive-OccWorld project page: https://drive-occworld.github.io/
+
+## Local Benchmark Code Refs
+
+- `refs/benchmarks/E3D-Bench` at `11d82b4`.
+- `refs/benchmarks/OpenOccupancy` at `eafd14f`.
+- `refs/benchmarks/SurroundOcc` at `419bf5b`.
 - UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
 - nuScenes devkit: https://github.com/nutonomy/nuscenes-devkit
 - MapTR paper/repository: https://arxiv.org/abs/2208.14437 and https://github.com/hustvl/MapTR

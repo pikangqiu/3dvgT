@@ -4,7 +4,7 @@
 
 The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, environment scripts, weight-download scripts, dataset preparation notes, and research baseline notes.
 
-It is not yet a complete real nuScenes training codebase. The current train/eval path is a synthetic smoke test that proves the plumbing shape. Real training still needs the nuScenes dataset adapter, satellite patch source/alignment, concrete G3T/VGGT head integration, and GPU environment validation.
+It is not yet a complete real nuScenes training codebase. The current train/eval path is a synthetic smoke test that proves the plumbing shape and has been run in a Python 3.11 environment. Real training still needs the nuScenes sample loader, satellite patch source/alignment, concrete G3T/VGGT head integration, and GPU environment validation.
 
 ## Module Status
 
@@ -17,9 +17,9 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
-| Train loop | Scaffolded | synthetic smoke train in `src/vggt_project/training.py` and `scripts/train.py` |
-| Eval/inference loop | Scaffolded | synthetic eval in `src/vggt_project/evaluation.py` and `scripts/evaluate.py` |
-| Environment setup | Scripted | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended |
+| Train loop | Smoke-verified scaffold | synthetic train completed in `/tmp/vggt-satellite-smoke` |
+| Eval/inference loop | Smoke-verified scaffold | synthetic eval completed against `/tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt` |
+| Environment setup | Smoke-verified script | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended; PyTorch 2.12.0 imported |
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
 | GitHub upload | Blocked by auth | `gh` installed, but `gh auth status` reports no logged-in host |
@@ -40,8 +40,16 @@ Requires PyTorch environment:
 ```bash
 bash scripts/setup_env.sh .venv
 source .venv/bin/activate
+export MPLCONFIGDIR=.venv/.matplotlib
 PYTHONPATH=src python scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
+```
+
+Smoke run evidence from this machine:
+
+```text
+/tmp/vggt-satellite-smoke/bin/python scripts/train.py --mode synthetic --epochs 1 --output-dir /tmp/vggt-satellite-smoke-output
+/tmp/vggt-satellite-smoke/bin/python scripts/evaluate.py --mode synthetic --checkpoint /tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt
 ```
 
 Requires GitHub auth:
