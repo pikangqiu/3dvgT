@@ -50,6 +50,9 @@ class EvaluationTest(unittest.TestCase):
         self.assertIn("loss", metrics)
         self.assertIn("depth_mae", metrics)
         self.assertIn("pointmap_l1", metrics)
+        self.assertIn("scale_aligned_pointmap_accuracy", metrics)
+        self.assertIn("gravity_error_deg", metrics)
+        self.assertIn("sequence_translation_drift", metrics)
 
 
 if __name__ == "__main__":

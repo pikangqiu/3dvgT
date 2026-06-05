@@ -14,7 +14,7 @@ This repository now contains a runnable scaffold for the project structure:
 - data contracts and synthetic smoke-test data,
 - a minimal satellite/BEV-conditioned reconstruction model scaffold,
 - reconstruction losses,
-- reconstruction metrics,
+- reconstruction-first metrics for depth, pointmaps, gravity, and drift,
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - training environment readiness checks,

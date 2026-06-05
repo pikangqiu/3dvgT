@@ -118,7 +118,7 @@ Our reconstruction model + map auxiliary
 4. Add valid-area masking and pseudo-label weighting from PseudoMapTrainer.
 5. Add optional MapTR-style vector-map auxiliary head.
 
-Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map mAP should be auxiliary.
+Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. The current scaffold reports `depth_mae`, scale-aligned pointmap accuracy/completeness/chamfer, `gravity_error_deg`, and `sequence_translation_drift`; map mAP should remain auxiliary.
 
 ## Initial Source List
 

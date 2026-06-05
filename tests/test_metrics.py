@@ -27,6 +27,11 @@ class ReconstructionMetricsTest(unittest.TestCase):
 
         self.assertAlmostEqual(metrics["depth_mae"], 1.0)
         self.assertAlmostEqual(metrics["pointmap_l1"], 1.0 / 6.0)
+        self.assertIn("scale_aligned_pointmap_accuracy", metrics)
+        self.assertIn("scale_aligned_pointmap_completeness", metrics)
+        self.assertIn("scale_aligned_pointmap_chamfer", metrics)
+        self.assertIn("gravity_error_deg", metrics)
+        self.assertIn("sequence_translation_drift", metrics)
         self.assertAlmostEqual(metrics["local_pose_l2"], 0.0)
         self.assertAlmostEqual(metrics["relative_pose_l2"], 1.0)
 
@@ -56,6 +61,44 @@ class ReconstructionMetricsTest(unittest.TestCase):
         metrics = reconstruction_metrics(prediction, batch)
 
         self.assertAlmostEqual(metrics["depth_mae"], 2.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_scale_aligned_pointmap_metrics_ignore_global_scale(self) -> None:
+        import torch
+
+        from vggt_project.metrics import scale_aligned_pointmap_metrics
+
+        predicted = torch.tensor([[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]])
+        target = torch.tensor([[[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]]])
+
+        metrics = scale_aligned_pointmap_metrics(predicted, target)
+
+        self.assertAlmostEqual(float(metrics["accuracy"]), 0.0)
+        self.assertAlmostEqual(float(metrics["completeness"]), 0.0)
+        self.assertAlmostEqual(float(metrics["chamfer"]), 0.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_gravity_error_reports_quaternion_angle_degrees(self) -> None:
+        import math
+        import torch
+
+        from vggt_project.metrics import quaternion_angular_error_deg
+
+        predicted = torch.tensor([[math.cos(math.pi / 4), 0.0, 0.0, math.sin(math.pi / 4)]])
+        target = torch.tensor([[1.0, 0.0, 0.0, 0.0]])
+
+        self.assertAlmostEqual(float(quaternion_angular_error_deg(predicted, target)), 90.0, places=4)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_sequence_translation_drift_uses_batch_relative_track(self) -> None:
+        import torch
+
+        from vggt_project.metrics import sequence_translation_drift
+
+        predicted = torch.tensor([[0.0, 0.0, 0.0, 0.0], [0.0, 2.0, 0.0, 0.0]])
+        target = torch.tensor([[0.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+
+        self.assertAlmostEqual(float(sequence_translation_drift(predicted, target)), 0.5)
 
 
 if __name__ == "__main__":

@@ -77,3 +77,12 @@ Primary metrics:
 - Camera pose error.
 - Gravity alignment error.
 - Long-sequence alignment drift.
+
+Current scaffold metric names:
+
+- `depth_mae`
+- `scale_aligned_pointmap_accuracy`
+- `scale_aligned_pointmap_completeness`
+- `scale_aligned_pointmap_chamfer`
+- `gravity_error_deg`
+- `sequence_translation_drift`
