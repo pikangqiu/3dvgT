@@ -4,16 +4,16 @@
 
 The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, environment scripts, weight-download scripts, dataset preparation notes, and research baseline notes.
 
-It is not yet a complete real nuScenes training codebase. The current train/eval path is a synthetic smoke test that proves the plumbing shape and has been run in a Python 3.11 environment. Real training still needs the nuScenes sample loader, satellite patch source/alignment, concrete G3T/VGGT head integration, and GPU environment validation.
+It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, and mask image files from a JSONL manifest. Real training still needs satellite patch extraction/alignment, pointmap/pose supervision generation, concrete G3T/VGGT head integration, and GPU environment validation.
 
 ## Module Status
 
 | Area | Status | Evidence |
 | --- | --- | --- |
-| Git repository | Ready locally | commits through `8c98a62` |
+| Git repository | Ready locally | local commits are present; use `git log --oneline` for the current head |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
-| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, and real-file smoke tensor loading exist; satellite patch extraction and real supervision targets still need implementation |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, real-file smoke tensor loading, and optional depth/mask target image loading exist; satellite patch extraction and pointmap/pose target generation still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
@@ -64,7 +64,7 @@ bash scripts/publish_github.sh VggT
 ## Next Implementation Milestones
 
 1. Extend preprocessing from manifest generation/validation to actual satellite patch extraction.
-2. Replace manifest-smoke placeholder targets with real depth/pointmap/pose/occupancy supervision.
+2. Replace remaining manifest-smoke placeholder pointmap/pose targets with real pointmap/pose/occupancy supervision.
 3. Select and implement satellite patch source/alignment.
 4. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads.
 5. Extend metrics beyond smoke values to real reconstruction metrics: scale-aligned pointmap accuracy/completeness, gravity error, and sequence drift.
