@@ -58,7 +58,7 @@ Before publishing to GitHub, check the local publishing state:
 PYTHONPATH=src python scripts/check_github_publish.py
 ```
 
-If it reports `gh_authenticated: false`, run `gh auth login` and then publish with `bash scripts/publish_github.sh VggT`.
+This repository already tracks `https://github.com/pikangqiu/3dvgT.git`, so a clean worktree can be pushed with `git push`. If a fresh checkout has no `origin`, run `gh auth login` and then publish with `bash scripts/publish_github.sh VggT`.
 
 ## Weights
 

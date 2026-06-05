@@ -8,12 +8,9 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
 
     import torch
 
-    valid = batch.get("valid_area_mask")
-    depth_abs = (prediction["depth"] - batch["target_depth"]).abs()
-    if valid is not None:
-        depth_mae = (depth_abs * valid).sum() / valid.sum().clamp_min(1.0)
-    else:
-        depth_mae = depth_abs.mean()
+    from vggt_project.losses import depth_abs_error
+
+    depth_mae = depth_abs_error(prediction, batch).mean_loss
 
     pointmap_l1 = (
         prediction["gravity_aligned_pointmap"] - batch["target_pointmap"]
@@ -34,4 +31,3 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
         "local_pose_l2": float(local_pose_l2.detach().cpu()),
         "relative_pose_l2": float(relative_pose_l2.detach().cpu()),
     }
-

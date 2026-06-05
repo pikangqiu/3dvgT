@@ -51,7 +51,7 @@ These fields are the bridge for real satellite patch extraction: future preproce
 Optional supervision fields currently supported by `ManifestTensorDataset`:
 
 - `lidar_depth_path`: grayscale image loaded as `target_depth`.
-- `lidar_depth_paths`: optional `{camera_name: depth_path}` mapping loaded as `target_camera_depths`; `target_depth` is the mean depth map for the current scaffold loss.
+- `lidar_depth_paths`: optional `{camera_name: depth_path}` mapping loaded as `target_camera_depths`; losses and metrics use this multi-camera stack when present, while `target_depth` remains as a backward-compatible mean target.
 - `valid_area_mask_path`: grayscale image loaded as `valid_area_mask`.
 - `pointmap_path`: `.npy` array or `.npz` file with a `pointmap` array, loaded as `target_pointmap` with shape `point_count x 3` after truncation or zero-padding.
 - `vector_map_path`: validated by `validate_manifest.py`, but not yet loaded into model targets.
@@ -131,7 +131,7 @@ PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
   --output data/manifests/nuscenes-mini.depth.jsonl
 ```
 
-This projects LiDAR points into one or more camera images and writes 8-bit normalized depth targets. The output manifest keeps the first camera in `lidar_depth_path` for backward-compatible scaffold losses and writes all selected cameras in `lidar_depth_paths` for future multi-camera/G3T supervision.
+This projects LiDAR points into one or more camera images and writes 8-bit normalized depth targets. The output manifest keeps the first camera in `lidar_depth_path` for backward compatibility and writes all selected cameras in `lidar_depth_paths` for multi-camera scaffold supervision and future G3T/VGGT supervision.
 
 Generate an ego-frame pointmap target from nuScenes `LIDAR_TOP`:
 
@@ -184,7 +184,7 @@ PYTHONPATH=src python scripts/train.py \
   --output-dir outputs/manifest-smoke
 ```
 
-This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load depth, masks, pointmap arrays, and ego-pose-derived pose targets. If `pointmap_path` is absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load single- or multi-camera depth, masks, pointmap arrays, and ego-pose-derived pose targets. If `pointmap_path` is absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
 
 Check the local layout with:
 

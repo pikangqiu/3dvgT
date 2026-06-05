@@ -23,6 +23,7 @@ This repository now contains a runnable scaffold for the project structure:
 - manifest asset materialization for smoke satellite patches and valid masks,
 - local satellite raster crop materialization,
 - nuScenes LiDAR-to-camera depth target generation for single- or multi-camera manifest supervision,
+- multi-camera depth target loading plus loss/metric supervision,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
 - scene-level train/eval manifest splitting,
@@ -36,7 +37,7 @@ This repository now contains a runnable scaffold for the project structure:
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, G3T-style pointmap target generation, camera-level/G3T pose target wiring, multi-camera model target wiring, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, G3T-style pointmap target generation, camera-level/G3T pose target wiring, camera-specific reconstruction heads, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 
@@ -48,13 +49,14 @@ PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 ```
 
-Before publishing to GitHub:
+GitHub remote is already configured. To check or push:
 
 ```bash
 PYTHONPATH=src python3 scripts/check_github_publish.py
-gh auth login
-bash scripts/publish_github.sh VggT
+git push
 ```
+
+If a fresh clone has no `origin`, `scripts/publish_github.sh` can create one with `gh auth login`.
 
 After installing dependencies:
 
