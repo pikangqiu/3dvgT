@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, an end-to-end smoke pipeline, environment scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, an end-to-end smoke pipeline, environment scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, and research baseline notes.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, and mask image files from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, pointmap/pose supervision generation, multi-camera target wiring, concrete G3T/VGGT head integration, and GPU environment validation.
 
@@ -12,6 +12,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | --- | --- | --- |
 | Git repository | Ready locally | local commits are present; use `git log --oneline` for the current head |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
+| Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
 | Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, smoke satellite/mask asset materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
@@ -35,6 +36,7 @@ Verified locally:
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/check_references.py
+PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py --help

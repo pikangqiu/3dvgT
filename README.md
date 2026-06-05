@@ -17,6 +17,7 @@ This repository now contains a runnable scaffold for the project structure:
 - reconstruction metrics,
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
+- external reference repository setup script,
 - nuScenes manifest generation and loading scaffolds,
 - manifest asset materialization for smoke satellite patches and valid masks,
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
@@ -31,6 +32,7 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/check_references.py
+PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 ```
 
 After installing dependencies:

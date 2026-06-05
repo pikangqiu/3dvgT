@@ -42,6 +42,15 @@ Run:
 PYTHONPATH=src python scripts/check_references.py
 ```
 
+After cloning the main project from GitHub, restore ignored external references with:
+
+```bash
+PYTHONPATH=src python scripts/setup_references.py --dry-run
+PYTHONPATH=src python scripts/setup_references.py
+```
+
+The dry run prints the `git clone` commands without touching the network. The real run clones missing repositories under `refs/`.
+
 ## Weights
 
 Download G3T weights:

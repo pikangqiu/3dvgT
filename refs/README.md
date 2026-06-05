@@ -2,6 +2,13 @@
 
 This directory contains external reference material for the research project.
 
+The external code repositories in this directory are intentionally ignored by the main git repository. After cloning the project from GitHub, recreate them with:
+
+```bash
+PYTHONPATH=src python scripts/setup_references.py --dry-run
+PYTHONPATH=src python scripts/setup_references.py
+```
+
 ## `g3t`
 
 Official G3T reference code cloned from:
