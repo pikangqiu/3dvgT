@@ -35,9 +35,10 @@ class ManifestTensorDataset:
         camera_mean = camera_stack.mean(dim=0)
         bev_features = _expand_channels(camera_mean, channels=8)
         satellite_patch = _load_rgb_tensor(sample.satellite_patch_path, self.image_size)
+        target_camera_depths = _load_camera_depth_tensors(sample, self.image_size)
         target_depth = (
-            _load_gray_tensor(sample.lidar_depth_path, self.image_size)
-            if sample.lidar_depth_path is not None
+            target_camera_depths.mean(dim=0)
+            if target_camera_depths.numel() > 0
             else torch.zeros(1, self.image_size, self.image_size, dtype=torch.float32)
         )
         target_pointmap = (
@@ -56,6 +57,7 @@ class ManifestTensorDataset:
             "satellite_patch": satellite_patch,
             "target_pointmap": target_pointmap,
             "target_depth": target_depth,
+            "target_camera_depths": target_camera_depths,
             "target_local_camera_to_gravity_pose": _pose_quaternion_tensor(sample),
             "target_relative_yaw_translation": _relative_yaw_translation_tensor(
                 sample,
@@ -84,6 +86,22 @@ def _load_gray_tensor(path: Path, image_size: int):
     image = Image.open(path).convert("L").resize((image_size, image_size))
     array = np.asarray(image, dtype=np.float32) / 255.0
     return torch.from_numpy(array).unsqueeze(0).contiguous()
+
+
+def _load_camera_depth_tensors(sample, image_size: int):
+    import torch
+
+    if sample.lidar_depth_paths is not None:
+        by_camera = [
+            sample.lidar_depth_paths[camera.camera_name]
+            for camera in sample.cameras
+            if camera.camera_name in sample.lidar_depth_paths
+        ]
+        if by_camera:
+            return torch.stack([_load_gray_tensor(path, image_size) for path in by_camera], dim=0)
+    if sample.lidar_depth_path is not None:
+        return _load_gray_tensor(sample.lidar_depth_path, image_size).unsqueeze(0)
+    return torch.zeros(0, 1, image_size, image_size, dtype=torch.float32)
 
 
 def _expand_channels(tensor, channels: int):

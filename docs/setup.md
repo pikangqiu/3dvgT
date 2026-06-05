@@ -146,7 +146,7 @@ PYTHONPATH=src python scripts/materialize_satellite_crops.py \
   --output data/manifests/nuscenes-mini.satellite.jsonl
 ```
 
-Generate a LiDAR-projected camera depth target:
+Generate LiDAR-projected camera depth targets:
 
 ```bash
 PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
@@ -154,6 +154,7 @@ PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
   --root data/nuscenes \
   --version v1.0-mini \
   --camera CAM_FRONT \
+  --camera CAM_BACK \
   --output data/manifests/nuscenes-mini.depth.jsonl
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.depth.jsonl
 ```
@@ -176,6 +177,8 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
   data/manifests/nuscenes-mini.smoke.jsonl \
   --root data/nuscenes \
   --version v1.0-mini \
+  --camera CAM_FRONT \
+  --camera CAM_BACK \
   --output data/manifests/nuscenes-mini.supervised.jsonl
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
 ```

@@ -92,6 +92,59 @@ class NuScenesDepthTest(unittest.TestCase):
         self.assertEqual(report.depth_maps_written, 1)
         self.assertEqual(record["lidar_depth_path"], "depth/sample-1_CAM_FRONT.png")
 
+    @unittest.skipUnless(find_spec("PIL"), "Pillow is required for lidar depth manifest tests")
+    def test_materialize_lidar_depth_manifest_writes_multi_camera_paths(self) -> None:
+        from PIL import Image
+
+        from vggt_project.data import materialize_lidar_depth_manifest
+        import vggt_project.data.nuscenes_depth as depth_module
+
+        class FakeNuScenes:
+            dataroot = ""
+
+        def fake_render(*args, **kwargs):
+            color = 64 if kwargs["camera_name"] == "CAM_FRONT" else 128
+            return Image.new("L", (3, 3), color=color)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.jpg","samples/CAM_BACK/b.jpg"],'
+                '"camera_names":["CAM_FRONT","CAM_BACK"],'
+                '"satellite_patch_path":"sat/sample-1.png",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+            output = root / "samples.depth.jsonl"
+            original_render = depth_module.render_nuscenes_lidar_depth
+            depth_module.render_nuscenes_lidar_depth = fake_render
+            try:
+                report = materialize_lidar_depth_manifest(
+                    FakeNuScenes(),
+                    manifest,
+                    depth_dir=Path("depth"),
+                    output_manifest_path=output,
+                    camera_names=("CAM_FRONT", "CAM_BACK"),
+                )
+            finally:
+                depth_module.render_nuscenes_lidar_depth = original_render
+
+            record = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(report.depth_maps_written, 2)
+        self.assertEqual(report.camera_names, ("CAM_FRONT", "CAM_BACK"))
+        self.assertEqual(record["lidar_depth_path"], "depth/sample-1_CAM_FRONT.png")
+        self.assertEqual(
+            record["lidar_depth_paths"],
+            {
+                "CAM_BACK": "depth/sample-1_CAM_BACK.png",
+                "CAM_FRONT": "depth/sample-1_CAM_FRONT.png",
+            },
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

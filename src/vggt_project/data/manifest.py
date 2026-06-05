@@ -61,6 +61,7 @@ def load_manifest(path: Path) -> list[AlignedNuScenesSample]:
                 satellite_frame=record.get("satellite_frame", "satellite"),
                 valid_area_mask_path=_resolve(base, record.get("valid_area_mask_path")),
                 lidar_depth_path=_resolve(base, record.get("lidar_depth_path")),
+                lidar_depth_paths=_resolve_path_mapping(base, record.get("lidar_depth_paths")),
                 pointmap_path=_resolve(base, record.get("pointmap_path")),
                 vector_map_path=_resolve(base, record.get("vector_map_path")),
                 ego_translation=_tuple_or_none(record.get("ego_translation"), 3),
@@ -77,3 +78,15 @@ def _tuple_or_none(value: list | tuple | None, length: int) -> tuple[float, ...]
     if len(value) != length:
         raise ValueError(f"expected sequence of length {length}, got {len(value)}")
     return tuple(float(item) for item in value)
+
+
+def _resolve_path_mapping(base: Path, value: dict | None) -> dict[str, Path] | None:
+    if value is None:
+        return None
+    return {str(key): _require_path(_resolve(base, path)) for key, path in value.items()}
+
+
+def _require_path(path: Path | None) -> Path:
+    if path is None:
+        raise ValueError("path mapping values must not be null")
+    return path

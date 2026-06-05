@@ -17,6 +17,7 @@ class LidarDepthReport:
     camera_name: str
     sample_count: int
     depth_maps_written: int
+    camera_names: tuple[str, ...] = ()
 
 
 def materialize_lidar_depth_manifest(
@@ -24,32 +25,38 @@ def materialize_lidar_depth_manifest(
     manifest_path: Path,
     *,
     camera_name: str = "CAM_FRONT",
+    camera_names: tuple[str, ...] | list[str] | None = None,
     depth_dir: Path = Path("lidar_depth"),
     output_manifest_path: Path | None = None,
     max_depth_m: float = 80.0,
     overwrite: bool = False,
 ) -> LidarDepthReport:
-    """Project nuScenes LIDAR_TOP points into one camera and update manifest records."""
+    """Project nuScenes LIDAR_TOP points into one or more cameras and update records."""
 
     base = manifest_path.parent
     records = _read_jsonl_records(manifest_path)
     written = 0
+    selected_camera_names = _selected_camera_names(camera_name, camera_names)
 
     for record in records:
         sample_token = str(record["token"])
-        relative_depth_path = depth_dir / f"{sample_token}_{camera_name}.png"
-        record["lidar_depth_path"] = str(relative_depth_path)
-        depth_path = _resolve(base, str(relative_depth_path))
-        if overwrite or not depth_path.exists():
-            image = render_nuscenes_lidar_depth(
-                nusc,
-                sample_token=sample_token,
-                camera_name=camera_name,
-                max_depth_m=max_depth_m,
-            )
-            depth_path.parent.mkdir(parents=True, exist_ok=True)
-            image.save(depth_path)
-            written += 1
+        depth_paths: dict[str, str] = {}
+        for selected_camera_name in selected_camera_names:
+            relative_depth_path = depth_dir / f"{sample_token}_{selected_camera_name}.png"
+            depth_paths[selected_camera_name] = str(relative_depth_path)
+            depth_path = _resolve(base, str(relative_depth_path))
+            if overwrite or not depth_path.exists():
+                image = render_nuscenes_lidar_depth(
+                    nusc,
+                    sample_token=sample_token,
+                    camera_name=selected_camera_name,
+                    max_depth_m=max_depth_m,
+                )
+                depth_path.parent.mkdir(parents=True, exist_ok=True)
+                image.save(depth_path)
+                written += 1
+        record["lidar_depth_paths"] = depth_paths
+        record["lidar_depth_path"] = depth_paths[selected_camera_names[0]]
 
     if output_manifest_path is not None:
         _write_jsonl_records(records, output_manifest_path)
@@ -57,9 +64,10 @@ def materialize_lidar_depth_manifest(
     return LidarDepthReport(
         manifest_path=manifest_path,
         output_manifest_path=output_manifest_path,
-        camera_name=camera_name,
+        camera_name=",".join(selected_camera_names),
         sample_count=len(records),
         depth_maps_written=written,
+        camera_names=selected_camera_names,
     )
 
 
@@ -212,3 +220,17 @@ def _write_jsonl_records(records: list[dict], output_path: Path) -> None:
 def _resolve(base: Path, value: str) -> Path:
     path = Path(value)
     return path if path.is_absolute() else base / path
+
+
+def _selected_camera_names(
+    camera_name: str,
+    camera_names: tuple[str, ...] | list[str] | None,
+) -> tuple[str, ...]:
+    if camera_names is None:
+        camera_names = (camera_name,)
+    names: list[str] = []
+    for value in camera_names:
+        names.extend(part.strip() for part in str(value).split(",") if part.strip())
+    if not names:
+        raise ValueError("at least one camera name is required")
+    return tuple(dict.fromkeys(names))

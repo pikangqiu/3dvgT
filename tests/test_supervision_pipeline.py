@@ -21,6 +21,7 @@ class SupervisionPipelineTest(unittest.TestCase):
             manifest_path,
             *,
             camera_name,
+            camera_names,
             depth_dir,
             output_manifest_path,
             max_depth_m,
@@ -33,9 +34,10 @@ class SupervisionPipelineTest(unittest.TestCase):
             return LidarDepthReport(
                 manifest_path=manifest_path,
                 output_manifest_path=output_manifest_path,
-                camera_name=camera_name,
+                camera_name=",".join(camera_names or (camera_name,)),
                 sample_count=len(records),
                 depth_maps_written=1,
+                camera_names=tuple(camera_names or (camera_name,)),
             )
 
         def fake_pointmap(
@@ -80,6 +82,7 @@ class SupervisionPipelineTest(unittest.TestCase):
                     FakeNuScenes(),
                     manifest,
                     output_manifest_path=output,
+                    camera_names=("CAM_FRONT", "CAM_BACK"),
                 )
             finally:
                 pipeline.materialize_lidar_depth_manifest = original_depth

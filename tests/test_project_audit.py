@@ -33,6 +33,7 @@ class ProjectAuditTest(unittest.TestCase):
 
         self.assertFalse(report.real_training_complete)
         self.assertIn("satellite patch extraction", " ".join(report.remaining_gaps))
+        self.assertNotIn("multi-camera depth/pointmap", " ".join(report.remaining_gaps))
 
 
 if __name__ == "__main__":

@@ -14,7 +14,12 @@ def main() -> int:
     parser.add_argument("--version", default="v1.0-mini")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--depth-manifest", type=Path, default=None)
-    parser.add_argument("--camera", default="CAM_FRONT")
+    parser.add_argument(
+        "--camera",
+        action="append",
+        default=None,
+        help="Camera to project into. Repeat or pass comma-separated names for multi-camera depth.",
+    )
     parser.add_argument("--depth-dir", type=Path, default=Path("lidar_depth"))
     parser.add_argument("--pointmap-dir", type=Path, default=Path("pointmaps"))
     parser.add_argument("--max-depth-m", type=float, default=80.0)
@@ -31,7 +36,7 @@ def main() -> int:
         args.manifest,
         output_manifest_path=args.output,
         depth_manifest_path=args.depth_manifest,
-        camera_name=args.camera,
+        camera_names=args.camera,
         depth_dir=args.depth_dir,
         pointmap_dir=args.pointmap_dir,
         max_depth_m=args.max_depth_m,

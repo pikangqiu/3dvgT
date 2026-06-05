@@ -37,6 +37,9 @@ def validate_manifest_paths(path: Path) -> ManifestValidationReport:
         _append_missing(missing, sample.token, "satellite_patch_path", sample.satellite_patch_path)
         _append_missing(missing, sample.token, "valid_area_mask_path", sample.valid_area_mask_path)
         _append_missing(missing, sample.token, "lidar_depth_path", sample.lidar_depth_path)
+        if sample.lidar_depth_paths is not None:
+            for camera_name, depth_path in sample.lidar_depth_paths.items():
+                _append_missing(missing, sample.token, f"lidar_depth_paths.{camera_name}", depth_path)
         _append_missing(missing, sample.token, "pointmap_path", sample.pointmap_path)
         _append_missing(missing, sample.token, "vector_map_path", sample.vector_map_path)
 

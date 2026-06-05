@@ -51,6 +51,7 @@ These fields are the bridge for real satellite patch extraction: future preproce
 Optional supervision fields currently supported by `ManifestTensorDataset`:
 
 - `lidar_depth_path`: grayscale image loaded as `target_depth`.
+- `lidar_depth_paths`: optional `{camera_name: depth_path}` mapping loaded as `target_camera_depths`; `target_depth` is the mean depth map for the current scaffold loss.
 - `valid_area_mask_path`: grayscale image loaded as `valid_area_mask`.
 - `pointmap_path`: `.npy` array or `.npz` file with a `pointmap` array, loaded as `target_pointmap` with shape `point_count x 3` after truncation or zero-padding.
 - `vector_map_path`: validated by `validate_manifest.py`, but not yet loaded into model targets.
@@ -80,7 +81,7 @@ Validate a generated manifest before training:
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.jsonl
 ```
 
-The validator checks camera image paths, satellite patches, and optional valid-mask/depth/vector-map files referenced by the manifest.
+The validator checks camera image paths, satellite patches, and optional valid-mask/depth/pointmap/vector-map files referenced by the manifest, including every camera entry in `lidar_depth_paths`.
 
 For smoke testing only, materialize placeholder satellite patches and optional all-valid masks:
 
@@ -117,7 +118,7 @@ The config maps each `map_location` to a raster and a linear ego-meter to pixel 
 }
 ```
 
-Generate a camera-depth target from nuScenes `LIDAR_TOP` for the manifest:
+Generate camera-depth targets from nuScenes `LIDAR_TOP` for the manifest:
 
 ```bash
 PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
@@ -125,11 +126,12 @@ PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
   --root data/nuscenes \
   --version v1.0-mini \
   --camera CAM_FRONT \
+  --camera CAM_BACK \
   --depth-dir lidar_depth \
   --output data/manifests/nuscenes-mini.depth.jsonl
 ```
 
-This projects LiDAR points into one camera image and writes an 8-bit normalized depth target. The default is `CAM_FRONT`, which is enough for the current scaffold depth loss but should be extended to per-camera or BEV/pointmap supervision for the real model.
+This projects LiDAR points into one or more camera images and writes 8-bit normalized depth targets. The output manifest keeps the first camera in `lidar_depth_path` for backward-compatible scaffold losses and writes all selected cameras in `lidar_depth_paths` for future multi-camera/G3T supervision.
 
 Generate an ego-frame pointmap target from nuScenes `LIDAR_TOP`:
 
@@ -152,6 +154,8 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
   data/manifests/nuscenes-mini.smoke.jsonl \
   --root data/nuscenes \
   --version v1.0-mini \
+  --camera CAM_FRONT \
+  --camera CAM_BACK \
   --output data/manifests/nuscenes-mini.supervised.jsonl
 ```
 

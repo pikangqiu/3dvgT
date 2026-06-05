@@ -105,7 +105,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "real satellite patch extraction requires user-provided satellite rasters/config, though crop materialization is now scripted",
         "G3T/VGGT camera-level pointmap/pose targets and occupancy target generation are not implemented, though LiDAR ego-frame pointmap target generation is wired",
         "G3T/VGGT head adapter and fine-tuning path are not implemented",
-        "multi-camera depth/pointmap target wiring is not implemented",
+        "multi-camera pointmap/model target wiring is not implemented, though multi-camera LiDAR depth manifests are wired",
         "GitHub upload still requires gh authentication and remote creation",
     )
     return ProjectAuditReport(
