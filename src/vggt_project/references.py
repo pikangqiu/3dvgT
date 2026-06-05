@@ -49,7 +49,7 @@ def collect_reference_status(paths: ReferencePaths | None = None) -> list[Refere
             name="look_from_above_notes",
             path=resolved.look_from_above_notes,
             exists=resolved.look_from_above_notes.exists(),
-            details="paper-derived notes; public code repository not identified",
+            details="paradigm-only paper notes; component code refs are accepted",
         ),
         ReferenceStatus(
             name="pseudomaptrainer_component",

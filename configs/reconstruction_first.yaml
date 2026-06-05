@@ -12,7 +12,8 @@ references:
     paper: 859_Look_from_Above_Satellite_.pdf
     notes_path: refs/look-from-above
     role: satellite_bev_alignment_and_nuscenes_mapping_reference
-    public_code_status: not_found
+    public_code_status: paradigm_only_no_official_code_required
+    implementation_policy: implement_paper_ideas_using_component_code_refs
     component_code_refs:
       pseudomaptrainer:
         path: refs/look-from-above-components/PseudoMapTrainer

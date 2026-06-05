@@ -20,4 +20,4 @@ See `agent.md` for the research纲领 and working rules.
 └── src/
 ```
 
-`refs/g3t` is a cloned reference repository. `refs/look-from-above` currently stores notes because no official public code repository has been identified for the anonymous Look from Above submission. `refs/look-from-above-components` contains public component references such as PseudoMapTrainer and MapTR.
+`refs/g3t` is a cloned reference repository. `refs/look-from-above` stores notes for the Look from Above paradigm, which currently has no codebase. `refs/look-from-above-components` contains public component references such as PseudoMapTrainer and MapTR; these are the accepted engineering references for implementing the paper's ideas.

@@ -8,10 +8,12 @@ G3T provides the geometry reference: gravity-aligned pointmaps, camera-to-gravit
 
 Look from Above provides the data and fusion reference: nuScenes, aligned satellite patches, BEV features, valid-area masking, and optional vector-map supervision.
 
-The Look from Above official code has not been found publicly. The scaffold therefore tracks two component-level references:
+Look from Above currently has no codebase, and the user has confirmed that this is expected. The scaffold therefore treats it as a paradigm-only paper reference and tracks two component-level references:
 
 - PseudoMapTrainer for pseudo-label generation, semantic reconstruction, and mask-aware assignment.
 - MapTR for vectorized HD map construction and downstream map head structure.
+
+This is now the accepted implementation path rather than a temporary blocker.
 
 ## Initial Data Flow
 

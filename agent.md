@@ -52,7 +52,7 @@ Core ideas to borrow:
 - Use BEV valid/observed regions to avoid supervising unobserved areas too strongly.
 - Treat vectorized map prediction as an auxiliary structural task, not the primary objective.
 
-As of the initial scaffold, no official public code repository for this anonymous ECCV 2026 submission has been identified. Do not substitute unrelated baseline repositories as "official" code. If a real code URL is provided later, clone it under `refs/look-from-above`.
+The user has confirmed that Look from Above currently has no codebase. Treat it as a paradigm-only paper reference. The implementation should combine the paper's ideas with code from the public codebases it builds on or compares against. Do not wait for an official Look from Above repository before building this project.
 
 Component-level public reference code is available under `refs/look-from-above-components`:
 
@@ -60,6 +60,13 @@ Component-level public reference code is available under `refs/look-from-above-c
 - `MapTR` for nuScenes vectorized HD map prediction and MapTR-style auxiliary heads.
 
 These repositories can guide implementation, but they must not be described as the official Look from Above implementation.
+
+Implementation interpretation:
+
+- Recreate the Look from Above fusion idea ourselves: onboard BEV features plus aligned satellite patches, valid-area masking, and optional vector-map auxiliary supervision.
+- Borrow pseudo-label and mask-aware training mechanics from `PseudoMapTrainer` when useful.
+- Borrow vectorized map head/data conventions from `MapTR` when useful.
+- Keep the main objective as G3T-style 3D reconstruction, not pure mapping.
 
 ## Model Direction
 

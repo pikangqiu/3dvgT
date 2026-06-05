@@ -25,7 +25,7 @@ For this project, the paper is not the main task definition. We borrow its data 
 
 ## Current Code Status
 
-No official public repository was identified during initial setup. If the user provides an official code URL later, clone it into this directory or replace this notes directory with a clone under `refs/look-from-above-code`.
+The user has confirmed that Look from Above currently has no codebase. This is not a project blocker. Use this paper as a paradigm reference and implement its ideas using the public component codebases it depends on or compares against.
 
 Component-level public references have been cloned under `refs/look-from-above-components/`:
 
@@ -33,3 +33,9 @@ Component-level public references have been cloned under `refs/look-from-above-c
 - `MapTR`: official implementation of the vectorized online HD map construction baseline/head family cited by the paper.
 
 Use these only as component references. Do not describe them as the Look from Above official code.
+
+Accepted implementation path:
+
+1. Use PseudoMapTrainer for pseudo-label, semantic reconstruction, Gaussian-splatting, and mask-aware training ideas.
+2. Use MapTR for vectorized HD map conventions, nuScenes data conventions, and auxiliary map heads.
+3. Implement the satellite/BEV fusion and G3T-conditioned 3D reconstruction logic in this repository's own `src/` package.
