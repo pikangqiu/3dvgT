@@ -77,6 +77,20 @@ PYTHONPATH=src python scripts/materialize_manifest_assets.py \
 
 The generated satellite images are deterministic placeholders, not real geospatial crops. Use them only to test the data/training pipe before the real satellite source is selected.
 
+Generate a camera-depth target from nuScenes `LIDAR_TOP` for the manifest:
+
+```bash
+PYTHONPATH=src python scripts/generate_lidar_depth_targets.py \
+  data/manifests/nuscenes-mini.smoke.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --camera CAM_FRONT \
+  --depth-dir lidar_depth \
+  --output data/manifests/nuscenes-mini.depth.jsonl
+```
+
+This projects LiDAR points into one camera image and writes an 8-bit normalized depth target. The default is `CAM_FRONT`, which is enough for the current scaffold depth loss but should be extended to per-camera or BEV/pointmap supervision for the real model.
+
 ## Manifest Smoke Training
 
 After validation, a manifest can be used to smoke-test real image loading:
@@ -84,7 +98,7 @@ After validation, a manifest can be used to smoke-test real image loading:
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.jsonl \
+  --manifest data/manifests/nuscenes-mini.depth.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 ```

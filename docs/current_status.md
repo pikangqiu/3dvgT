@@ -2,9 +2,9 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, environment scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, environment scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, and research baseline notes.
 
-It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, and mask image files from a JSONL manifest. Real training still needs satellite patch extraction/alignment, pointmap/pose supervision generation, concrete G3T/VGGT head integration, and GPU environment validation.
+It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, and mask image files from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, pointmap/pose supervision generation, multi-camera target wiring, concrete G3T/VGGT head integration, and GPU environment validation.
 
 ## Module Status
 
@@ -13,7 +13,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Git repository | Ready locally | local commits are present; use `git log --oneline` for the current head |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
-| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, smoke satellite/mask asset materialization, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, smoke satellite/mask asset materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
@@ -24,6 +24,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
 | Manifest asset materialization | Smoke-only scripted | `scripts/materialize_manifest_assets.py`; creates placeholder satellite patches and optional valid masks for pipeline testing |
+| LiDAR depth target generation | Scripted for one camera | `scripts/generate_lidar_depth_targets.py`; projects `LIDAR_TOP` to `CAM_FRONT` by default |
 | GitHub upload | Blocked by auth | `gh` installed, but `gh auth status` reports no logged-in host |
 
 ## Commands
@@ -35,6 +36,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py --help
+PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py --help
 python3 -m compileall src scripts tests
 ```
 
@@ -53,6 +55,7 @@ Smoke run evidence from this machine:
 ```text
 /tmp/vggt-satellite-smoke/bin/python scripts/train.py --mode synthetic --epochs 1 --output-dir /tmp/vggt-satellite-smoke-output
 /tmp/vggt-satellite-smoke/bin/python scripts/evaluate.py --mode synthetic --checkpoint /tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt
+MPLCONFIGDIR=/tmp/vggt-mpl /tmp/vggt-satellite-smoke/bin/python -m unittest discover -s tests -v
 /tmp/vggt-satellite-smoke/bin/python scripts/train.py --mode manifest-smoke --manifest <temp>/samples.jsonl --epochs 1 --output-dir <temp>/out
 ```
 
@@ -65,9 +68,10 @@ bash scripts/publish_github.sh VggT
 
 ## Next Implementation Milestones
 
-1. Extend preprocessing from manifest generation/validation to actual satellite patch extraction.
-2. Replace remaining manifest-smoke placeholder pointmap/pose targets with real pointmap/pose/occupancy supervision.
-3. Select and implement satellite patch source/alignment.
-4. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads.
-5. Extend metrics beyond smoke values to real reconstruction metrics: scale-aligned pointmap accuracy/completeness, gravity error, and sequence drift.
-6. Add optional MapTR-style vector map auxiliary supervision.
+1. Replace placeholder satellite materialization with actual satellite patch extraction.
+2. Extend LiDAR depth generation from one camera to multi-camera or BEV/pointmap supervision.
+3. Replace remaining manifest-smoke placeholder pointmap/pose targets with real pointmap/pose/occupancy supervision.
+4. Select and implement satellite patch source/alignment.
+5. Replace the synthetic scaffold model with a thin adapter around G3T/VGGT heads.
+6. Extend metrics beyond smoke values to real reconstruction metrics: scale-aligned pointmap accuracy/completeness, gravity error, and sequence drift.
+7. Add optional MapTR-style vector map auxiliary supervision.

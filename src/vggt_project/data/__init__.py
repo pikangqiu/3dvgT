@@ -28,4 +28,19 @@ __all__ = [
     "ManifestTensorDataset",
     "ManifestAssetReport",
     "materialize_manifest_assets",
+    "LidarDepthReport",
+    "materialize_lidar_depth_manifest",
+    "rasterize_camera_depth",
 ]
+
+
+def __getattr__(name: str):
+    if name in {
+        "LidarDepthReport",
+        "materialize_lidar_depth_manifest",
+        "rasterize_camera_depth",
+    }:
+        from vggt_project.data import nuscenes_depth
+
+        return getattr(nuscenes_depth, name)
+    raise AttributeError(name)
