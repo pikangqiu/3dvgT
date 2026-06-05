@@ -39,7 +39,8 @@ PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py data/manifests/nuscenes-mini.smoke.jsonl --output data/manifests/nuscenes-mini.depth.jsonl
-PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --epochs 1
+PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --epochs 1 --output-dir outputs/manifest-smoke
+PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 ```
 
 ## Layout

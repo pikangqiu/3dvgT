@@ -126,7 +126,15 @@ PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.
 Smoke-test real file loading:
 
 ```bash
-PYTHONPATH=src python scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --epochs 1
+PYTHONPATH=src python scripts/train.py \
+  --mode manifest-smoke \
+  --manifest data/manifests/nuscenes-mini.depth.jsonl \
+  --epochs 1 \
+  --output-dir outputs/manifest-smoke
+PYTHONPATH=src python scripts/evaluate.py \
+  --mode manifest-smoke \
+  --manifest data/manifests/nuscenes-mini.depth.jsonl \
+  --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 ```
 
 If `lidar_depth_path` or `valid_area_mask_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Pointmap and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.
