@@ -1,13 +1,14 @@
 """Tensor dataset backed by a validated JSONL manifest.
 
 This dataset is a real-file smoke path: it reads camera and satellite images from
-disk and converts them to tensors shaped for the current scaffold model. It does
-not provide real 3D supervision yet; targets are zero placeholders until depth,
-pointmap, pose, or occupancy labels are connected.
+disk and converts them to tensors shaped for the current scaffold model. It can
+load depth/mask targets and derive coarse ego-pose targets from manifest metadata.
+Pointmap targets remain placeholders until pointmap or occupancy labels are connected.
 """
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 from vggt_project.data.manifest import load_manifest
@@ -20,6 +21,7 @@ class ManifestTensorDataset:
         self.samples = load_manifest(manifest_path)
         self.image_size = image_size
         self.point_count = point_count
+        self.scene_origins = _scene_translation_origins(self.samples)
 
     def __len__(self) -> int:
         return len(self.samples)
@@ -49,8 +51,11 @@ class ManifestTensorDataset:
             "satellite_patch": satellite_patch,
             "target_pointmap": torch.zeros(self.point_count, 3, dtype=torch.float32),
             "target_depth": target_depth,
-            "target_local_camera_to_gravity_pose": torch.tensor([1.0, 0.0, 0.0, 0.0]),
-            "target_relative_yaw_translation": torch.zeros(4, dtype=torch.float32),
+            "target_local_camera_to_gravity_pose": _pose_quaternion_tensor(sample),
+            "target_relative_yaw_translation": _relative_yaw_translation_tensor(
+                sample,
+                self.scene_origins.get(sample.scene_token),
+            ),
             "valid_area_mask": valid_area_mask,
             "sample_token": sample.token,
         }
@@ -79,3 +84,42 @@ def _load_gray_tensor(path: Path, image_size: int):
 def _expand_channels(tensor, channels: int):
     repeat_count = (channels + tensor.shape[0] - 1) // tensor.shape[0]
     return tensor.repeat(repeat_count, 1, 1)[:channels]
+
+
+def _scene_translation_origins(samples) -> dict[str, tuple[float, float, float]]:
+    origins: dict[str, tuple[float, float, float]] = {}
+    for sample in sorted(samples, key=lambda item: (item.scene_token, item.timestamp_us)):
+        if sample.ego_translation is not None and sample.scene_token not in origins:
+            origins[sample.scene_token] = sample.ego_translation
+    return origins
+
+
+def _pose_quaternion_tensor(sample):
+    import torch
+
+    if sample.ego_rotation is None:
+        return torch.tensor([1.0, 0.0, 0.0, 0.0], dtype=torch.float32)
+    normalized = _normalize_quaternion(sample.ego_rotation)
+    return torch.tensor(normalized, dtype=torch.float32)
+
+
+def _relative_yaw_translation_tensor(sample, origin: tuple[float, float, float] | None):
+    import torch
+
+    if sample.ego_rotation is None or sample.ego_translation is None or origin is None:
+        return torch.zeros(4, dtype=torch.float32)
+    yaw = _yaw_from_quaternion(_normalize_quaternion(sample.ego_rotation))
+    translation = tuple(sample.ego_translation[index] - origin[index] for index in range(3))
+    return torch.tensor((yaw, *translation), dtype=torch.float32)
+
+
+def _normalize_quaternion(quaternion: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+    norm = math.sqrt(sum(value * value for value in quaternion))
+    if norm <= 0.0:
+        return (1.0, 0.0, 0.0, 0.0)
+    return tuple(value / norm for value in quaternion)
+
+
+def _yaw_from_quaternion(quaternion: tuple[float, float, float, float]) -> float:
+    w, x, y, z = quaternion
+    return math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))

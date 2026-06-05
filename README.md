@@ -22,12 +22,13 @@ This repository now contains a runnable scaffold for the project structure:
 - manifest asset materialization for smoke satellite patches and valid masks,
 - local satellite raster crop materialization,
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
+- ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real pointmap/pose supervision generation, multi-camera target wiring, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real pointmap supervision generation, camera-level/G3T pose target wiring, multi-camera target wiring, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 

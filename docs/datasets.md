@@ -54,6 +54,13 @@ Optional supervision fields currently supported by `ManifestTensorDataset`:
 - `valid_area_mask_path`: grayscale image loaded as `valid_area_mask`.
 - `vector_map_path`: validated by `validate_manifest.py`, but not yet loaded into model targets.
 
+If `ego_translation` and `ego_rotation` are present, `ManifestTensorDataset` also creates:
+
+- `target_local_camera_to_gravity_pose`: normalized ego quaternion, used as the current scaffold pose target.
+- `target_relative_yaw_translation`: yaw plus scene-relative translation `[yaw, dx, dy, dz]`, using the first ego pose in each scene as the origin.
+
+These are coarse ego-frame targets for training-plumbing validation. The real model still needs camera-level/G3T pose target wiring.
+
 Generate an initial manifest from nuScenes metadata:
 
 ```bash
@@ -135,7 +142,7 @@ PYTHONPATH=src python scripts/train.py \
   --output-dir outputs/manifest-smoke
 ```
 
-This reads real camera and satellite image files into tensors and runs the current scaffold model. It still uses placeholder reconstruction targets, so it is a data-path smoke test rather than real supervised training.
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load depth, masks, and ego-pose-derived pose targets, but still uses a placeholder pointmap target, so it is a training-plumbing smoke test rather than a complete supervised experiment.
 
 Check the local layout with:
 
