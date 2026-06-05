@@ -172,4 +172,11 @@ PYTHONPATH=src python scripts/evaluate.py \
   --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 ```
 
+The same current scaffold can be launched from the default experiment config after the manifest referenced in that config exists:
+
+```bash
+PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
+```
+
 If `lidar_depth_path` or `valid_area_mask_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Pointmap and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.

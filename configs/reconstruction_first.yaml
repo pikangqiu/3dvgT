@@ -71,3 +71,17 @@ evaluation:
   auxiliary_metrics:
     - vector_map_map
     - bev_occupancy_iou
+
+runtime:
+  data:
+    manifest_path: data/manifests/nuscenes-mini.depth.jsonl
+    image_size: 32
+    point_count: 128
+  training:
+    mode: manifest-smoke
+    output_dir: outputs/manifest-smoke
+    epochs: 1
+    batch_size: 1
+    learning_rate: 0.001
+  evaluation:
+    checkpoint: outputs/manifest-smoke/manifest_smoke_scaffold.pt

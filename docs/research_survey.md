@@ -6,6 +6,8 @@ The project is reconstruction-first, so the strongest first comparison should be
 
 Primary candidates:
 
+- Sky2Ground for satellite/aerial/ground site modeling, camera localization, and rendering/reconstruction under large viewpoint/altitude changes.
+- CrossGeo/Cross3R for feed-forward satellite-drone-ground 3D reconstruction and 6-DoF cross-view pose estimation.
 - E3D-Bench for general end-to-end 3D geometric foundation model evaluation.
 - Occ3D-nuScenes for autonomous-driving 3D occupancy geometry.
 - OpenScene for a larger nuPlan-derived occupancy benchmark when scaling beyond nuScenes-mini.
@@ -14,6 +16,7 @@ Primary candidates:
 - ReconDrive as a 2026 feed-forward 4D Gaussian Splatting driving-scene reconstruction baseline that extends VGGT-style geometric features.
 - ParkRecon3D/ParkGaussian as a 2026 surround-view parking-scene reconstruction benchmark/baseline.
 - Perception-aware 3DGS as a 2026 evaluation direction for whether reconstructed driving scenes preserve downstream perception behavior.
+- GS-Occ3D / GaussianOcc as Gaussian-splatting occupancy baselines for scalable vision-only or self-supervised driving geometry.
 
 Auxiliary mapping candidates:
 
@@ -29,6 +32,13 @@ Auxiliary mapping candidates:
 - G3T: gravity-aligned pointmap baseline and our main geometry reference.
 - VGG-T3: scalable VGGT-style long-input baseline.
 - E3D-Bench model list: broad comparison set for GFMs.
+- InstantSplat: fast sparse-view SfM-free Gaussian Splatting baseline for cases where pose is weak or missing.
+
+### Satellite-ground reconstruction and localization
+
+- Sky2Ground / SkyNet: 2026 satellite/aerial/ground benchmark and model for site modeling under varying altitude; directly relevant for satellite images as noisy but useful cross-view priors.
+- CrossGeo / Cross3R: 2026 tri-view satellite-drone-ground benchmark/model for feed-forward 3D point cloud reconstruction, 6-DoF camera pose, and on-tile cross-view localization.
+- SG-BEV: satellite-guided BEV fusion reference for feature alignment, useful as an auxiliary design baseline rather than a reconstruction metric baseline.
 
 ### Driving-scene reconstruction
 
@@ -44,6 +54,8 @@ Auxiliary mapping candidates:
 - Occ3D-nuScenes and Occ3D-Waymo.
 - UniOcc for unified occupancy prediction/forecasting across nuScenes, Waymo, and CARLA.
 - SurroundOcc/OpenOccupancy/OccFormer/TPVFormer as occupancy baselines when using occupancy metrics.
+- GS-Occ3D: vision-only occupancy reconstruction/label curation with Gaussian Splatting, useful if the paper claims scalable geometry labels.
+- GaussianOcc: self-supervised Gaussian Splatting occupancy/depth training on surround-view driving datasets.
 
 ### Mapping auxiliary
 
@@ -55,6 +67,8 @@ Auxiliary mapping candidates:
 
 | Candidate | Use in this project | Why it matters | Primary metrics to borrow |
 | --- | --- | --- | --- |
+| Sky2Ground / SkyNet | Main cross-view benchmark direction | Directly studies satellite/aerial/ground site modeling and shows satellite views can degrade naive fine-tuning, motivating careful satellite branch design | camera pose/localization accuracy, rendering/reconstruction quality, depth/surface normal when available |
+| CrossGeo / Cross3R | Main satellite-ground reconstruction benchmark direction | Directly targets satellite/drone/ground feed-forward 3D reconstruction and 6-DoF pose, close to our satellite-prior claim even though not nuScenes-specific | point-cloud reconstruction, 6-DoF pose, cross-view localization |
 | E3D-Bench | Main external GFM benchmark | Covers sparse-view depth, video depth, 3D reconstruction, multi-view pose, and novel view synthesis for end-to-end 3D geometric foundation models | depth, reconstruction accuracy/completeness, pose, NVS metrics, latency/memory |
 | Occ3D-nuScenes | Main driving geometry benchmark | nuScenes-derived occupancy gives autonomous-driving 3D geometry targets when dense pointmaps are hard to obtain | mIoU, IoU, semantic occupancy accuracy |
 | OpenScene | Scale-up occupancy benchmark | Larger nuPlan-derived benchmark with occupancy labels and CVPR Autonomous Grand Challenge relevance | occupancy IoU/mIoU, flow-aware future extensions |
@@ -65,6 +79,9 @@ Auxiliary mapping candidates:
 | ParkRecon3D / ParkGaussian | 2026 niche reconstruction benchmark | Surround-view parking scene reconstruction benchmark with dense parking-slot annotations | reconstruction quality, slot-aware perception consistency |
 | Nighttime driving 3DGS | Robustness benchmark direction | Tests reconstruction under low-light driving scenes on nuScenes/Waymo | nighttime reconstruction quality, rendering metrics |
 | Real2Sim | Future simulation/editing comparison | Editable physics-aware 4DGS for Waymo driving scenes, less directly aligned with our first nuScenes reconstruction table | rendering, reconstruction, editing/physics consistency |
+| GS-Occ3D | Scalable geometry-label baseline | Curates vision-only occupancy labels and evaluates zero-shot transfer to Occ3D-nuScenes | binary occupancy quality, downstream Occ3D generalization |
+| GaussianOcc | Self-supervised occupancy/depth baseline | Uses Gaussian Splatting modules for scale-aware pose/depth and efficient voxel rendering on nuScenes/DDAD | occupancy IoU/mIoU, depth error, training/render speed |
+| InstantSplat | Sparse-view reconstruction reference | Useful for ablations where pose is weak and fast feed-forward/sparse-view reconstruction is needed | NVS quality, reconstruction quality, runtime |
 | UniOcc | Secondary benchmark for future extension | Adds unified occupancy prediction/forecasting across nuScenes, Waymo, CARLA, and OpenCOOD | current/future occupancy mIoU/IoU, flow consistency |
 | OpenOccupancy / SurroundOcc | Secondary occupancy baselines | Mature nuScenes semantic occupancy baselines and codebases | occupancy mIoU/IoU |
 | MapTR / MapTRv2 | Auxiliary map-head benchmark | Useful only for vectorized map auxiliary head, not primary reconstruction claim | vector map mAP |
@@ -110,6 +127,9 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - E3D-Bench project page: https://research.nvidia.com/labs/avg/publication/cong.liang.etal.arxiv2025/
 - E3D-Bench code/project: https://e3dbench.github.io/ and https://github.com/VITA-Group/E3D-Bench
 - E3D-Bench arXiv: https://arxiv.org/abs/2506.01933
+- Sky2Ground CVPR 2026 paper: https://openaccess.thecvf.com/content/CVPR2026/html/Wang_Sky2Ground_A_Benchmark_for_Site_Modeling_under_Varying_Altitude_CVPR_2026_paper.html
+- Sky2Ground arXiv: https://arxiv.org/abs/2603.13740
+- Cross3R / CrossGeo arXiv 2026: https://arxiv.org/abs/2605.07978
 - Occ3D benchmark page: https://tsinghua-mars-lab.github.io/Occ3D/
 - Occ3D arXiv: https://arxiv.org/abs/2304.14365
 - OpenScene repository: https://github.com/OpenDriveLab/OpenScene
@@ -122,6 +142,9 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. Map m
 - Real2Sim arXiv 2026: https://arxiv.org/abs/2605.13591
 - ParkGaussian / ParkRecon3D arXiv 2026: https://arxiv.org/abs/2601.01386
 - Perception-aware 3DGS ICLR 2026 OpenReview: https://openreview.net/forum?id=PmQlMTBmpa
+- GS-Occ3D project page: https://gs-occ3d.github.io/
+- GaussianOcc project page: https://ganwanshui.github.io/GaussianOcc/
+- InstantSplat project page: https://research.nvidia.com/labs/avg/publication/fan.cong.etal.arxiv2025/
 - DrivingForward project page: https://fangzhou2000.github.io/projects/drivingforward/
 - DGGT official repository: https://github.com/xiaomi-research/dggt
 - Drive-OccWorld project page: https://drive-occworld.github.io/

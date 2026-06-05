@@ -6,11 +6,13 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from vggt_project.experiments import evaluate_from_config, load_experiment_config
 from vggt_project.evaluation import evaluate_manifest_smoke, evaluate_synthetic
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=Path, default=None)
     parser.add_argument("--mode", choices=["synthetic", "manifest-smoke"], default="synthetic")
     parser.add_argument("--checkpoint", type=Path, default=Path("outputs/synthetic/synthetic_scaffold.pt"))
     parser.add_argument("--manifest", type=Path, default=None)
@@ -19,7 +21,9 @@ def main() -> int:
     parser.add_argument("--point-count", type=int, default=128)
     args = parser.parse_args()
 
-    if args.mode == "synthetic":
+    if args.config is not None:
+        metrics = evaluate_from_config(load_experiment_config(args.config))
+    elif args.mode == "synthetic":
         metrics = evaluate_synthetic(checkpoint=args.checkpoint, batch_size=args.batch_size)
     else:
         if args.manifest is None:

@@ -23,6 +23,7 @@ This repository now contains a runnable scaffold for the project structure:
 - local satellite raster crop materialization,
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
 - manifest smoke training from real image files,
+- config-driven train/eval dispatch for the current scaffold,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
@@ -56,6 +57,8 @@ PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nus
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py data/manifests/nuscenes-mini.smoke.jsonl --output data/manifests/nuscenes-mini.depth.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
+PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.yaml
 ```
 
 ## Layout
