@@ -88,7 +88,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
 
     items = tuple(_audit_item(resolved, name, paths) for name, paths in item_specs.items())
     remaining_gaps = (
-        "real satellite patch extraction/alignment is not implemented",
+        "real satellite patch extraction/alignment is not implemented, though ego pose metadata is now available in generated manifests",
         "real pointmap/pose/occupancy supervision generation is not implemented",
         "G3T/VGGT head adapter and fine-tuning path are not implemented",
         "multi-camera depth/pointmap target wiring is not implemented",

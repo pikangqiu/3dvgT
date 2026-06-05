@@ -23,6 +23,7 @@ This repository should implement the fusion and reconstruction system itself.
 Goal: make nuScenes samples explicit before training.
 
 - Define camera image, calibration, ego pose, BEV, satellite patch, valid mask, and optional LiDAR/vector-map fields.
+- Include ego pose translation/rotation and map location in manifests so satellite crops can be aligned later.
 - Add coordinate-frame checks for camera, ego, BEV, satellite, and gravity frames.
 - Decide the first satellite patch source and resolution.
 - Produce one inspectable sample artifact before building a trainer.
@@ -71,4 +72,3 @@ Primary metrics:
 - Camera pose error.
 - Gravity alignment error.
 - Long-sequence alignment drift.
-

@@ -29,8 +29,10 @@ def build_manifest_records(nusc: Any, satellite_patch_dir: Path) -> Iterator[dic
         for camera_name in camera_names:
             sample_data = nusc.get("sample_data", sample["data"][camera_name])
             camera_paths.append(sample_data["filename"])
+        ego_pose = _sample_ego_pose(nusc, sample)
+        map_location = _sample_map_location(nusc, sample)
 
-        yield {
+        record = {
             "token": sample["token"],
             "scene_token": sample["scene_token"],
             "timestamp_us": int(sample["timestamp"]),
@@ -42,6 +44,12 @@ def build_manifest_records(nusc: Any, satellite_patch_dir: Path) -> Iterator[dic
             "gravity_frame": "gravity",
             "satellite_frame": "satellite",
         }
+        if ego_pose is not None:
+            record["ego_translation"] = [float(value) for value in ego_pose["translation"]]
+            record["ego_rotation"] = [float(value) for value in ego_pose["rotation"]]
+        if map_location is not None:
+            record["map_location"] = map_location
+        yield record
 
 
 def write_manifest(records: Iterable[dict], output_path: Path) -> None:
@@ -53,3 +61,28 @@ def write_manifest(records: Iterable[dict], output_path: Path) -> None:
             handle.write(json.dumps(record, sort_keys=True))
             handle.write("\n")
 
+
+def _sample_ego_pose(nusc: Any, sample: dict) -> dict | None:
+    sample_data_token = sample["data"].get("LIDAR_TOP")
+    if sample_data_token is None:
+        camera_tokens = [token for name, token in sample["data"].items() if name.startswith("CAM_")]
+        sample_data_token = camera_tokens[0] if camera_tokens else None
+    if sample_data_token is None:
+        return None
+    sample_data = nusc.get("sample_data", sample_data_token)
+    ego_pose_token = sample_data.get("ego_pose_token")
+    if ego_pose_token is None:
+        return None
+    return nusc.get("ego_pose", ego_pose_token)
+
+
+def _sample_map_location(nusc: Any, sample: dict) -> str | None:
+    scene_token = sample.get("scene_token")
+    if scene_token is None:
+        return None
+    try:
+        scene = nusc.get("scene", scene_token)
+        log = nusc.get("log", scene["log_token"])
+    except (KeyError, TypeError):
+        return None
+    return log.get("location")

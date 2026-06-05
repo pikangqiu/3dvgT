@@ -15,7 +15,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
-| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading, path validation, smoke satellite/mask asset materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |

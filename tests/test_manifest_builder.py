@@ -18,13 +18,25 @@ class FakeNuScenes:
                 },
             }
         ]
+        self.scene = [{"token": "scene-1", "log_token": "log-1"}]
         self.dataroot = "/dataset/nuscenes"
 
     def get(self, table_name: str, token: str) -> dict:
         if table_name == "sample_data" and token == "front-token":
-            return {"filename": "samples/CAM_FRONT/front.jpg"}
+            return {"filename": "samples/CAM_FRONT/front.jpg", "ego_pose_token": "ego-front"}
         if table_name == "sample_data" and token == "back-token":
-            return {"filename": "samples/CAM_BACK/back.jpg"}
+            return {"filename": "samples/CAM_BACK/back.jpg", "ego_pose_token": "ego-back"}
+        if table_name == "sample_data" and token == "lidar-token":
+            return {"filename": "samples/LIDAR_TOP/lidar.bin", "ego_pose_token": "ego-lidar"}
+        if table_name == "ego_pose" and token == "ego-lidar":
+            return {
+                "translation": [1.0, 2.0, 3.0],
+                "rotation": [1.0, 0.0, 0.0, 0.0],
+            }
+        if table_name == "scene" and token == "scene-1":
+            return {"token": "scene-1", "log_token": "log-1"}
+        if table_name == "log" and token == "log-1":
+            return {"location": "boston-seaport"}
         raise KeyError((table_name, token))
 
 
@@ -46,6 +58,9 @@ class ManifestBuilderTest(unittest.TestCase):
         )
         self.assertEqual(records[0]["satellite_patch_path"], "satellite/sample-1.png")
         self.assertEqual(records[0]["gravity_frame"], "gravity")
+        self.assertEqual(records[0]["ego_translation"], [1.0, 2.0, 3.0])
+        self.assertEqual(records[0]["ego_rotation"], [1.0, 0.0, 0.0, 0.0])
+        self.assertEqual(records[0]["map_location"], "boston-seaport")
 
 
 if __name__ == "__main__":
