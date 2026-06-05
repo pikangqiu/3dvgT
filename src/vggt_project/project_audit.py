@@ -94,7 +94,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     items = tuple(_audit_item(resolved, name, paths) for name, paths in item_specs.items())
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though crop materialization is now scripted",
-        "real pointmap/occupancy supervision generation and camera-level G3T/VGGT pose targets are not implemented",
+        "real pointmap/occupancy target generation and camera-level G3T/VGGT pose targets are not implemented, though pointmap target loading is wired",
         "G3T/VGGT head adapter and fine-tuning path are not implemented",
         "multi-camera depth/pointmap target wiring is not implemented",
         "GitHub upload still requires gh authentication and remote creation",

@@ -40,6 +40,11 @@ class ManifestTensorDataset:
             if sample.lidar_depth_path is not None
             else torch.zeros(1, self.image_size, self.image_size, dtype=torch.float32)
         )
+        target_pointmap = (
+            _load_pointmap_tensor(sample.pointmap_path, self.point_count)
+            if sample.pointmap_path is not None
+            else torch.zeros(self.point_count, 3, dtype=torch.float32)
+        )
         valid_area_mask = (
             _load_gray_tensor(sample.valid_area_mask_path, self.image_size)
             if sample.valid_area_mask_path is not None
@@ -49,7 +54,7 @@ class ManifestTensorDataset:
         return {
             "bev_features": bev_features,
             "satellite_patch": satellite_patch,
-            "target_pointmap": torch.zeros(self.point_count, 3, dtype=torch.float32),
+            "target_pointmap": target_pointmap,
             "target_depth": target_depth,
             "target_local_camera_to_gravity_pose": _pose_quaternion_tensor(sample),
             "target_relative_yaw_translation": _relative_yaw_translation_tensor(
@@ -84,6 +89,30 @@ def _load_gray_tensor(path: Path, image_size: int):
 def _expand_channels(tensor, channels: int):
     repeat_count = (channels + tensor.shape[0] - 1) // tensor.shape[0]
     return tensor.repeat(repeat_count, 1, 1)[:channels]
+
+
+def _load_pointmap_tensor(path: Path, point_count: int):
+    import numpy as np
+    import torch
+
+    loaded = np.load(path)
+    if isinstance(loaded, np.lib.npyio.NpzFile):
+        if "pointmap" not in loaded:
+            raise ValueError(f"pointmap npz must contain a 'pointmap' array: {path}")
+        array = loaded["pointmap"]
+    else:
+        array = loaded
+    array = np.asarray(array, dtype=np.float32)
+    if array.ndim != 2 or array.shape[1] != 3:
+        raise ValueError(f"pointmap must have shape Nx3, got {array.shape}: {path}")
+
+    tensor = torch.from_numpy(array).contiguous()
+    if tensor.shape[0] >= point_count:
+        return tensor[:point_count]
+
+    padded = torch.zeros(point_count, 3, dtype=torch.float32)
+    padded[: tensor.shape[0]] = tensor
+    return padded
 
 
 def _scene_translation_origins(samples) -> dict[str, tuple[float, float, float]]:

@@ -37,6 +37,7 @@ def validate_manifest_paths(path: Path) -> ManifestValidationReport:
         _append_missing(missing, sample.token, "satellite_patch_path", sample.satellite_patch_path)
         _append_missing(missing, sample.token, "valid_area_mask_path", sample.valid_area_mask_path)
         _append_missing(missing, sample.token, "lidar_depth_path", sample.lidar_depth_path)
+        _append_missing(missing, sample.token, "pointmap_path", sample.pointmap_path)
         _append_missing(missing, sample.token, "vector_map_path", sample.vector_map_path)
 
     return ManifestValidationReport(
@@ -54,4 +55,3 @@ def _append_missing(
 ) -> None:
     if path is not None and not path.exists():
         missing.append(MissingManifestPath(sample_token=sample_token, field=field, path=path))
-

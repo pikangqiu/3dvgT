@@ -61,6 +61,7 @@ def load_manifest(path: Path) -> list[AlignedNuScenesSample]:
                 satellite_frame=record.get("satellite_frame", "satellite"),
                 valid_area_mask_path=_resolve(base, record.get("valid_area_mask_path")),
                 lidar_depth_path=_resolve(base, record.get("lidar_depth_path")),
+                pointmap_path=_resolve(base, record.get("pointmap_path")),
                 vector_map_path=_resolve(base, record.get("vector_map_path")),
                 ego_translation=_tuple_or_none(record.get("ego_translation"), 3),
                 ego_rotation=_tuple_or_none(record.get("ego_rotation"), 4),

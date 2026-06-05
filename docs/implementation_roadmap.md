@@ -25,6 +25,7 @@ Goal: make nuScenes samples explicit before training.
 - Define camera image, calibration, ego pose, BEV, satellite patch, valid mask, and optional LiDAR/vector-map fields.
 - Include ego pose translation/rotation and map location in manifests so satellite crops can be aligned later.
 - Convert manifest ego pose metadata into coarse pose targets for the current train/eval scaffold.
+- Support optional pointmap target files in manifests before implementing pointmap target generation.
 - Add coordinate-frame checks for camera, ego, BEV, satellite, and gravity frames.
 - Decide the first satellite patch source and resolution.
 - Provide a satellite raster config for `scripts/materialize_satellite_crops.py`.

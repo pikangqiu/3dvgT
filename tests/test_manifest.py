@@ -14,6 +14,7 @@ class ManifestTest(unittest.TestCase):
                 '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
                 '"camera_paths":["samples/CAM_FRONT/a.jpg"],'
                 '"satellite_patch_path":"sat/patch.png",'
+                '"pointmap_path":"targets/pointmap.npy",'
                 '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
                 '"satellite_frame":"satellite"}\n',
                 encoding="utf-8",
@@ -25,6 +26,7 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(samples[0].token, "sample-1")
         self.assertEqual(samples[0].cameras[0].image_path, root / "samples/CAM_FRONT/a.jpg")
         self.assertEqual(samples[0].satellite_patch_path, root / "sat/patch.png")
+        self.assertEqual(samples[0].pointmap_path, root / "targets/pointmap.npy")
 
 
 if __name__ == "__main__":

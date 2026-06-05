@@ -52,6 +52,7 @@ Optional supervision fields currently supported by `ManifestTensorDataset`:
 
 - `lidar_depth_path`: grayscale image loaded as `target_depth`.
 - `valid_area_mask_path`: grayscale image loaded as `valid_area_mask`.
+- `pointmap_path`: `.npy` array or `.npz` file with a `pointmap` array, loaded as `target_pointmap` with shape `point_count x 3` after truncation or zero-padding.
 - `vector_map_path`: validated by `validate_manifest.py`, but not yet loaded into model targets.
 
 If `ego_translation` and `ego_rotation` are present, `ManifestTensorDataset` also creates:
@@ -142,7 +143,7 @@ PYTHONPATH=src python scripts/train.py \
   --output-dir outputs/manifest-smoke
 ```
 
-This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load depth, masks, and ego-pose-derived pose targets, but still uses a placeholder pointmap target, so it is a training-plumbing smoke test rather than a complete supervised experiment.
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load depth, masks, pointmap arrays, and ego-pose-derived pose targets. If `pointmap_path` is absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
 
 Check the local layout with:
 

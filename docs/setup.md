@@ -179,4 +179,4 @@ PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yam
 PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
 ```
 
-If `lidar_depth_path` or `valid_area_mask_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Pointmap targets and camera-level/G3T pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.
+If `lidar_depth_path`, `valid_area_mask_path`, or `pointmap_path` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Pointmap targets still need a real preprocessing generator, and camera-level/G3T pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.
