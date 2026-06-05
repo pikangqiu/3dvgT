@@ -26,6 +26,7 @@ class ExperimentConfigTest(unittest.TestCase):
             {
                 "runtime": {
                     "device": "cpu",
+                    "seed": 123,
                     "data": {
                         "manifest_path": "data/manifests/train.jsonl",
                         "train_manifest_path": "data/manifests/train.split.jsonl",
@@ -49,6 +50,7 @@ class ExperimentConfigTest(unittest.TestCase):
 
         self.assertEqual(config.training_mode, "manifest-smoke")
         self.assertEqual(config.device, "cpu")
+        self.assertEqual(config.seed, 123)
         self.assertEqual(config.manifest_path, Path("data/manifests/train.jsonl"))
         self.assertEqual(config.train_manifest_path, Path("data/manifests/train.split.jsonl"))
         self.assertEqual(config.eval_manifest_path, Path("data/manifests/val.split.jsonl"))
@@ -65,10 +67,12 @@ class ExperimentConfigTest(unittest.TestCase):
 
         seen: dict[str, Path] = {}
         devices: dict[str, str] = {}
+        seeds: dict[str, int] = {}
 
         def fake_train_manifest_smoke(**kwargs) -> dict[str, float]:
             seen["train_manifest"] = kwargs["manifest_path"]
             devices["train"] = kwargs["device"]
+            seeds["train"] = kwargs["seed"]
             return {"loss": 1.0}
 
         def fake_evaluate_manifest_smoke(**kwargs) -> dict[str, float]:
@@ -82,6 +86,7 @@ class ExperimentConfigTest(unittest.TestCase):
             eval_manifest_path=Path("val.jsonl"),
             checkpoint=Path("checkpoint.pt"),
             device="cpu",
+            seed=123,
         )
         original_train = experiments.train_manifest_smoke
         original_eval = experiments.evaluate_manifest_smoke
@@ -98,6 +103,7 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(seen["eval_manifest"], Path("val.jsonl"))
         self.assertEqual(devices["train"], "cpu")
         self.assertEqual(devices["eval"], "cpu")
+        self.assertEqual(seeds["train"], 123)
 
     @unittest.skipUnless(find_spec("yaml"), "PyYAML is required to load YAML configs")
     def test_load_experiment_config_from_yaml(self) -> None:
@@ -132,6 +138,7 @@ class ExperimentConfigTest(unittest.TestCase):
                 training_mode="synthetic",
                 output_dir=Path(temp_dir) / "out",
                 checkpoint=Path(temp_dir) / "out" / "synthetic_scaffold.pt",
+                seed=123,
             )
 
             report = run_experiment_from_config(
@@ -146,6 +153,7 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertTrue(report_exists)
         self.assertIn('"train_metrics"', written_report)
         self.assertEqual(report["mode"], "synthetic")
+        self.assertEqual(report["config"]["seed"], 123)
         self.assertEqual(report["train_metrics"]["loss"], 1.0)
         self.assertEqual(report["eval_metrics"]["depth_mae"], 0.25)
 

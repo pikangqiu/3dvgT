@@ -16,6 +16,7 @@ def train_synthetic(
     batch_size: int = 4,
     learning_rate: float = 1e-3,
     device: str | None = None,
+    seed: int | None = None,
 ) -> dict[str, float]:
     """Run a small synthetic training job to verify plumbing."""
 
@@ -24,9 +25,15 @@ def train_synthetic(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    generator = _seed_training(torch, seed)
 
     spec = SyntheticSpec()
-    loader = DataLoader(make_synthetic_dataset(spec), batch_size=batch_size, shuffle=True)
+    loader = DataLoader(
+        make_synthetic_dataset(spec),
+        batch_size=batch_size,
+        shuffle=True,
+        generator=generator,
+    )
     model = SatelliteBEVG3TScaffold.build(
         bev_channels=spec.bev_channels,
         satellite_channels=spec.satellite_channels,
@@ -64,6 +71,7 @@ def train_manifest_smoke(
     image_size: int = 32,
     point_count: int = 128,
     device: str | None = None,
+    seed: int | None = None,
 ) -> dict[str, float]:
     """Run smoke training from real image files listed in a manifest."""
 
@@ -72,12 +80,13 @@ def train_manifest_smoke(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    generator = _seed_training(torch, seed)
     dataset = ManifestTensorDataset(
         manifest_path=manifest_path,
         image_size=image_size,
         point_count=point_count,
     )
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, generator=generator)
     model = SatelliteBEVG3TScaffold.build(point_count=point_count).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
@@ -101,3 +110,12 @@ def train_manifest_smoke(
     torch.save({"model": model.state_dict(), "metrics": last_metrics}, checkpoint_path)
     last_metrics["checkpoint"] = str(checkpoint_path)
     return last_metrics
+
+
+def _seed_training(torch, seed: int | None):
+    if seed is None:
+        return None
+    torch.manual_seed(seed)
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    return generator

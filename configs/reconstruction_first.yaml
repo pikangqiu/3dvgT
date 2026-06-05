@@ -74,6 +74,7 @@ evaluation:
 
 runtime:
   device: null
+  seed: 0
   data:
     manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     train_manifest_path: data/manifests/nuscenes-mini.train.jsonl

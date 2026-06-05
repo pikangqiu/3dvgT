@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--image-size", type=int, default=32)
     parser.add_argument("--point-count", type=int, default=128)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
     if args.config is not None:
@@ -33,6 +34,7 @@ def main() -> int:
             batch_size=args.batch_size,
             learning_rate=args.learning_rate,
             device=args.device,
+            seed=args.seed,
         )
     else:
         if args.manifest is None:
@@ -46,6 +48,7 @@ def main() -> int:
             image_size=args.image_size,
             point_count=args.point_count,
             device=args.device,
+            seed=args.seed,
         )
     for key, value in metrics.items():
         print(f"{key}: {value}")

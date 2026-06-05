@@ -20,6 +20,7 @@ class ExperimentRunConfig:
     train_manifest_path: Path | None = None
     eval_manifest_path: Path | None = None
     device: str | None = None
+    seed: int | None = None
     output_dir: Path = Path("outputs/synthetic")
     checkpoint: Path = Path("outputs/synthetic/synthetic_scaffold.pt")
     epochs: int = 1
@@ -53,6 +54,7 @@ class ExperimentRunConfig:
             train_manifest_path=train_manifest,
             eval_manifest_path=eval_manifest,
             device=runtime.get("device"),
+            seed=_optional_int(runtime.get("seed")),
             output_dir=output_dir,
             checkpoint=checkpoint,
             epochs=int(training.get("epochs", 1)),
@@ -87,6 +89,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             batch_size=config.batch_size,
             learning_rate=config.learning_rate,
             device=config.device,
+            seed=config.seed,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.train_manifest_path or config.manifest_path
@@ -103,6 +106,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             image_size=config.image_size,
             point_count=config.point_count,
             device=config.device,
+            seed=config.seed,
         )
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
 
@@ -161,6 +165,10 @@ def _mapping(value: Any) -> dict[str, Any]:
 
 def _optional_path(value: Any) -> Path | None:
     return Path(value) if value else None
+
+
+def _optional_int(value: Any) -> int | None:
+    return int(value) if value is not None else None
 
 
 def _path(value: Any) -> Path:

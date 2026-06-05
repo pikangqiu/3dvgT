@@ -198,6 +198,7 @@ PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
   --manifest data/manifests/nuscenes-mini.train.jsonl \
   --epochs 1 \
+  --seed 0 \
   --output-dir outputs/manifest-smoke
 PYTHONPATH=src python scripts/evaluate.py \
   --mode manifest-smoke \
@@ -217,6 +218,7 @@ PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.
 ```yaml
 runtime:
   device: null
+  seed: 0
   data:
     manifest_path: data/manifests/nuscenes-mini.supervised.jsonl
     train_manifest_path: data/manifests/nuscenes-train.supervised.jsonl
@@ -224,6 +226,7 @@ runtime:
 ```
 
 Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
+Set `runtime.seed` or pass `--seed` to make model initialization and shuffled DataLoader order reproducible for the current scaffold runs. The experiment report records this seed in its serialized config.
 
 For a single train+eval run with a JSON report:
 

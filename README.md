@@ -31,7 +31,7 @@ This repository now contains a runnable scaffold for the project structure:
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
 - train/eval manifest split support in experiment configs,
-- explicit train/eval device selection through config or CLI,
+- explicit train/eval device and seed selection through config or CLI,
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
@@ -60,13 +60,13 @@ After installing dependencies:
 
 ```bash
 PYTHONPATH=src python3 scripts/run_smoke_pipeline.py --output-dir outputs/smoke-pipeline --epochs 1
-PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1
+PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1 --seed 0
 PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
 PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.smoke.jsonl --output data/manifests/nuscenes-mini.supervised.jsonl
 PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
-PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --output-dir outputs/manifest-smoke
+PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
