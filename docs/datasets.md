@@ -85,6 +85,30 @@ PYTHONPATH=src python scripts/materialize_manifest_assets.py \
 
 The generated satellite images are deterministic placeholders, not real geospatial crops. Use them only to test the data/training pipe before the real satellite source is selected.
 
+When local satellite rasters are available, crop real patches from a raster config:
+
+```bash
+PYTHONPATH=src python scripts/materialize_satellite_crops.py \
+  data/manifests/nuscenes-mini.jsonl \
+  --config data/satellite_rasters/config.json \
+  --output data/manifests/nuscenes-mini.satellite.jsonl \
+  --patch-size-px 224 \
+  --output-dir satellite
+```
+
+The config maps each `map_location` to a raster and a linear ego-meter to pixel transform:
+
+```json
+{
+  "boston-seaport": {
+    "raster_path": "boston-seaport.png",
+    "origin_ego_xy_m": [0.0, 0.0],
+    "origin_pixel_xy": [1024.0, 1024.0],
+    "meters_per_pixel": 0.2
+  }
+}
+```
+
 Generate a camera-depth target from nuScenes `LIDAR_TOP` for the manifest:
 
 ```bash
@@ -121,12 +145,12 @@ PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v
 
 ## Satellite Patches
 
-The project still needs a concrete satellite source. Until that is selected, the dataset adapter exposes `satellite_patch_path`, `ego_translation`, `ego_rotation`, and `map_location`, keeping satellite alignment logic isolated from the model.
+The project still needs a concrete satellite raster source. Until that is selected, the dataset adapter exposes `satellite_patch_path`, `ego_translation`, `ego_rotation`, and `map_location`, keeping satellite alignment logic isolated from the model.
 
 The future real implementation should:
 
 - use ego pose/map metadata to select a satellite tile or mosaic,
-- crop a metric-aligned top-down patch around each nuScenes sample,
+- use `scripts/materialize_satellite_crops.py` to crop a metric-aligned top-down patch around each nuScenes sample,
 - save the crop to the manifest `satellite_patch_path`,
 - write a valid-area mask for regions covered by the crop,
 - keep placeholder assets out of real experiment tables.

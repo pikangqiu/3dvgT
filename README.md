@@ -20,6 +20,7 @@ This repository now contains a runnable scaffold for the project structure:
 - external reference repository setup script,
 - nuScenes manifest generation and loading scaffolds,
 - manifest asset materialization for smoke satellite patches and valid masks,
+- local satellite raster crop materialization,
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
 - manifest smoke training from real image files,
 - one-command toy manifest train/eval smoke pipeline,
@@ -51,6 +52,7 @@ PYTHONPATH=src python3 scripts/run_smoke_pipeline.py --output-dir outputs/smoke-
 PYTHONPATH=src python3 scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
+PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py data/manifests/nuscenes-mini.smoke.jsonl --output data/manifests/nuscenes-mini.depth.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt

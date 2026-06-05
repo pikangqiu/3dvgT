@@ -137,6 +137,15 @@ PYTHONPATH=src python scripts/materialize_manifest_assets.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.smoke.jsonl
 ```
 
+If local satellite rasters are available, replace placeholder patches with real crops:
+
+```bash
+PYTHONPATH=src python scripts/materialize_satellite_crops.py \
+  data/manifests/nuscenes-mini.jsonl \
+  --config data/satellite_rasters/config.json \
+  --output data/manifests/nuscenes-mini.satellite.jsonl
+```
+
 Generate a LiDAR-projected camera depth target:
 
 ```bash

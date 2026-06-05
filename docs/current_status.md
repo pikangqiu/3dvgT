@@ -15,7 +15,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py` |
-| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite patch extraction and pointmap/pose target generation still need implementation |
+| Real nuScenes data loading | Partial scaffold | layout inspection, JSONL manifest generation/loading with ego pose and map location metadata, path validation, smoke satellite/mask asset materialization, local raster satellite crop materialization, LiDAR-projected camera depth target generation, real-file smoke tensor loading, and optional depth/mask target image loading exist; real satellite raster sourcing and pointmap/pose target generation still need implementation |
 | Model framework | Scaffolded | `src/vggt_project/models/scaffold.py` |
 | G3T/VGGT integration | Missing | reference code exists, but concrete head reuse/fine-tuning is not implemented |
 | Losses | Scaffolded | pointmap, depth, local pose, relative pose losses in `src/vggt_project/losses.py` |
@@ -27,6 +27,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
 | Manifest asset materialization | Smoke-only scripted | `scripts/materialize_manifest_assets.py`; creates placeholder satellite patches and optional valid masks for pipeline testing |
+| Satellite crop materialization | Scripted | `scripts/materialize_satellite_crops.py`; crops patches from user-provided local satellite rasters using ego pose metadata |
 | LiDAR depth target generation | Scripted for one camera | `scripts/generate_lidar_depth_targets.py`; projects `LIDAR_TOP` to `CAM_FRONT` by default |
 | GitHub upload | Blocked by auth | `gh` installed, but `gh auth status` reports no logged-in host |
 | GitHub publish preflight | Scripted | `scripts/check_github_publish.py` reports worktree, branch, remote, and `gh auth` state |
