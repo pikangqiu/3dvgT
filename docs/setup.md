@@ -180,17 +180,28 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
 ```
 
+Split the supervised manifest at the scene level:
+
+```bash
+PYTHONPATH=src python scripts/split_manifest.py \
+  data/manifests/nuscenes-mini.supervised.jsonl \
+  --train-output data/manifests/nuscenes-mini.train.jsonl \
+  --eval-output data/manifests/nuscenes-mini.val.jsonl \
+  --eval-fraction 0.2 \
+  --seed 0
+```
+
 Smoke-test real file loading:
 
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
+  --manifest data/manifests/nuscenes-mini.train.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 PYTHONPATH=src python scripts/evaluate.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
+  --manifest data/manifests/nuscenes-mini.val.jsonl \
   --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 ```
 

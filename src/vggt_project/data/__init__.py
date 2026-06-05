@@ -36,6 +36,8 @@ __all__ = [
     "lidar_points_to_ego_pointmap",
     "LidarSupervisionReport",
     "materialize_lidar_supervision_manifest",
+    "ManifestSplitReport",
+    "split_manifest_by_scene",
 ]
 
 
@@ -63,4 +65,11 @@ def __getattr__(name: str):
         from vggt_project.data import supervision_pipeline
 
         return getattr(supervision_pipeline, name)
+    if name in {
+        "ManifestSplitReport",
+        "split_manifest_by_scene",
+    }:
+        from vggt_project.data import manifest_split
+
+        return getattr(manifest_split, name)
     raise AttributeError(name)

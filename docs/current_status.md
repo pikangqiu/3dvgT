@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold, reconstruction losses, train/eval entrypoints, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, nuScenes LiDAR-depth target generation, nuScenes LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, and research baseline notes.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, depth, mask, LiDAR-derived pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, G3T-style pointmap target generation, camera-level/G3T pose target wiring, multi-camera target wiring, concrete G3T/VGGT head integration, and GPU environment validation.
 
@@ -33,6 +33,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | LiDAR depth target generation | Scripted for one camera | `scripts/generate_lidar_depth_targets.py`; projects `LIDAR_TOP` to `CAM_FRONT` by default |
 | LiDAR pointmap target generation | Scripted | `scripts/generate_lidar_pointmap_targets.py`; transforms `LIDAR_TOP` points into ego-frame `.npy` pointmap targets |
 | LiDAR supervision pipeline | Scripted | `scripts/generate_lidar_supervision.py`; generates depth and pointmap targets and writes one final supervised manifest |
+| Manifest train/eval split | Scripted | `scripts/split_manifest.py`; splits JSONL manifests by `scene_token` to avoid scene leakage |
 | GitHub upload | Blocked by auth | `gh` installed, but `gh auth status` reports no logged-in host |
 | GitHub publish preflight | Scripted | `scripts/check_github_publish.py` reports worktree, branch, remote, and `gh auth` state |
 | GitHub CI | Scripted | `.github/workflows/ci.yml` runs lightweight tests, project audit, reference dry-run, and compile checks |
@@ -51,6 +52,7 @@ PYTHONPATH=src python3 scripts/materialize_manifest_assets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_depth_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_pointmap_targets.py --help
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py --help
+PYTHONPATH=src python3 scripts/split_manifest.py --help
 PYTHONPATH=src python3 scripts/run_experiment.py --help
 PYTHONPATH=src python3 scripts/run_smoke_pipeline.py --help
 python3 -m compileall src scripts tests

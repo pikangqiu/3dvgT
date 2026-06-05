@@ -24,6 +24,7 @@ This repository now contains a runnable scaffold for the project structure:
 - nuScenes LiDAR-to-camera depth target generation for manifest supervision,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
+- scene-level train/eval manifest splitting,
 - optional manifest pointmap target loading,
 - ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
@@ -61,8 +62,9 @@ PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthe
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
 PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.smoke.jsonl --output data/manifests/nuscenes-mini.supervised.jsonl
-PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.supervised.jsonl --epochs 1 --output-dir outputs/manifest-smoke
-PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.supervised.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
+PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
+PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --output-dir outputs/manifest-smoke
+PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json

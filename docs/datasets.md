@@ -155,6 +155,19 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
   --output data/manifests/nuscenes-mini.supervised.jsonl
 ```
 
+Split a supervised manifest by scene before train/eval:
+
+```bash
+PYTHONPATH=src python scripts/split_manifest.py \
+  data/manifests/nuscenes-mini.supervised.jsonl \
+  --train-output data/manifests/nuscenes-mini.train.jsonl \
+  --eval-output data/manifests/nuscenes-mini.val.jsonl \
+  --eval-fraction 0.2 \
+  --seed 0
+```
+
+The split is scene-level, so samples from one `scene_token` cannot leak across train and eval manifests.
+
 ## Manifest Smoke Training
 
 After validation, a manifest can be used to smoke-test real image loading:
@@ -162,7 +175,7 @@ After validation, a manifest can be used to smoke-test real image loading:
 ```bash
 PYTHONPATH=src python scripts/train.py \
   --mode manifest-smoke \
-  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
+  --manifest data/manifests/nuscenes-mini.train.jsonl \
   --epochs 1 \
   --output-dir outputs/manifest-smoke
 ```
