@@ -83,9 +83,17 @@ class ModelAdapterContractTest(unittest.TestCase):
                 "    def __init__(self, status):\n"
                 "        super().__init__()\n"
                 "        self._status = status\n"
+                "        self.bev_encoder = nn.Linear(1, 1)\n"
+                "        self.satellite_encoder = nn.Linear(1, 1)\n"
+                "        self.point_head = nn.Linear(1, 1)\n"
                 "    @property\n"
                 "    def adapter_status(self):\n"
-                "        return {'status': self._status}\n"
+                "        return {\n"
+                "            'status': self._status,\n"
+                "            'bev_trainable': str(self.bev_encoder.weight.requires_grad),\n"
+                "            'satellite_trainable': str(self.satellite_encoder.weight.requires_grad),\n"
+                "            'head_trainable': str(self.point_head.weight.requires_grad),\n"
+                "        }\n"
                 "    def forward(self, batch):\n"
                 "        b = batch['bev_features'].shape[0]\n"
                 "        c = batch['camera_images'].shape[1]\n"
@@ -114,7 +122,8 @@ class ModelAdapterContractTest(unittest.TestCase):
                 f"    adapter_module_path: {adapter_path}\n"
                 "    use_reference_adapter: true\n"
                 f"    reference_root: {root}\n"
-                "    reference_model: g3t\n",
+                "    reference_model: g3t\n"
+                "    fine_tuning_policy: satellite_fusion_heads\n",
                 encoding="utf-8",
             )
 
@@ -127,6 +136,9 @@ class ModelAdapterContractTest(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("status: reference", result.stdout)
+        self.assertIn("bev_trainable: False", result.stdout)
+        self.assertIn("satellite_trainable: True", result.stdout)
+        self.assertIn("head_trainable: True", result.stdout)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ def main() -> int:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            fine_tuning_policy=config.fine_tuning_policy,
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
