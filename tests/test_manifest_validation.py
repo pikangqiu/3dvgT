@@ -6,6 +6,17 @@ from vggt_project.data.manifest_validation import validate_manifest_paths
 
 
 class ManifestValidationTest(unittest.TestCase):
+    def test_empty_manifest_is_not_ready(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = Path(temp_dir) / "samples.jsonl"
+            manifest.write_text("", encoding="utf-8")
+
+            report = validate_manifest_paths(manifest)
+
+        self.assertEqual(report.sample_count, 0)
+        self.assertFalse(report.ready)
+        self.assertEqual(report.missing_paths, ())
+
     def test_ready_when_all_required_paths_exist(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

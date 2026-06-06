@@ -23,7 +23,7 @@ class ManifestValidationReport:
 
     @property
     def ready(self) -> bool:
-        return not self.missing_paths
+        return self.sample_count > 0 and not self.missing_paths
 
 
 def validate_manifest_paths(path: Path) -> ManifestValidationReport:

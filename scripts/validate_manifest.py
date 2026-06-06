@@ -22,6 +22,10 @@ def main() -> int:
         print("status: ready")
         return 0
 
+    if report.sample_count == 0:
+        print("status: empty")
+        return 1
+
     print("status: missing")
     print(f"missing_count: {len(report.missing_paths)}")
     for item in report.missing_paths[: args.max_missing]:
@@ -33,4 +37,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
