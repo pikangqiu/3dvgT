@@ -8,6 +8,56 @@ focused replacement point for a real G3T/VGGT backbone.
 from __future__ import annotations
 
 
+def build_local_reference_adapter(
+    *,
+    reference_root,
+    reference_model: str = "g3t",
+    point_count: int = 128,
+    model_kwargs: dict | None = None,
+):
+    """Instantiate a local refs/g3t G3T or VGGT model and wrap it for project training."""
+
+    import importlib
+    import sys
+    from pathlib import Path
+
+    root = Path(reference_root)
+    if not root.exists():
+        raise FileNotFoundError(f"reference_root does not exist: {root}")
+    root_text = str(root.resolve())
+    inserted = False
+    if root_text not in sys.path:
+        sys.path.insert(0, root_text)
+        inserted = True
+    try:
+        model_name = reference_model.lower()
+        if model_name == "g3t":
+            module = importlib.import_module("vggt.models.g3t")
+            reference_cls = getattr(module, "G3T")
+        elif model_name == "vggt":
+            module = importlib.import_module("vggt.models.vggt")
+            reference_cls = getattr(module, "VGGT")
+        else:
+            raise ValueError("reference_model must be 'g3t' or 'vggt'")
+        reference = reference_cls(**(model_kwargs or {}))
+        return G3TVGGTReferenceAdapter(
+            reference,
+            point_count=point_count,
+            reference_root=root,
+            reference_model_name=model_name,
+        )
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            f"Could not import {reference_model} from {root}; install refs/g3t requirements first"
+        ) from error
+    finally:
+        if inserted:
+            try:
+                sys.path.remove(root_text)
+            except ValueError:
+                pass
+
+
 def map_reference_prediction_to_contract(reference_prediction: dict, batch: dict, *, point_count: int = 128) -> dict:
     """Map G3T/VGGT-style dense outputs into the project reconstruction contract."""
 
@@ -90,14 +140,34 @@ def build_model(
     return G3TVGGTAdapterTemplate()
 
 
-class G3TVGGTReferenceAdapter:
+def _torch_nn_module_base():
+    import torch
+
+    return torch.nn.Module
+
+
+class G3TVGGTReferenceAdapter(_torch_nn_module_base()):
     """Wrap a concrete G3T/VGGT module and expose the project prediction contract."""
 
-    def __init__(self, reference_model, *, point_count: int = 128) -> None:
+    def __init__(
+        self,
+        reference_model,
+        *,
+        point_count: int = 128,
+        reference_root=None,
+        reference_model_name: str = "custom",
+    ) -> None:
+        import torch
+
+        super().__init__()
+        if not isinstance(reference_model, torch.nn.Module):
+            raise TypeError("reference_model must be a torch.nn.Module")
         self.reference_model = reference_model
         self.point_count = point_count
+        self.reference_root = reference_root
+        self.reference_model_name = reference_model_name
 
-    def __call__(self, batch: dict) -> dict:
+    def forward(self, batch: dict) -> dict:
         reference_prediction = self.reference_model(batch["camera_images"])
         return map_reference_prediction_to_contract(
             reference_prediction,
@@ -105,16 +175,14 @@ class G3TVGGTReferenceAdapter:
             point_count=self.point_count,
         )
 
-    def parameters(self):
-        return self.reference_model.parameters()
-
-    def train(self, mode: bool = True):
-        self.reference_model.train(mode)
-        return self
-
-    def eval(self):
-        self.reference_model.eval()
-        return self
+    @property
+    def adapter_status(self) -> dict[str, str]:
+        return {
+            "status": "reference",
+            "reference_model": str(self.reference_model_name),
+            "reference_root": str(self.reference_root) if self.reference_root is not None else "",
+            "reference_output_mapping": "available",
+        }
 
 
 def _camera_count(batch: dict) -> int:

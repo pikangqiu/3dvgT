@@ -90,3 +90,50 @@ class G3TVGGTAdapterMappingTest(unittest.TestCase):
 
         self.assertEqual(tuple(prediction["camera_depths"].shape), (2, 3, 1, 4, 4))
         self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (2, 3, 6, 3))
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for adapter mapping tests")
+    def test_local_reference_builder_loads_g3t_from_reference_root(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        import torch
+
+        from adapters.g3t_vggt_adapter import build_local_reference_adapter
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "vggt/models").mkdir(parents=True)
+            (root / "vggt/__init__.py").write_text("", encoding="utf-8")
+            (root / "vggt/models/__init__.py").write_text("", encoding="utf-8")
+            (root / "vggt/models/g3t.py").write_text(
+                "import torch\n"
+                "from torch import nn\n"
+                "class G3T(nn.Module):\n"
+                "    def forward(self, images):\n"
+                "        b, c, _, h, w = images.shape\n"
+                "        return {\n"
+                "            'depth': torch.ones(b, c, h, w, 1),\n"
+                "            'world_points': torch.ones(b, c, h, w, 3),\n"
+                "            'local_pose_enc': torch.ones(b, c, 9),\n"
+                "            'global_pose_enc': torch.zeros(b, c, 9),\n"
+                "        }\n",
+                encoding="utf-8",
+            )
+
+            adapter = build_local_reference_adapter(
+                reference_root=root,
+                reference_model="g3t",
+                point_count=4,
+            )
+
+        prediction = adapter(
+            {
+                "bev_features": torch.zeros(1, 8, 4, 4),
+                "satellite_patch": torch.zeros(1, 3, 4, 4),
+                "camera_images": torch.zeros(1, 2, 3, 4, 4),
+            }
+        )
+
+        self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (1, 2, 4, 3))
+        self.assertEqual(adapter.adapter_status["status"], "reference")
+        self.assertEqual(adapter.adapter_status["reference_model"], "g3t")
