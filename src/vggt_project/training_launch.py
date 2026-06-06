@@ -23,6 +23,7 @@ class TrainingLaunchPacket:
     plan: TrainingRunPlan
     blockers: tuple[str, ...]
     next_commands: tuple[str, ...]
+    remediation_commands: tuple[str, ...]
 
     def to_json(self) -> str:
         return json.dumps(
@@ -32,6 +33,7 @@ class TrainingLaunchPacket:
                 "plan": json.loads(self.plan.to_json()),
                 "blockers": list(self.blockers),
                 "next_commands": list(self.next_commands),
+                "remediation_commands": list(self.remediation_commands),
             },
             indent=2,
             sort_keys=True,
@@ -70,12 +72,14 @@ def build_training_launch_packet(
     )
     blockers = _collect_blockers(readiness, plan)
     next_commands = tuple(step.command for step in plan.steps if not step.ready)[:5]
+    remediation_commands = _build_remediation_commands(readiness, plan)
     return TrainingLaunchPacket(
         ready_to_launch=readiness.ready and plan.ready_to_train,
         readiness=readiness,
         plan=plan,
         blockers=blockers,
         next_commands=next_commands,
+        remediation_commands=remediation_commands,
     )
 
 
@@ -85,6 +89,11 @@ def format_training_launch_packet(packet: TrainingLaunchPacket) -> str:
     lines = [f"ready_to_launch: {str(packet.ready_to_launch).lower()}", "blockers:"]
     if packet.blockers:
         lines.extend(f"- {blocker}" for blocker in packet.blockers)
+    else:
+        lines.append("- none")
+    lines.append("remediation_commands:")
+    if packet.remediation_commands:
+        lines.extend(f"- {command}" for command in packet.remediation_commands)
     else:
         lines.append("- none")
     lines.append("next_commands:")
@@ -105,3 +114,37 @@ def _collect_blockers(
     blockers.extend(f"config_error: {error}" for error in readiness.config_errors)
     blockers.extend(f"plan_missing_output: {missing}" for missing in plan.missing_outputs)
     return tuple(dict.fromkeys(blockers))
+
+
+def _build_remediation_commands(
+    readiness: TrainingReadinessReport,
+    plan: TrainingRunPlan,
+) -> tuple[str, ...]:
+    commands: list[str] = []
+    if readiness.missing_dependencies:
+        commands.extend(
+            (
+                "bash scripts/setup_env.sh .venv",
+                "source .venv/bin/activate",
+                "export MPLCONFIGDIR=.venv/.matplotlib",
+                "PYTHONPATH=src python scripts/report_training_launch.py --json",
+            )
+        )
+    if "satellite_raster_config_path" in readiness.missing_paths:
+        commands.extend(
+            (
+                "mkdir -p data/satellite_rasters",
+                "cp configs/satellite_rasters.example.json data/satellite_rasters/config.json",
+            )
+        )
+    if "manifest_path" in readiness.missing_paths or "train_manifest_path" in readiness.missing_paths:
+        commands.extend(
+            step.command
+            for step in plan.steps
+            if not step.ready and step.name not in {"train", "evaluate"}
+        )
+    if "weights_path" in readiness.missing_paths or any("weights" in error for error in readiness.config_errors):
+        commands.append(
+            'python scripts/download_weights.py --repo-id thatbrguy/g3t --output-dir checkpoints/g3t --allow-pattern "*.pt" --allow-pattern "*.bin" --dry-run'
+        )
+    return tuple(dict.fromkeys(commands))

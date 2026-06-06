@@ -32,6 +32,8 @@ class TrainingLaunchCliTest(unittest.TestCase):
         self.assertNotIn("missing_dependency: yaml", payload["blockers"])
         self.assertIsNotNone(payload["readiness"])
         self.assertIsNotNone(payload["plan"])
+        self.assertIn("remediation_commands", payload)
+        self.assertTrue(any("scripts/setup_env.sh" in command for command in payload["remediation_commands"]))
 
     def test_launch_report_json_is_parseable_when_training_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -76,6 +78,7 @@ class TrainingLaunchCliTest(unittest.TestCase):
         self.assertIn("readiness", payload)
         self.assertIn("plan", payload)
         self.assertIn("next_commands", payload)
+        self.assertIn("remediation_commands", payload)
 
 
 if __name__ == "__main__":

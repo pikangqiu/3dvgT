@@ -63,7 +63,7 @@ This repository now contains a runnable scaffold for the project structure:
 - optional benchmark reference clone plans for DGGT, DrivingForward, GaussianOcc, OpenScene, UniOcc, and Sat3DGen,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs user-provided nuScenes/satellite assets, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning validation, and full real-data head-call validation. `scripts/audit_project_status.py` now prints `next_actions` with the concrete commands to run next.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs user-provided nuScenes/satellite assets, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning validation, and full real-data head-call validation. `scripts/audit_project_status.py` prints `next_actions`; `scripts/report_training_launch.py --json` also prints `remediation_commands` for fixing current launch blockers before training.
 
 ## Quick Checks
 

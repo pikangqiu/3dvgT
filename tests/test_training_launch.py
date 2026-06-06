@@ -24,7 +24,7 @@ class TrainingLaunchTest(unittest.TestCase):
             config,
             config_path=Path("configs/reconstruction_first.json"),
             dependency_probe=lambda: (
-                DependencyStatus("torch", True, "test"),
+                DependencyStatus("torch", False, None),
                 DependencyStatus("PIL", True, "test"),
                 DependencyStatus("numpy", True, "test"),
                 DependencyStatus("yaml", True, "test"),
@@ -40,11 +40,21 @@ class TrainingLaunchTest(unittest.TestCase):
         self.assertIn("plan_missing_output: generate_base_manifest", " ".join(packet.blockers))
         self.assertEqual(payload["readiness"]["ready"], False)
         self.assertEqual(payload["plan"]["ready_to_train"], False)
+        self.assertIn("remediation_commands", payload)
+        self.assertTrue(
+            any("scripts/setup_env.sh" in command for command in payload["remediation_commands"])
+        )
+        self.assertTrue(
+            any("configs/satellite_rasters.example.json" in command for command in payload["remediation_commands"])
+        )
+        self.assertFalse(any("scripts/train.py" in command for command in payload["remediation_commands"]))
+        self.assertFalse(any("scripts/evaluate.py" in command for command in payload["remediation_commands"]))
         self.assertIn("scripts/check_nuscenes.py", payload["next_commands"][0])
         self.assertTrue(
             any("scripts/generate_manifest.py" in command for command in payload["next_commands"])
         )
         self.assertIn("ready_to_launch: false", rendered)
+        self.assertIn("remediation_commands:", rendered)
         self.assertIn("next_commands:", rendered)
 
 
