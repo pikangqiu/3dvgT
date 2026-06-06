@@ -84,6 +84,30 @@ class RealRunEvidenceTest(unittest.TestCase):
         self.assertFalse(report.environment_ready)
         self.assertIn("environment report is not ready", report.errors)
 
+    def test_real_run_evidence_rejects_unready_model_device_report(self) -> None:
+        from vggt_project.real_run_evidence import verify_real_run_evidence
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            preflight = root / "preflight.json"
+            artifacts = root / "artifacts.json"
+            model_device = root / "model_device.json"
+            preflight.write_text(json.dumps({"ready_for_real_training": True}), encoding="utf-8")
+            artifacts.write_text(json.dumps({"ready": True}), encoding="utf-8")
+            model_device.write_text(json.dumps({"ready": False, "errors": ["cuda unavailable"]}), encoding="utf-8")
+
+            report = verify_real_run_evidence(
+                preflight_report_path=preflight,
+                artifact_report_path=artifacts,
+                model_device_report_path=model_device,
+                git_commit_probe=lambda: "abc123",
+                git_status_probe=lambda: "",
+            )
+
+        self.assertFalse(report.ready)
+        self.assertFalse(report.model_device_ready)
+        self.assertIn("model device report is not ready", report.errors)
+
     def test_real_run_evidence_cli_writes_json_output(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -93,6 +117,7 @@ class RealRunEvidenceTest(unittest.TestCase):
             preflight.write_text(json.dumps({"ready_for_real_training": True}), encoding="utf-8")
             artifacts.write_text(json.dumps({"ready": True}), encoding="utf-8")
             (root / "environment.json").write_text(json.dumps({"ready": True}), encoding="utf-8")
+            (root / "model_device.json").write_text(json.dumps({"ready": True}), encoding="utf-8")
             env = dict(os.environ)
             env["PYTHONPATH"] = "src"
 
@@ -106,6 +131,8 @@ class RealRunEvidenceTest(unittest.TestCase):
                     str(artifacts),
                     "--environment-report",
                     str(root / "environment.json"),
+                    "--model-device-report",
+                    str(root / "model_device.json"),
                     "--output",
                     str(output),
                     "--json",
@@ -123,6 +150,8 @@ class RealRunEvidenceTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(stdout_payload["ready"])
         self.assertTrue(stdout_payload["environment_ready"])
+        self.assertTrue(stdout_payload["model_device_ready"])
+        self.assertEqual(stdout_payload["model_device_report_path"], str(root / "model_device.json"))
         self.assertEqual(stdout_payload, output_payload)
 
 

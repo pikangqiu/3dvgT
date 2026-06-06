@@ -73,6 +73,7 @@ def build_training_run_plan(
     eval_metrics = config.output_dir / "eval_metrics.json"
     environment_report = config.output_dir / "environment.json"
     external_assets_report = config.output_dir / "external_assets.json"
+    model_device_report = config.output_dir / "model_device.json"
     preflight_report = config.output_dir / "real_training_preflight.json"
     artifact_report = config.output_dir / "training_artifacts.json"
     real_run_evidence = config.output_dir / "real_run_evidence.json"
@@ -272,6 +273,16 @@ def build_training_run_plan(
                 note="Saves external data and weight readiness evidence before final preflight.",
             ),
             TrainingPlanStep(
+                name="validate_model_device",
+                command=(
+                    "PYTHONPATH=src python scripts/validate_model_device.py "
+                    f"--config {config_path} --require-weights "
+                    f"--output {model_device_report} --json"
+                ),
+                ready=False,
+                note="Loads the configured model and checkpoint on the requested device and saves forward-pass evidence.",
+            ),
+            TrainingPlanStep(
                 name="report_real_training_preflight",
                 command=(
                     "PYTHONPATH=src python scripts/report_real_training_preflight.py "
@@ -371,7 +382,8 @@ def build_training_run_plan(
                 command=(
                     "PYTHONPATH=src python scripts/verify_real_run_evidence.py "
                     f"--preflight-report {preflight_report} --artifact-report {artifact_report} "
-                    f"--environment-report {environment_report} --output {real_run_evidence} "
+                    f"--environment-report {environment_report} --model-device-report {model_device_report} "
+                    f"--output {real_run_evidence} "
                     '--require-clean-worktree --expected-git-commit "$(git rev-parse HEAD)" --json'
                 ),
                 ready=False,

@@ -45,6 +45,9 @@ jobs:
       - name: Check external asset CLI
         run: PYTHONPATH=src python3 scripts/check_external_assets.py --help
 
+      - name: Check model device validation CLI
+        run: PYTHONPATH=src python3 scripts/validate_model_device.py --help
+
       - name: Check environment report CLI
         run: PYTHONPATH=src python3 scripts/report_environment.py --help
 
