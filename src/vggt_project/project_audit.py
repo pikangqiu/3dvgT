@@ -92,7 +92,9 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/check_training_readiness.py",
             "scripts/check_model_adapter.py",
             "src/vggt_project/training_plan.py",
+            "src/vggt_project/training_bootstrap.py",
             "scripts/plan_training_run.py",
+            "scripts/bootstrap_training_run.py",
         ),
         "weights": ("scripts/download_weights.py",),
         "dataset_setup": (

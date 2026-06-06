@@ -30,5 +30,8 @@ jobs:
       - name: Check reference clone plan
         run: PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 
+      - name: Check training bootstrap CLI
+        run: PYTHONPATH=src python3 scripts/bootstrap_training_run.py --help
+
       - name: Compile Python files
         run: python3 -m compileall src scripts tests

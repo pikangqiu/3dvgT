@@ -11,6 +11,7 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertIn("python3 -m unittest discover -s tests -v", content)
         self.assertIn("scripts/audit_project_status.py", content)
         self.assertIn("scripts/setup_references.py --dry-run", content)
+        self.assertIn("scripts/bootstrap_training_run.py --help", content)
 
 
 if __name__ == "__main__":
