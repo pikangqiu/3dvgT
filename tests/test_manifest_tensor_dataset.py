@@ -236,9 +236,11 @@ class ManifestTensorDatasetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "samples/CAM_BACK").mkdir(parents=True)
             (root / "sat").mkdir()
             Image.new("RGB", (8, 8), color=(255, 0, 0)).save(root / "samples/CAM_FRONT/a.png")
             Image.new("RGB", (8, 8), color=(255, 0, 0)).save(root / "samples/CAM_FRONT/b.png")
+            Image.new("RGB", (8, 8), color=(0, 0, 255)).save(root / "samples/CAM_BACK/b.png")
             Image.new("RGB", (8, 8), color=(0, 255, 0)).save(root / "sat/a.png")
             Image.new("RGB", (8, 8), color=(0, 255, 0)).save(root / "sat/b.png")
             manifest = root / "samples.jsonl"
@@ -251,7 +253,8 @@ class ManifestTensorDatasetTest(unittest.TestCase):
                 '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
                 '"satellite_frame":"satellite"}\n'
                 '{"token":"sample-2","scene_token":"scene-1","timestamp_us":20,'
-                '"camera_paths":["samples/CAM_FRONT/b.png"],'
+                '"camera_paths":["samples/CAM_FRONT/b.png","samples/CAM_BACK/b.png"],'
+                '"camera_names":["CAM_FRONT","CAM_BACK"],'
                 '"satellite_patch_path":"sat/b.png",'
                 '"ego_translation":[11.5,17.5,2.0],'
                 f'"ego_rotation":{yaw_90_quaternion},'
@@ -264,6 +267,11 @@ class ManifestTensorDatasetTest(unittest.TestCase):
 
         self.assertAlmostEqual(float(item["target_local_camera_to_gravity_pose"][0]), math.cos(math.pi / 4))
         self.assertAlmostEqual(float(item["target_local_camera_to_gravity_pose"][3]), math.sin(math.pi / 4))
+        self.assertEqual(tuple(item["target_camera_local_camera_to_gravity_poses"].shape), (2, 4))
+        self.assertAlmostEqual(
+            float(item["target_camera_local_camera_to_gravity_poses"][1, 3]),
+            math.sin(math.pi / 4),
+        )
         self.assertAlmostEqual(float(item["target_relative_yaw_translation"][0]), math.pi / 2, places=5)
         self.assertAlmostEqual(float(item["target_relative_yaw_translation"][1]), 1.5)
         self.assertAlmostEqual(float(item["target_relative_yaw_translation"][2]), -2.5)

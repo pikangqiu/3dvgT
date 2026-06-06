@@ -147,6 +147,37 @@ class ReconstructionMetricsTest(unittest.TestCase):
         self.assertAlmostEqual(float(quaternion_angular_error_deg(predicted, target)), 90.0, places=4)
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_gravity_metric_prefers_camera_specific_pose_predictions(self) -> None:
+        import torch
+
+        from vggt_project.metrics import reconstruction_metrics
+
+        prediction = {
+            "gravity_aligned_pointmap": torch.zeros(1, 1, 3),
+            "depth": torch.zeros(1, 1, 2, 2),
+            "local_camera_to_gravity_pose": torch.tensor([[0.0, 1.0, 0.0, 0.0]]),
+            "camera_local_camera_to_gravity_poses": torch.tensor(
+                [[[1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]]
+            ),
+            "relative_yaw_translation": torch.zeros(1, 4),
+        }
+        batch = {
+            "target_pointmap": torch.zeros(1, 1, 3),
+            "target_depth": torch.zeros(1, 1, 2, 2),
+            "target_local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "target_camera_local_camera_to_gravity_poses": torch.tensor(
+                [[[1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]]
+            ),
+            "target_relative_yaw_translation": torch.zeros(1, 4),
+            "valid_area_mask": torch.ones(1, 1, 2, 2),
+        }
+
+        metrics = reconstruction_metrics(prediction, batch)
+
+        self.assertAlmostEqual(metrics["gravity_error_deg"], 0.0)
+        self.assertAlmostEqual(metrics["local_pose_l2"], 0.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
     def test_sequence_translation_drift_uses_batch_relative_track(self) -> None:
         import torch
 

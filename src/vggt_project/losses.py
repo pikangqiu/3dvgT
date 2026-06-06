@@ -19,10 +19,8 @@ def reconstruction_losses(prediction: dict, batch: dict) -> dict:
     depth_loss = depth_abs_error(prediction, batch).mean_loss
 
     point_loss = pointmap_loss(prediction, batch)
-    local_pose_loss = F.mse_loss(
-        prediction["local_camera_to_gravity_pose"],
-        batch["target_local_camera_to_gravity_pose"],
-    )
+    predicted_local_pose, target_local_pose = local_pose_pair(prediction, batch)
+    local_pose_loss = F.mse_loss(predicted_local_pose, target_local_pose)
     relative_pose_loss = F.mse_loss(
         prediction["relative_yaw_translation"],
         batch["target_relative_yaw_translation"],
@@ -57,6 +55,24 @@ def pointmap_loss(prediction: dict, batch: dict):
         prediction["gravity_aligned_pointmap"],
         batch["target_pointmap"],
     )
+
+
+def local_pose_pair(prediction: dict, batch: dict):
+    """Prefer camera-level local pose supervision when present."""
+
+    target_camera_poses = batch.get("target_camera_local_camera_to_gravity_poses")
+    if target_camera_poses is not None and target_camera_poses.numel() > 0:
+        predicted_camera_poses = prediction.get("camera_local_camera_to_gravity_poses")
+        if predicted_camera_poses is not None:
+            return _flatten_camera_poses(predicted_camera_poses), _flatten_camera_poses(target_camera_poses)
+        expanded = prediction["local_camera_to_gravity_pose"].unsqueeze(1).expand_as(target_camera_poses)
+        return _flatten_camera_poses(expanded), _flatten_camera_poses(target_camera_poses)
+
+    return prediction["local_camera_to_gravity_pose"], batch["target_local_camera_to_gravity_pose"]
+
+
+def _flatten_camera_poses(poses):
+    return poses.reshape(poses.shape[0] * poses.shape[1], poses.shape[2])
 
 
 def depth_abs_error(prediction: dict, batch: dict) -> DepthAbsError:

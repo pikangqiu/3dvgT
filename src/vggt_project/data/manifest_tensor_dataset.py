@@ -65,6 +65,7 @@ class ManifestTensorDataset:
             "target_depth": target_depth,
             "target_camera_depths": target_camera_depths,
             "target_local_camera_to_gravity_pose": _pose_quaternion_tensor(sample),
+            "target_camera_local_camera_to_gravity_poses": _camera_pose_quaternion_tensor(sample),
             "target_relative_yaw_translation": _relative_yaw_translation_tensor(
                 sample,
                 self.scene_origins.get(sample.scene_token),
@@ -169,6 +170,10 @@ def _pose_quaternion_tensor(sample):
         return torch.tensor([1.0, 0.0, 0.0, 0.0], dtype=torch.float32)
     normalized = _normalize_quaternion(sample.ego_rotation)
     return torch.tensor(normalized, dtype=torch.float32)
+
+
+def _camera_pose_quaternion_tensor(sample):
+    return _pose_quaternion_tensor(sample).unsqueeze(0).repeat(len(sample.cameras), 1)
 
 
 def _relative_yaw_translation_tensor(sample, origin: tuple[float, float, float] | None):

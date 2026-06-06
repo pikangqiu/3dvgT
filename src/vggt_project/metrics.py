@@ -8,22 +8,16 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
 
     import torch
 
-    from vggt_project.losses import depth_abs_error
+    from vggt_project.losses import depth_abs_error, local_pose_pair
 
     depth_mae = depth_abs_error(prediction, batch).mean_loss
     predicted_pointmaps, target_pointmaps = _pointmap_metric_pair(prediction, batch)
     pointmap_metrics = scale_aligned_pointmap_metrics(predicted_pointmaps, target_pointmaps)
 
     pointmap_l1 = (predicted_pointmaps - target_pointmaps).abs().mean()
-    gravity_error_deg = quaternion_angular_error_deg(
-        prediction["local_camera_to_gravity_pose"],
-        batch["target_local_camera_to_gravity_pose"],
-    )
-    local_pose_l2 = torch.linalg.vector_norm(
-        prediction["local_camera_to_gravity_pose"]
-        - batch["target_local_camera_to_gravity_pose"],
-        dim=1,
-    ).mean()
+    predicted_local_pose, target_local_pose = local_pose_pair(prediction, batch)
+    gravity_error_deg = quaternion_angular_error_deg(predicted_local_pose, target_local_pose)
+    local_pose_l2 = torch.linalg.vector_norm(predicted_local_pose - target_local_pose, dim=1).mean()
     sequence_drift = sequence_translation_drift(
         prediction["relative_yaw_translation"],
         batch["target_relative_yaw_translation"],
