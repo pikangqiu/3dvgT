@@ -27,6 +27,7 @@ class DatasetSetupScriptsTest(unittest.TestCase):
         self.assertIn("Model weights root prepared", result.stdout)
         self.assertIn("scripts/download_weights.py", result.stdout)
         self.assertIn("scripts/inspect_checkpoint.py", result.stdout)
+        self.assertIn("scripts/configure_model_weights.py", result.stdout)
         self.assertIn("runtime.model.weights_path", result.stdout)
         self.assertIn("status: dry-run", result.stdout)
 

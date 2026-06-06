@@ -72,9 +72,10 @@ Next weight wiring steps:
      PYTHONPATH=src ${PYTHON_BIN} scripts/inspect_checkpoint.py ${MODEL_WEIGHTS_ROOT} --inspect-all --sample-limit 30
   2. Set runtime.model.weights_path to one concrete .pt/.pth/.bin checkpoint file.
      Do not set runtime.model.weights_path to the directory itself.
+     PYTHONPATH=src ${PYTHON_BIN} scripts/configure_model_weights.py --config configs/reconstruction_first.json --weights-path <checkpoint_file> --output configs/reconstruction_first.weights.json
   3. Run adapter/readiness checks:
-     PYTHONPATH=src ${PYTHON_BIN} scripts/check_training_readiness.py --config configs/reconstruction_first.json
-     PYTHONPATH=src ${PYTHON_BIN} scripts/check_model_adapter.py --config configs/reconstruction_first.json
+     PYTHONPATH=src ${PYTHON_BIN} scripts/check_training_readiness.py --config configs/reconstruction_first.weights.json
+     PYTHONPATH=src ${PYTHON_BIN} scripts/check_model_adapter.py --config configs/reconstruction_first.weights.json
 
 Explicit real download:
   bash scripts/prepare_model_weights.sh --download

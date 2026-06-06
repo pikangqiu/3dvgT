@@ -102,6 +102,26 @@ PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t --inspect-al
 
 When given a directory, the inspector first lists likely `.pt`, `.pth`, and `.bin` checkpoint candidates. Add `--inspect-all` to load and summarize every candidate. The inspector reports the checkpoint container key, tensor count, prefix counts, sample key shapes, and dtypes. Use this before adapter loading to decide whether the file is a raw reference-model state dict, a wrapper-prefixed state dict, or a project checkpoint. After inspection, set `runtime.model.weights_path` to the concrete checkpoint file, not the download directory.
 
+Write the selected concrete checkpoint into a JSON config without hand-editing:
+
+```bash
+PYTHONPATH=src python scripts/configure_model_weights.py \
+  --config configs/reconstruction_first.json \
+  --weights-path checkpoints/g3t/model.pt \
+  --model-family g3t-vggt \
+  --use-reference-adapter \
+  --reference-model g3t \
+  --fine-tuning-policy reference_frozen \
+  --output configs/reconstruction_first.weights.json
+```
+
+Then run readiness and adapter checks against the generated config:
+
+```bash
+PYTHONPATH=src python scripts/check_training_readiness.py --config configs/reconstruction_first.weights.json
+PYTHONPATH=src python scripts/check_model_adapter.py --config configs/reconstruction_first.weights.json
+```
+
 VGGT/MapTR/PseudoMapTrainer weights should be downloaded from their own reference repositories when those branches are enabled.
 
 ## Smoke Training
