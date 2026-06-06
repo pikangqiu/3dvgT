@@ -27,6 +27,7 @@ Goal: make nuScenes samples explicit before training.
 - Convert manifest ego pose metadata into coarse pose targets for the current train/eval scaffold.
 - Support optional pointmap target files in manifests before implementing G3T-style pointmap target generation.
 - Generate ego-frame and camera-frame LiDAR pointmap targets as the first real sparse pointmap supervision paths.
+- Generate calibration-derived camera pose targets with `scripts/generate_camera_pose_targets.py` as the first explicit camera-level pose supervision path.
 - Compose LiDAR depth and ego/camera pointmap preprocessing into one supervised manifest pipeline for training setup.
 - Add coordinate-frame checks for camera, ego, BEV, satellite, and gravity frames.
 - Decide the first satellite patch source and resolution.

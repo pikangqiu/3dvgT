@@ -24,6 +24,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertFalse(plan.ready_to_train)
         self.assertIn("scripts/generate_manifest.py", rendered)
         self.assertIn("scripts/materialize_satellite_crops.py", rendered)
+        self.assertIn("scripts/generate_camera_pose_targets.py", rendered)
         self.assertIn("--pointmap-target-frame camera", rendered)
         self.assertIn("scripts/inspect_manifest_sample.py", rendered)
         self.assertIn("scripts/split_manifest.py", rendered)

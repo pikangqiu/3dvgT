@@ -39,6 +39,7 @@ This repository now contains a runnable scaffold for the project structure:
 - optional sample-level or camera-level manifest pointmap target loading,
 - ego-pose-derived pose targets for manifest smoke training,
 - explicit manifest `camera_local_camera_to_gravity_poses` loading for camera-level pose supervision,
+- calibration-derived nuScenes camera pose target generation,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
 - config-driven external adapter module loading for future G3T/VGGT fine-tuning,
@@ -49,7 +50,7 @@ This repository now contains a runnable scaffold for the project structure:
 - machine-readable baseline/benchmark experiment protocol,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, calibrated G3T camera-level pose target generation, concrete G3T/VGGT pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, full G3T camera-level pose target generation, concrete G3T/VGGT pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
 
 ## Quick Checks
 
@@ -82,8 +83,9 @@ PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthe
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
 PYTHONPATH=src python3 scripts/check_satellite_rasters.py --config data/satellite_rasters/config.json --manifest data/manifests/nuscenes-mini.jsonl
 PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
+PYTHONPATH=src python3 scripts/generate_camera_pose_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.pose.jsonl
 PYTHONPATH=src python3 scripts/generate_camera_lidar_pointmap_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.camera-pointmaps.jsonl
-PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.smoke.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.supervised.jsonl
+PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.pose.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.supervised.jsonl
 PYTHONPATH=src python3 scripts/inspect_manifest_sample.py data/manifests/nuscenes-mini.supervised.jsonl --output-dir outputs/manifest-preview
 PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke

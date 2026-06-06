@@ -43,6 +43,8 @@ __all__ = [
     "split_manifest_by_scene",
     "SatelliteRasterConfigReport",
     "validate_satellite_raster_config",
+    "CameraPoseReport",
+    "materialize_camera_pose_manifest",
 ]
 
 
@@ -84,4 +86,11 @@ def __getattr__(name: str):
         from vggt_project.data import satellite_crops
 
         return getattr(satellite_crops, name)
+    if name in {
+        "CameraPoseReport",
+        "materialize_camera_pose_manifest",
+    }:
+        from vggt_project.data import nuscenes_pose
+
+        return getattr(nuscenes_pose, name)
     raise AttributeError(name)

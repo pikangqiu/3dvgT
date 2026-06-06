@@ -34,6 +34,7 @@ def build_training_run_plan(
     raw_manifest_path: Path = Path("data/manifests/nuscenes-mini.jsonl"),
     satellite_manifest_path: Path = Path("data/manifests/nuscenes-mini.satellite.jsonl"),
     smoke_manifest_path: Path = Path("data/manifests/nuscenes-mini.smoke.jsonl"),
+    pose_manifest_path: Path = Path("data/manifests/nuscenes-mini.pose.jsonl"),
     path_exists: Callable[[Path], bool] | None = None,
 ) -> TrainingRunPlan:
     """Return the ordered preprocessing/train commands for the configured run."""
@@ -46,6 +47,7 @@ def build_training_run_plan(
     point_count = config.point_count
 
     satellite_input_manifest = satellite_manifest_path if satellite_config else smoke_manifest_path
+    pose_input_manifest = pose_manifest_path
     split_ready = path_exists(train_manifest) and path_exists(eval_manifest)
 
     steps = [
@@ -111,10 +113,21 @@ def build_training_run_plan(
     steps.extend(
         [
             TrainingPlanStep(
+                name="generate_camera_pose_targets",
+                command=(
+                    "PYTHONPATH=src python scripts/generate_camera_pose_targets.py "
+                    f"{satellite_input_manifest} --root {nuscenes_root} --version {nuscenes_version} "
+                    f"--camera CAM_FRONT --camera CAM_BACK --output {pose_manifest_path}"
+                ),
+                output_path=pose_manifest_path,
+                ready=path_exists(pose_manifest_path),
+                note="Adds calibration-derived per-camera pose targets to manifest records.",
+            ),
+            TrainingPlanStep(
                 name="generate_lidar_supervision",
                 command=(
                     "PYTHONPATH=src python scripts/generate_lidar_supervision.py "
-                    f"{satellite_input_manifest} --root {nuscenes_root} --version {nuscenes_version} "
+                    f"{pose_input_manifest} --root {nuscenes_root} --version {nuscenes_version} "
                     "--camera CAM_FRONT --camera CAM_BACK --pointmap-target-frame camera "
                     f"--pointmap-dir camera_pointmaps --max-points {point_count} --output {supervised_manifest}"
                 ),

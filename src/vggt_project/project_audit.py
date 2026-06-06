@@ -41,6 +41,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "src/vggt_project/data/manifest_tensor_dataset.py",
             "src/vggt_project/data/nuscenes_depth.py",
             "src/vggt_project/data/nuscenes_pointmap.py",
+            "src/vggt_project/data/nuscenes_pose.py",
             "src/vggt_project/data/supervision_pipeline.py",
             "src/vggt_project/data/manifest_split.py",
             "scripts/generate_manifest.py",
@@ -53,6 +54,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/generate_lidar_depth_targets.py",
             "scripts/generate_lidar_pointmap_targets.py",
             "scripts/generate_camera_lidar_pointmap_targets.py",
+            "scripts/generate_camera_pose_targets.py",
             "scripts/generate_lidar_supervision.py",
         ),
         "model_framework": (
@@ -116,7 +118,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "G3T/VGGT dense camera-level pointmap/pose target generation and occupancy target generation are not implemented, though LiDAR camera-frame pointmap target generation is now scripted",
         "G3T/VGGT adapter template is implemented, but concrete reference head calls are not wired yet",
-        "camera-specific scaffold pose heads and manifest pose targets are wired, but concrete G3T/VGGT pose heads and calibrated G3T camera-level pose targets are not implemented",
+        "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete G3T/VGGT pose heads and full G3T camera-level pose target generation are not implemented",
     )
     return ProjectAuditReport(
         items=items,
