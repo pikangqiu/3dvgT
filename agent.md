@@ -106,6 +106,8 @@ Map metrics such as nuScenes vector map mAP can be reported as auxiliary evidenc
 
 Public semantic occupancy metrics such as Occ3D/OpenOccupancy mIoU must stay separate from local LiDAR-proxy `bev_occupancy_iou`. Before claiming public occupancy results, verify the attached manifest split/path alignment, class-id range, exported prediction manifest, and evaluator JSON output, including numeric mIoU/class-IoU ranges and the expected 18 public classes.
 
+Any real training result should be accompanied by saved JSON evidence: real-training preflight, training artifact verification, and a combined real-run evidence bundle tied to the git commit that produced the result.
+
 ## Baselines And Ablations
 
 The minimum ablation ladder should aim for:

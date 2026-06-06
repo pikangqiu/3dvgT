@@ -54,6 +54,9 @@ jobs:
       - name: Check training artifact verifier CLI
         run: PYTHONPATH=src python3 scripts/verify_training_artifacts.py --help
 
+      - name: Check real run evidence verifier CLI
+        run: PYTHONPATH=src python3 scripts/verify_real_run_evidence.py --help
+
       - name: Check Occ3D label attach CLI
         run: PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --help
 
