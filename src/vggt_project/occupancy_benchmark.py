@@ -136,16 +136,23 @@ def _load_array(path: Path) -> Any:
 
         loaded = np.load(path)
         if isinstance(loaded, np.lib.npyio.NpzFile):
-            for key in ("occupancy", "labels", "prediction", "arr_0"):
-                if key in loaded:
-                    return loaded[key]
-            raise ValueError(f"npz occupancy file must contain occupancy, labels, prediction, or arr_0: {path}")
+            return _select_npz_array(loaded, path)
         return loaded
     if suffix in {".png", ".jpg", ".jpeg", ".tif", ".tiff"}:
         from PIL import Image
 
         return Image.open(path).convert("L")
     raise ValueError(f"unsupported occupancy array format: {path}")
+
+
+def _select_npz_array(loaded: Any, path: Path) -> Any:
+    for key in ("semantics", "occupancy", "labels", "prediction", "arr_0"):
+        if key in loaded:
+            return loaded[key]
+    raise ValueError(
+        "npz occupancy file must contain semantics, occupancy, labels, prediction, or arr_0: "
+        f"{path}"
+    )
 
 
 def _flatten_array(value: Any) -> list[Any]:

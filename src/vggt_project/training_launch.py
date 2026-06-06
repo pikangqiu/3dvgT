@@ -151,6 +151,7 @@ def _build_remediation_commands(
 _LAUNCH_ONLY_STEPS = {
     "train",
     "evaluate",
+    "optional_attach_occ3d_labels",
     "export_occupancy_predictions",
     "evaluate_occupancy_benchmark",
 }

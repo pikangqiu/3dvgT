@@ -67,6 +67,8 @@ def build_training_run_plan(
     supervised_manifest = config.manifest_path or Path("data/manifests/nuscenes-mini.supervised.jsonl")
     train_manifest = config.train_manifest_path or supervised_manifest
     eval_manifest = config.eval_manifest_path or supervised_manifest
+    occ3d_eval_manifest = eval_manifest.with_suffix(".occ3d.jsonl")
+    occupancy_prediction_manifest = occ3d_eval_manifest.with_suffix(".predictions.jsonl")
     satellite_config = config.satellite_raster_config_path
     point_count = config.point_count
 
@@ -261,19 +263,30 @@ def build_training_run_plan(
                 note="Runs evaluation on the configured eval manifest.",
             ),
             TrainingPlanStep(
+                name="optional_attach_occ3d_labels",
+                command=(
+                    "PYTHONPATH=src python scripts/attach_occ3d_labels.py "
+                    f"--manifest {eval_manifest} --occ3d-root data/occ3d --output {occ3d_eval_manifest} "
+                    f"--nuscenes-root {nuscenes_root} --nuscenes-version {nuscenes_version}"
+                ),
+                output_path=occ3d_eval_manifest,
+                ready=path_exists(occ3d_eval_manifest),
+                note="Optionally attaches public Occ3D/OpenOccupancy semantic labels for benchmark evaluation.",
+            ),
+            TrainingPlanStep(
                 name="export_occupancy_predictions",
                 command=(
                     "PYTHONPATH=src python scripts/export_occupancy_predictions.py "
-                    f"--config {config_path}"
+                    f"--config {config_path} --manifest {occ3d_eval_manifest} --output {occupancy_prediction_manifest}"
                 ),
                 ready=False,
-                note="Exports BEV occupancy predictions into a manifest for semantic occupancy metrics.",
+                note="Exports BEV occupancy predictions into the public-label manifest for semantic occupancy metrics.",
             ),
             TrainingPlanStep(
                 name="evaluate_occupancy_benchmark",
                 command=(
                     "PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py "
-                    f"--manifest {eval_manifest.with_suffix('.occupancy_predictions.jsonl')} --json"
+                    f"--manifest {occupancy_prediction_manifest} --num-classes 18 --json"
                 ),
                 ready=False,
                 note="Computes class IoU and occupancy_miou from exported prediction/target arrays.",

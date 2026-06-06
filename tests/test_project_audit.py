@@ -28,7 +28,9 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("scripts/prepare_model_weights.sh", items_by_name["weights"].evidence)
         self.assertIn("scripts/configure_model_weights.py", items_by_name["weights"].evidence)
         self.assertIn("scripts/prepare_occ3d.sh", items_by_name["dataset_setup"].evidence)
+        self.assertIn("scripts/attach_occ3d_labels.py", items_by_name["dataset_setup"].evidence)
         self.assertIn("scripts/prepare_satellite_rasters.sh", items_by_name["dataset_setup"].evidence)
+        self.assertIn("src/vggt_project/data/occ3d_labels.py", items_by_name["benchmarks"].evidence)
         self.assertIn("scripts/export_occupancy_predictions.py", items_by_name["benchmarks"].evidence)
         self.assertIn("scripts/evaluate_occupancy_benchmark.py", items_by_name["benchmarks"].evidence)
 
@@ -52,6 +54,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("scripts/prepare_model_weights.sh", " ".join(report.next_actions))
         self.assertIn("scripts/configure_model_weights.py", " ".join(report.next_actions))
         self.assertIn("scripts/prepare_occ3d.sh", " ".join(report.next_actions))
+        self.assertIn("scripts/attach_occ3d_labels.py", " ".join(report.next_actions))
         self.assertIn("scripts/prepare_satellite_rasters.sh", " ".join(report.next_actions))
         self.assertIn("next_actions:", rendered)
 

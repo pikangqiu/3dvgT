@@ -52,6 +52,7 @@ class TrainingLaunchTest(unittest.TestCase):
         )
         self.assertFalse(any("scripts/train.py" in command for command in payload["remediation_commands"]))
         self.assertFalse(any("scripts/evaluate.py" in command for command in payload["remediation_commands"]))
+        self.assertFalse(any("scripts/attach_occ3d_labels.py" in command for command in payload["remediation_commands"]))
         self.assertFalse(any("scripts/export_occupancy_predictions.py" in command for command in payload["remediation_commands"]))
         self.assertFalse(any("scripts/evaluate_occupancy_benchmark.py" in command for command in payload["remediation_commands"]))
         self.assertIn("scripts/check_nuscenes.py", payload["next_commands"][0])

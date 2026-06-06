@@ -51,6 +51,9 @@ jobs:
       - name: Check manifest forward probe CLI
         run: PYTHONPATH=src python3 scripts/probe_manifest_forward.py --help
 
+      - name: Check Occ3D label attach CLI
+        run: PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --help
+
       - name: Check occupancy prediction export CLI
         run: PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --help
 

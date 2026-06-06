@@ -8,6 +8,19 @@ from pathlib import Path
 
 
 class OccupancyBenchmarkCliTest(unittest.TestCase):
+    def test_npz_array_selection_accepts_occ3d_semantics_key(self) -> None:
+        from vggt_project.occupancy_benchmark import _select_npz_array
+
+        selected = _select_npz_array(
+            {
+                "mask_lidar": [[1, 1]],
+                "semantics": [[0, 17]],
+            },
+            Path("labels.npz"),
+        )
+
+        self.assertEqual(selected, [[0, 17]])
+
     def test_semantic_occupancy_benchmark_reports_class_iou_and_miou(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

@@ -54,27 +54,38 @@ Expected layout after extraction:
 ```text
 data/occ3d/
 └── occ3d-nuscenes/
-    ├── gts/
-    └── infos/
+    └── trainval/
+        ├── gts/
+        │   └── scene-0001/
+        │       └── <sample_token>/
+        │           └── labels.npz
+        └── annotations.json
 ```
 
-After a model checkpoint exists, export BEV occupancy predictions into a benchmark manifest and then compute class IoU plus semantic occupancy mIoU:
+The label attachment script also accepts the shorter `occ3d-nuscenes/gts/<scene_name>/<sample_token>/labels.npz` layout for locally reorganized labels. Official Occ3D-nuScenes `labels.npz` files use the `semantics` array for voxel labels and may also include `mask_lidar` and `mask_camera`.
+
+After a model checkpoint exists, attach public labels to the eval manifest, export BEV occupancy predictions into that benchmark manifest, and then compute class IoU plus semantic occupancy mIoU:
 
 ```bash
+PYTHONPATH=src python scripts/attach_occ3d_labels.py \
+  --manifest data/manifests/nuscenes-mini.val.jsonl \
+  --occ3d-root data/occ3d \
+  --output data/manifests/nuscenes-mini.val.occ3d.jsonl \
+  --nuscenes-root data/nuscenes \
+  --nuscenes-version v1.0-trainval
 PYTHONPATH=src python scripts/export_occupancy_predictions.py \
   --config configs/reconstruction_first.json \
-  --manifest data/manifests/nuscenes-mini.val.jsonl \
-  --output data/manifests/occ3d_eval_predictions.jsonl
+  --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl \
+  --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl
 PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
-  --manifest data/manifests/occ3d_eval_predictions.jsonl \
+  --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl \
   --prediction-field predicted_occupancy_path \
   --target-field occupancy_path \
-  --num-classes <class_count> \
-  --ignore-index 255 \
+  --num-classes 18 \
   --json
 ```
 
-The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class mapping, exported prediction manifest, and evaluator output are verified end to end.
+The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. For `.npz`, it automatically checks `semantics`, `occupancy`, `labels`, `prediction`, then `arr_0`. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class mapping, exported prediction manifest, and evaluator output are verified end to end.
 
 ## Manifest Bridge
 

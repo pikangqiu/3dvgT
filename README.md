@@ -68,7 +68,7 @@ This repository now contains a runnable scaffold for the project structure:
 - one-command toy manifest train/eval smoke pipeline,
 - machine-readable baseline/benchmark experiment protocol,
 - optional benchmark reference clone plans for DGGT, DrivingForward, GaussianOcc, OpenScene, UniOcc, and Sat3DGen,
-- semantic occupancy prediction export and benchmark evaluator for Occ3D/OpenOccupancy-style arrays,
+- Occ3D/OpenOccupancy label attachment, semantic occupancy prediction export, and benchmark evaluator for public-style arrays,
 - baseline/benchmark notes for the next experimental plan.
 
 The scaffold is not yet a complete nuScenes training implementation. Real training still needs user-provided nuScenes/satellite assets, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning validation, and a successful real-asset manifest forward probe. `scripts/audit_project_status.py` prints `next_actions`; `scripts/report_training_launch.py --json` also prints `remediation_commands` for fixing current launch blockers before training.
@@ -86,6 +86,7 @@ PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/recons
 PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/probe_manifest_forward.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/list_experiment_protocol.py
+PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --help
 PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --help
 PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --help
 PYTHONPATH=src python3 scripts/inspect_manifest_sample.py --help
@@ -129,6 +130,9 @@ PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --manifest data/manifests/nuscenes-mini.val.jsonl --occ3d-root data/occ3d --output data/manifests/nuscenes-mini.val.occ3d.jsonl --nuscenes-root data/nuscenes --nuscenes-version v1.0-trainval
+PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl
+PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 ```
 
