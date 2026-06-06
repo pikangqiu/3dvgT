@@ -166,6 +166,8 @@ PYTHONPATH=src python scripts/materialize_satellite_crops.py \
   --output data/manifests/nuscenes-mini.satellite.jsonl
 ```
 
+Crop materialization fails with a clear error if a computed patch window falls outside the raster image, which usually means the raster origin, resolution, or map-location coverage needs to be fixed before training.
+
 Generate LiDAR-projected camera depth targets:
 
 ```bash

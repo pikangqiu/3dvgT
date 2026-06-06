@@ -118,6 +118,7 @@ def materialize_satellite_crops(
             _write_crop(
                 base=base,
                 crop_path=crop_path,
+                sample_token=str(record.get("token")),
                 raster_spec=config[map_location],
                 ego_x_m=float(ego_translation[0]),
                 ego_y_m=float(ego_translation[1]),
@@ -140,6 +141,7 @@ def _write_crop(
     *,
     base: Path,
     crop_path: Path,
+    sample_token: str,
     raster_spec: dict,
     ego_x_m: float,
     ego_y_m: float,
@@ -164,7 +166,18 @@ def _write_crop(
 
     crop_path.parent.mkdir(parents=True, exist_ok=True)
     with Image.open(raster_path).convert("RGB") as image:
+        _validate_crop_bounds(sample_token, box, image.size)
         image.crop(box).save(crop_path)
+
+
+def _validate_crop_bounds(sample_token: str, box: tuple[int, int, int, int], image_size: tuple[int, int]) -> None:
+    left, top, right, bottom = box
+    width, height = image_size
+    if left < 0 or top < 0 or right > width or bottom > height:
+        raise ValueError(
+            f"satellite crop for sample {sample_token} falls outside raster bounds: "
+            f"box={box}, raster_size={image_size}"
+        )
 
 
 def _load_config(config_path: Path) -> dict:

@@ -140,6 +140,51 @@ class SatelliteCropsTest(unittest.TestCase):
             self.assertEqual(record["satellite_patch_path"], "satellite_real/sample-1.png")
             self.assertTrue(patch_path.exists())
 
+    def test_materialize_satellite_crops_rejects_out_of_bounds_crop(self) -> None:
+        from PIL import Image
+
+        from vggt_project.data.satellite_crops import materialize_satellite_crops
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            raster_dir = root / "rasters"
+            raster_dir.mkdir()
+            Image.new("RGB", (16, 16), color=(10, 20, 30)).save(raster_dir / "boston.png")
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.jpg"],'
+                '"satellite_patch_path":"placeholder/sample-1.png",'
+                '"ego_translation":[0.0,0.0,0.0],'
+                '"ego_rotation":[1.0,0.0,0.0,0.0],'
+                '"map_location":"boston-seaport",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+            config = root / "satellite_config.json"
+            config.write_text(
+                '{"boston-seaport":{'
+                '"raster_path":"rasters/boston.png",'
+                '"origin_ego_xy_m":[0.0,0.0],'
+                '"origin_pixel_xy":[0.0,0.0],'
+                '"meters_per_pixel":1.0'
+                "}}\n",
+                encoding="utf-8",
+            )
+            output = root / "samples.satellite.jsonl"
+
+            with self.assertRaisesRegex(ValueError, "sample-1.*outside raster bounds"):
+                materialize_satellite_crops(
+                    manifest_path=manifest,
+                    config_path=config,
+                    output_manifest_path=output,
+                    patch_size_px=16,
+                    output_dir=Path("satellite_real"),
+                )
+
+            self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
