@@ -19,6 +19,7 @@ class ModelScaffoldTest(unittest.TestCase):
         prediction = model(batch)
 
         self.assertEqual(tuple(prediction["depth"].shape), (2, 1, 16, 16))
+        self.assertEqual(tuple(prediction["bev_occupancy"].shape), (2, 1, 16, 16))
         self.assertEqual(tuple(prediction["camera_depths"].shape), (2, 3, 1, 16, 16))
         self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (2, 3, 4, 3))
         self.assertEqual(tuple(prediction["camera_local_camera_to_gravity_poses"].shape), (2, 3, 4))

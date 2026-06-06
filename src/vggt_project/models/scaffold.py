@@ -49,6 +49,7 @@ class SatelliteBEVG3TScaffold:
                 )
                 self.point_head = nn.Linear(latent_dim, point_count * 3)
                 self.depth_head = nn.Linear(latent_dim, 32 * 32)
+                self.occupancy_head = nn.Linear(latent_dim, 32 * 32)
                 self.camera_depth_head = nn.Linear(latent_dim + 64, 32 * 32)
                 self.camera_point_head = nn.Linear(latent_dim + 64, point_count * 3)
                 self.camera_local_pose_head = nn.Linear(latent_dim + 64, 4)
@@ -65,6 +66,14 @@ class SatelliteBEVG3TScaffold:
                 depth = self.depth_head(scene_latent).view(bev.shape[0], 1, 32, 32)
                 if depth.shape[-2:] != bev.shape[-2:]:
                     depth = F.interpolate(depth, size=bev.shape[-2:], mode="bilinear", align_corners=False)
+                bev_occupancy = self.occupancy_head(scene_latent).view(bev.shape[0], 1, 32, 32)
+                if bev_occupancy.shape[-2:] != bev.shape[-2:]:
+                    bev_occupancy = F.interpolate(
+                        bev_occupancy,
+                        size=bev.shape[-2:],
+                        mode="bilinear",
+                        align_corners=False,
+                    )
                 camera_outputs = self._predict_camera_outputs(batch, scene_latent, bev.shape[-2:])
 
                 local_pose = self.local_pose_head(scene_latent)
@@ -76,6 +85,7 @@ class SatelliteBEVG3TScaffold:
                         bev.shape[0], point_count, 3
                     ),
                     "depth": depth,
+                    "bev_occupancy": bev_occupancy,
                     "camera_depths": camera_outputs["camera_depths"],
                     "camera_pointmaps": camera_outputs["camera_pointmaps"],
                     "camera_local_camera_to_gravity_poses": camera_outputs[

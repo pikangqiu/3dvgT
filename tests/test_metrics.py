@@ -63,6 +63,32 @@ class ReconstructionMetricsTest(unittest.TestCase):
         self.assertAlmostEqual(metrics["depth_mae"], 2.0)
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
+    def test_occupancy_iou_is_reported_when_prediction_and_target_exist(self) -> None:
+        import torch
+
+        from vggt_project.metrics import reconstruction_metrics
+
+        prediction = {
+            "gravity_aligned_pointmap": torch.zeros(1, 1, 3),
+            "depth": torch.zeros(1, 1, 2, 2),
+            "bev_occupancy": torch.tensor([[[[10.0, -10.0], [10.0, -10.0]]]]),
+            "local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "relative_yaw_translation": torch.zeros(1, 4),
+        }
+        batch = {
+            "target_pointmap": torch.zeros(1, 1, 3),
+            "target_depth": torch.zeros(1, 1, 2, 2),
+            "target_occupancy": torch.tensor([[[[1.0, 0.0], [0.0, 0.0]]]]),
+            "target_local_camera_to_gravity_pose": torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+            "target_relative_yaw_translation": torch.zeros(1, 4),
+            "valid_area_mask": torch.ones(1, 1, 2, 2),
+        }
+
+        metrics = reconstruction_metrics(prediction, batch)
+
+        self.assertAlmostEqual(metrics["bev_occupancy_iou"], 0.5)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for metric tensor tests")
     def test_pointmap_metric_prefers_camera_specific_predictions(self) -> None:
         import torch
 

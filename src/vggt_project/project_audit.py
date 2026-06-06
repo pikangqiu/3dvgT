@@ -41,6 +41,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "src/vggt_project/data/manifest_tensor_dataset.py",
             "src/vggt_project/data/nuscenes_depth.py",
             "src/vggt_project/data/nuscenes_pointmap.py",
+            "src/vggt_project/data/nuscenes_occupancy.py",
             "src/vggt_project/data/nuscenes_pose.py",
             "src/vggt_project/data/reference_supervision.py",
             "src/vggt_project/data/supervision_pipeline.py",
@@ -55,6 +56,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/generate_lidar_depth_targets.py",
             "scripts/generate_lidar_pointmap_targets.py",
             "scripts/generate_camera_lidar_pointmap_targets.py",
+            "scripts/generate_lidar_occupancy_targets.py",
             "scripts/generate_camera_pose_targets.py",
             "scripts/generate_lidar_supervision.py",
             "scripts/generate_reference_supervision_targets.py",
@@ -120,7 +122,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     items = tuple(_audit_item(resolved, name, paths) for name, paths in item_specs.items())
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
-        "dense G3T/VGGT reference depth, pointmap, and pose target materialization is scripted, but real public checkpoint/GPU validation and occupancy target generation are not complete yet",
+        "dense G3T/VGGT reference depth, pointmap, and pose target materialization plus LiDAR-derived occupancy proxy generation are scripted, but real public checkpoint/GPU validation and public occupancy benchmark validation are not complete yet",
         "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, and reference checkpoint loading hooks are implemented, but full real-data head-call validation is not complete yet",
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete fine-tuning policies for G3T/VGGT pose heads are not implemented",
     )

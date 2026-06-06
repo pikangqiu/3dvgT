@@ -25,14 +25,40 @@ def reconstruction_losses(prediction: dict, batch: dict) -> dict:
         prediction["relative_yaw_translation"],
         batch["target_relative_yaw_translation"],
     )
+    occupancy_loss = occupancy_bce_loss(prediction, batch)
     total = point_loss + depth_loss + 0.1 * local_pose_loss + 0.1 * relative_pose_loss
-    return {
+    if occupancy_loss is not None:
+        total = total + 0.1 * occupancy_loss
+    losses = {
         "loss": total,
         "pointmap": point_loss.detach(),
         "depth": depth_loss.detach(),
         "local_pose": local_pose_loss.detach(),
         "relative_pose": relative_pose_loss.detach(),
     }
+    if occupancy_loss is not None:
+        losses["occupancy"] = occupancy_loss.detach()
+    return losses
+
+
+def occupancy_bce_loss(prediction: dict, batch: dict):
+    """Use optional BEV occupancy supervision when both prediction and target exist."""
+
+    target_occupancy = batch.get("target_occupancy")
+    predicted_occupancy = prediction.get("bev_occupancy")
+    if target_occupancy is None or predicted_occupancy is None:
+        return None
+
+    from torch.nn import functional as F
+
+    if predicted_occupancy.shape[-2:] != target_occupancy.shape[-2:]:
+        predicted_occupancy = F.interpolate(
+            predicted_occupancy,
+            size=target_occupancy.shape[-2:],
+            mode="bilinear",
+            align_corners=False,
+        )
+    return F.binary_cross_entropy_with_logits(predicted_occupancy, target_occupancy)
 
 
 def pointmap_loss(prediction: dict, batch: dict):

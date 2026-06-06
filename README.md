@@ -29,6 +29,7 @@ This repository now contains a runnable scaffold for the project structure:
 - satellite raster config template and validation,
 - nuScenes LiDAR-to-camera depth target generation for single- or multi-camera manifest supervision,
 - multi-camera depth target loading plus loss/metric supervision,
+- LiDAR-derived BEV occupancy target generation plus optional occupancy loss/IoU reporting,
 - camera-specific depth and pointmap heads in the current scaffold model,
 - camera-specific local pose heads and per-camera pose loss/metric routing in the current scaffold model,
 - repo-local G3T/VGGT adapter template for config-driven smoke fine-tuning paths,
@@ -95,8 +96,9 @@ PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nus
 PYTHONPATH=src python3 scripts/generate_camera_pose_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.pose.jsonl
 PYTHONPATH=src python3 scripts/generate_camera_lidar_pointmap_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.camera-pointmaps.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.pose.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.supervised.jsonl
-PYTHONPATH=src python3 scripts/inspect_manifest_sample.py data/manifests/nuscenes-mini.supervised.jsonl --output-dir outputs/manifest-preview
-PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
+PYTHONPATH=src python3 scripts/generate_lidar_occupancy_targets.py data/manifests/nuscenes-mini.supervised.jsonl --output data/manifests/nuscenes-mini.occupancy.jsonl
+PYTHONPATH=src python3 scripts/inspect_manifest_sample.py data/manifests/nuscenes-mini.occupancy.jsonl --output-dir outputs/manifest-preview
+PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.occupancy.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke

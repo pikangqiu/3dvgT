@@ -204,6 +204,19 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
 ```
 
+Optionally add LiDAR-derived BEV occupancy proxy targets for auxiliary supervision and occupancy-IoU reporting:
+
+```bash
+PYTHONPATH=src python scripts/generate_lidar_occupancy_targets.py \
+  data/manifests/nuscenes-mini.supervised.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --occupancy-dir occupancy \
+  --grid-size 200,200 \
+  --output data/manifests/nuscenes-mini.occupancy.jsonl
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.occupancy.jsonl
+```
+
 Optionally replace or augment sparse LiDAR targets with configured G3T/VGGT reference predictions:
 
 ```bash
@@ -317,4 +330,4 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
 
 The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. The readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, external adapter/weight paths if `runtime.model.family` is not `scaffold`, and `reference_root` when `use_reference_adapter` is enabled.
 
-If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Depth targets can be image files or `.npy` arrays. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets; if `camera_local_camera_to_gravity_poses` is present, it uses those explicit camera-level pose targets. `scripts/generate_reference_supervision_targets.py` can populate dense configured-model depth, pointmap, and camera pose targets once a scaffold or reference adapter is configured.
+If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `occupancy_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Depth and occupancy targets can be image files or `.npy` arrays. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets; if `camera_local_camera_to_gravity_poses` is present, it uses those explicit camera-level pose targets. `scripts/generate_reference_supervision_targets.py` can populate dense configured-model depth, pointmap, and camera pose targets once a scaffold or reference adapter is configured.

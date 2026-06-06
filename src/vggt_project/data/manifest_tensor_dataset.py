@@ -55,6 +55,11 @@ class ManifestTensorDataset:
             if sample.valid_area_mask_path is not None
             else torch.ones(1, self.image_size, self.image_size, dtype=torch.float32)
         )
+        target_occupancy = (
+            _load_occupancy_tensor(sample.occupancy_path, self.image_size)
+            if sample.occupancy_path is not None
+            else torch.zeros(1, self.image_size, self.image_size, dtype=torch.float32)
+        )
 
         return {
             "bev_features": bev_features,
@@ -70,6 +75,7 @@ class ManifestTensorDataset:
                 sample,
                 self.scene_origins.get(sample.scene_token),
             ),
+            "target_occupancy": target_occupancy,
             "valid_area_mask": valid_area_mask,
             "sample_token": sample.token,
         }
@@ -131,6 +137,46 @@ def _load_gray_array_tensor(path: Path, image_size: int):
         align_corners=False,
     )
     return resized.squeeze(0).contiguous()
+
+
+def _load_occupancy_tensor(path: Path, image_size: int):
+    import numpy as np
+    import torch
+    from torch.nn import functional as F
+
+    if path.suffix.lower() in {".npy", ".npz"}:
+        loaded = np.load(path)
+        if isinstance(loaded, np.lib.npyio.NpzFile):
+            if "occupancy" in loaded:
+                array = loaded["occupancy"]
+            elif "mask" in loaded:
+                array = loaded["mask"]
+            else:
+                raise ValueError(f"occupancy npz must contain an 'occupancy' or 'mask' array: {path}")
+        else:
+            array = loaded
+        array = np.asarray(array, dtype=np.float32)
+        if array.ndim == 2:
+            array = array[None, :, :]
+        elif array.ndim == 3 and array.shape[-1] == 1:
+            array = array.transpose(2, 0, 1)
+        if array.ndim != 3 or array.shape[0] != 1:
+            raise ValueError(f"occupancy target must have shape HxW, 1xHxW, or HxWx1, got {array.shape}: {path}")
+        tensor = torch.from_numpy(array).contiguous()
+    else:
+        from PIL import Image
+
+        image = Image.open(path).convert("L")
+        array = np.asarray(image, dtype=np.float32) / 255.0
+        tensor = torch.from_numpy(array).unsqueeze(0).contiguous()
+    if tensor.shape[-2:] == (image_size, image_size):
+        return tensor.clamp(0.0, 1.0)
+    resized = F.interpolate(
+        tensor.unsqueeze(0),
+        size=(image_size, image_size),
+        mode="nearest",
+    )
+    return resized.squeeze(0).contiguous().clamp(0.0, 1.0)
 
 
 def _load_camera_depth_tensors(sample, image_size: int):

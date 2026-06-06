@@ -27,7 +27,7 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
         dim=1,
     ).mean()
 
-    return {
+    metrics = {
         "depth_mae": float(depth_mae.detach().cpu()),
         "pointmap_l1": float(pointmap_l1.detach().cpu()),
         "scale_aligned_pointmap_accuracy": float(pointmap_metrics["accuracy"].detach().cpu()),
@@ -38,6 +38,35 @@ def reconstruction_metrics(prediction: dict, batch: dict) -> dict[str, float]:
         "sequence_translation_drift": float(sequence_drift.detach().cpu()),
         "relative_pose_l2": float(relative_pose_l2.detach().cpu()),
     }
+    occupancy_iou = bev_occupancy_iou(prediction, batch)
+    if occupancy_iou is not None:
+        metrics["bev_occupancy_iou"] = float(occupancy_iou.detach().cpu())
+    return metrics
+
+
+def bev_occupancy_iou(prediction: dict, batch: dict):
+    """Return optional BEV occupancy IoU from logits and binary targets."""
+
+    predicted_occupancy = prediction.get("bev_occupancy")
+    target_occupancy = batch.get("target_occupancy")
+    if predicted_occupancy is None or target_occupancy is None:
+        return None
+
+    import torch
+    from torch.nn import functional as F
+
+    if predicted_occupancy.shape[-2:] != target_occupancy.shape[-2:]:
+        predicted_occupancy = F.interpolate(
+            predicted_occupancy,
+            size=target_occupancy.shape[-2:],
+            mode="bilinear",
+            align_corners=False,
+        )
+    predicted_mask = torch.sigmoid(predicted_occupancy) >= 0.5
+    target_mask = target_occupancy >= 0.5
+    intersection = (predicted_mask & target_mask).sum(dtype=torch.float32)
+    union = (predicted_mask | target_mask).sum(dtype=torch.float32)
+    return intersection / union.clamp_min(1.0)
 
 
 def scale_aligned_pointmap_metrics(predicted, target) -> dict:

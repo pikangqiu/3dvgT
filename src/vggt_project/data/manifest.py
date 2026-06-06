@@ -62,6 +62,7 @@ def load_manifest(path: Path) -> list[AlignedNuScenesSample]:
                 valid_area_mask_path=_resolve(base, record.get("valid_area_mask_path")),
                 lidar_depth_path=_resolve(base, record.get("lidar_depth_path")),
                 lidar_depth_paths=_resolve_path_mapping(base, record.get("lidar_depth_paths")),
+                occupancy_path=_resolve(base, record.get("occupancy_path")),
                 pointmap_path=_resolve(base, record.get("pointmap_path")),
                 pointmap_paths=_resolve_path_mapping(base, record.get("pointmap_paths")),
                 vector_map_path=_resolve(base, record.get("vector_map_path")),

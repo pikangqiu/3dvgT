@@ -35,6 +35,7 @@ def build_training_run_plan(
     satellite_manifest_path: Path = Path("data/manifests/nuscenes-mini.satellite.jsonl"),
     smoke_manifest_path: Path = Path("data/manifests/nuscenes-mini.smoke.jsonl"),
     pose_manifest_path: Path = Path("data/manifests/nuscenes-mini.pose.jsonl"),
+    occupancy_manifest_path: Path = Path("data/manifests/nuscenes-mini.occupancy.jsonl"),
     path_exists: Callable[[Path], bool] | None = None,
 ) -> TrainingRunPlan:
     """Return the ordered preprocessing/train commands for the configured run."""
@@ -48,6 +49,7 @@ def build_training_run_plan(
 
     satellite_input_manifest = satellite_manifest_path if satellite_config else smoke_manifest_path
     pose_input_manifest = pose_manifest_path
+    occupancy_input_manifest = occupancy_manifest_path
     split_ready = path_exists(train_manifest) and path_exists(eval_manifest)
 
     steps = [
@@ -136,29 +138,40 @@ def build_training_run_plan(
                 note="Adds multi-camera depth and camera-frame pointmap targets.",
             ),
             TrainingPlanStep(
+                name="generate_lidar_occupancy_targets",
+                command=(
+                    "PYTHONPATH=src python scripts/generate_lidar_occupancy_targets.py "
+                    f"{supervised_manifest} --root {nuscenes_root} --version {nuscenes_version} "
+                    f"--occupancy-dir occupancy --output {occupancy_manifest_path}"
+                ),
+                output_path=occupancy_manifest_path,
+                ready=path_exists(occupancy_manifest_path),
+                note="Adds LiDAR-derived BEV occupancy targets for optional geometry supervision.",
+            ),
+            TrainingPlanStep(
                 name="optional_generate_reference_supervision",
                 command=(
                     "PYTHONPATH=src python scripts/generate_reference_supervision_targets.py "
-                    f"--config {config_path} --manifest {supervised_manifest} "
-                    f"--output {supervised_manifest} --target-dir reference_targets --max-points {point_count}"
+                    f"--config {config_path} --manifest {occupancy_input_manifest} "
+                    f"--output {occupancy_input_manifest} --target-dir reference_targets --max-points {point_count}"
                 ),
-                ready=path_exists(supervised_manifest),
+                ready=path_exists(occupancy_manifest_path),
                 note="Optionally replaces sparse LiDAR targets with dense configured G3T/VGGT reference predictions.",
             ),
             TrainingPlanStep(
                 name="inspect_manifest_sample",
                 command=(
                     "PYTHONPATH=src python scripts/inspect_manifest_sample.py "
-                    f"{supervised_manifest} --output-dir outputs/manifest-preview --sample-index 0"
+                    f"{occupancy_input_manifest} --output-dir outputs/manifest-preview --sample-index 0"
                 ),
-                ready=path_exists(supervised_manifest),
+                ready=path_exists(occupancy_manifest_path),
                 note="Writes a JSON summary and contact sheet for camera/satellite/target sanity checks.",
             ),
             TrainingPlanStep(
                 name="split_manifest",
                 command=(
                     "PYTHONPATH=src python scripts/split_manifest.py "
-                    f"{supervised_manifest} --train-output {train_manifest} --eval-output {eval_manifest} "
+                    f"{occupancy_input_manifest} --train-output {train_manifest} --eval-output {eval_manifest} "
                     "--eval-fraction 0.2 --seed 0"
                 ),
                 ready=split_ready,

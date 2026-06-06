@@ -26,6 +26,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/materialize_satellite_crops.py", rendered)
         self.assertIn("scripts/generate_camera_pose_targets.py", rendered)
         self.assertIn("--pointmap-target-frame camera", rendered)
+        self.assertIn("scripts/generate_lidar_occupancy_targets.py", rendered)
         self.assertIn("scripts/generate_reference_supervision_targets.py", rendered)
         self.assertIn("scripts/inspect_manifest_sample.py", rendered)
         self.assertIn("scripts/check_model_adapter.py", rendered)

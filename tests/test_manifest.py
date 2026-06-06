@@ -15,6 +15,7 @@ class ManifestTest(unittest.TestCase):
                 '"camera_paths":["samples/CAM_FRONT/a.jpg"],'
                 '"camera_names":["CAM_FRONT"],'
                 '"satellite_patch_path":"sat/patch.png",'
+                '"occupancy_path":"targets/occupancy.npy",'
                 '"pointmap_path":"targets/pointmap.npy",'
                 '"pointmap_paths":{"CAM_FRONT":"targets/CAM_FRONT_pointmap.npy"},'
                 '"camera_local_camera_to_gravity_poses":{"CAM_FRONT":[1.0,0.0,0.0,0.0]},'
@@ -29,6 +30,7 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(samples[0].token, "sample-1")
         self.assertEqual(samples[0].cameras[0].image_path, root / "samples/CAM_FRONT/a.jpg")
         self.assertEqual(samples[0].satellite_patch_path, root / "sat/patch.png")
+        self.assertEqual(samples[0].occupancy_path, root / "targets/occupancy.npy")
         self.assertEqual(samples[0].pointmap_path, root / "targets/pointmap.npy")
         self.assertEqual(samples[0].pointmap_paths["CAM_FRONT"], root / "targets/CAM_FRONT_pointmap.npy")
         self.assertEqual(

@@ -165,6 +165,54 @@ class ManifestTensorDatasetTest(unittest.TestCase):
 
     @unittest.skipUnless(
         find_spec("PIL") and find_spec("torch") and find_spec("numpy"),
+        "Pillow, torch, and numpy are required for occupancy target tests",
+    )
+    def test_optional_occupancy_target_is_loaded(self) -> None:
+        import numpy as np
+        import torch
+        from PIL import Image
+
+        from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "sat").mkdir()
+            (root / "targets").mkdir()
+            Image.new("RGB", (8, 8), color=(255, 0, 0)).save(root / "samples/CAM_FRONT/a.png")
+            Image.new("RGB", (8, 8), color=(0, 255, 0)).save(root / "sat/patch.png")
+            np.save(root / "targets/occupancy.npy", np.asarray([[0.0, 1.0], [1.0, 0.0]], dtype=np.float32))
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.png"],'
+                '"satellite_patch_path":"sat/patch.png",'
+                '"occupancy_path":"targets/occupancy.npy",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+
+            item = ManifestTensorDataset(manifest, image_size=4, point_count=4)[0]
+
+        self.assertEqual(tuple(item["target_occupancy"].shape), (1, 4, 4))
+        torch.testing.assert_close(
+            item["target_occupancy"],
+            torch.tensor(
+                [
+                    [
+                        [0.0, 0.0, 1.0, 1.0],
+                        [0.0, 0.0, 1.0, 1.0],
+                        [1.0, 1.0, 0.0, 0.0],
+                        [1.0, 1.0, 0.0, 0.0],
+                    ]
+                ],
+                dtype=torch.float32,
+            ),
+        )
+
+    @unittest.skipUnless(
+        find_spec("PIL") and find_spec("torch") and find_spec("numpy"),
         "Pillow, torch, and numpy are required for pointmap target tests",
     )
     def test_multi_camera_pointmap_targets_are_loaded_as_stack(self) -> None:
