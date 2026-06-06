@@ -11,7 +11,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Area | Status | Evidence |
 | --- | --- | --- |
 | Git repository | Ready locally | local commits are present; use `git log --oneline` for the current head |
-| Project status audit | Scripted | `scripts/audit_project_status.py` reports scaffold readiness and remaining real-training gaps |
+| Project status audit | Scripted | `scripts/audit_project_status.py` reports scaffold readiness, remaining real-training gaps, and `next_actions` commands |
 | Reference code | Ready locally | `refs/g3t`, `refs/look-from-above-components/PseudoMapTrainer`, `refs/look-from-above-components/MapTR` |
 | Reference setup | Scripted | `scripts/setup_references.py --dry-run` prints clone plans for ignored external repos, including optional benchmark references for DGGT, DrivingForward, GaussianOcc, OpenScene, UniOcc, and Sat3DGen |
 | Data contracts | Scaffolded | `src/vggt_project/data/sample.py`, `src/vggt_project/data/synthetic.py`, `src/vggt_project/data/manifest.py`, `src/vggt_project/data/manifest_tensor_dataset.py`, `src/vggt_project/data/manifest_preview.py`; manifest batches include `camera_images` plus optional `target_camera_pointmaps`, `target_occupancy`, and `target_camera_local_camera_to_gravity_poses` for camera-specific/auxiliary scaffold heads; manifest preview writes a JSON summary and contact sheet for pre-training sanity checks |

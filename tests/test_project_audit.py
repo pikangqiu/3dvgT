@@ -27,15 +27,19 @@ class ProjectAuditTest(unittest.TestCase):
             self.assertTrue(items_by_name[name].ready, name)
 
     def test_audit_report_is_not_complete_real_training(self) -> None:
-        from vggt_project.project_audit import audit_project_files
+        from vggt_project.project_audit import audit_project_files, format_audit_report
 
         report = audit_project_files(Path("."))
+        rendered = format_audit_report(report)
 
         self.assertFalse(report.real_training_complete)
         self.assertIn("satellite patch extraction", " ".join(report.remaining_gaps))
         self.assertNotIn("multi-camera depth/pointmap", " ".join(report.remaining_gaps))
         self.assertNotIn("camera-specific reconstruction heads are not implemented", " ".join(report.remaining_gaps))
         self.assertNotIn("GitHub upload still requires", " ".join(report.remaining_gaps))
+        self.assertIn("PYTHONPATH=src python3 scripts/plan_training_run.py", " ".join(report.next_actions))
+        self.assertIn("scripts/check_training_readiness.py", " ".join(report.next_actions))
+        self.assertIn("next_actions:", rendered)
 
 
 if __name__ == "__main__":

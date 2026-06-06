@@ -20,6 +20,7 @@ class ProjectAuditReport:
     items: tuple[ProjectAuditItem, ...]
     real_training_complete: bool
     remaining_gaps: tuple[str, ...]
+    next_actions: tuple[str, ...]
 
     @property
     def scaffold_ready(self) -> bool:
@@ -132,10 +133,17 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, reference checkpoint loading hooks, and configurable fine-tuning policies are implemented, but full real-data head-call validation is not complete yet",
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete real-checkpoint fine-tuning validation for G3T/VGGT pose heads is not complete yet",
     )
+    next_actions = (
+        "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml",
+        "Populate data/nuscenes and data/satellite_rasters/config.json, then run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml",
+        "Set runtime.model.weights_path to a concrete G3T/VGGT checkpoint file and run PYTHONPATH=src python3 scripts/inspect_checkpoint.py <checkpoint>",
+        "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.yaml after the reference adapter and weights are configured",
+    )
     return ProjectAuditReport(
         items=items,
         real_training_complete=False,
         remaining_gaps=remaining_gaps,
+        next_actions=next_actions,
     )
 
 
@@ -155,6 +163,9 @@ def format_audit_report(report: ProjectAuditReport) -> str:
     lines.append("remaining_gaps:")
     for gap in report.remaining_gaps:
         lines.append(f"- {gap}")
+    lines.append("next_actions:")
+    for action in report.next_actions:
+        lines.append(f"- {action}")
     return "\n".join(lines)
 
 
