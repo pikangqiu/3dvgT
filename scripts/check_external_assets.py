@@ -51,6 +51,7 @@ def main() -> int:
     parser.add_argument("--satellite-config", type=Path, default=Path("data/satellite_rasters/config.json"))
     parser.add_argument("--weights-path", type=Path, default=None)
     parser.add_argument("--occ3d-root", type=Path, default=Path("data/occ3d"))
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -62,8 +63,12 @@ def main() -> int:
         weights_path=args.weights_path,
         occ3d_root=args.occ3d_root,
     )
+    payload = report.to_json()
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(payload + "\n", encoding="utf-8")
     if args.json:
-        print(report.to_json())
+        print(payload)
     else:
         print(format_external_asset_report(report))
     return 0 if report.required_ready else 1

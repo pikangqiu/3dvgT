@@ -53,6 +53,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("scripts/report_real_training_preflight.py", " ".join(report.next_actions))
         self.assertIn("PYTHONPATH=src python3 scripts/report_training_launch.py", " ".join(report.next_actions))
         self.assertIn("scripts/check_external_assets.py", " ".join(report.next_actions))
+        self.assertIn("--output outputs/manifest-smoke/external_assets.json --json", " ".join(report.next_actions))
         self.assertIn("PYTHONPATH=src python3 scripts/plan_training_run.py", " ".join(report.next_actions))
         self.assertIn("scripts/probe_manifest_forward.py", " ".join(report.next_actions))
         self.assertIn("scripts/verify_training_artifacts.py", " ".join(report.next_actions))

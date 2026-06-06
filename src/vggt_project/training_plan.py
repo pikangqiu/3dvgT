@@ -72,11 +72,13 @@ def build_training_run_plan(
     train_metrics = config.output_dir / "train_metrics.json"
     eval_metrics = config.output_dir / "eval_metrics.json"
     environment_report = config.output_dir / "environment.json"
+    external_assets_report = config.output_dir / "external_assets.json"
     preflight_report = config.output_dir / "real_training_preflight.json"
     artifact_report = config.output_dir / "training_artifacts.json"
     real_run_evidence = config.output_dir / "real_run_evidence.json"
     occupancy_report = config.output_dir / "occupancy_benchmark.json"
     satellite_config = config.satellite_raster_config_path
+    satellite_asset_config = satellite_config or Path("data/satellite_rasters/config.json")
     point_count = config.point_count
 
     satellite_input_manifest = satellite_manifest_path if satellite_config else smoke_manifest_path
@@ -256,6 +258,18 @@ def build_training_run_plan(
                 command=f"PYTHONPATH=src python scripts/probe_manifest_forward.py --config {config_path}",
                 ready=False,
                 note="Runs one real manifest sample through the configured model before train/eval launch.",
+            ),
+            TrainingPlanStep(
+                name="check_external_assets",
+                command=(
+                    "PYTHONPATH=src python scripts/check_external_assets.py "
+                    f"--config {config_path} --nuscenes-root {nuscenes_root} "
+                    f"--nuscenes-version {nuscenes_version} "
+                    f"--satellite-config {satellite_asset_config} "
+                    f"--output {external_assets_report} --json"
+                ),
+                ready=False,
+                note="Saves external data and weight readiness evidence before final preflight.",
             ),
             TrainingPlanStep(
                 name="report_real_training_preflight",

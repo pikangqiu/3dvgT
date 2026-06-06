@@ -149,6 +149,7 @@ def _build_remediation_commands(
 
 
 _LAUNCH_ONLY_STEPS = {
+    "check_external_assets",
     "report_real_training_preflight",
     "train",
     "evaluate",

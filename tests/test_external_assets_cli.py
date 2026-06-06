@@ -11,6 +11,7 @@ class ExternalAssetsCliTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             config = root / "config.json"
+            output = root / "external_assets.json"
             config.write_text('{"runtime": {"model": {"weights_path": null}}}', encoding="utf-8")
 
             result = subprocess.run(
@@ -25,18 +26,22 @@ class ExternalAssetsCliTest(unittest.TestCase):
                     str(root / "missing-satellite-config.json"),
                     "--occ3d-root",
                     str(root / "missing-occ3d"),
+                    "--output",
+                    str(output),
                     "--json",
                 ],
                 check=False,
                 text=True,
                 capture_output=True,
             )
+            output_payload = json.loads(output.read_text(encoding="utf-8"))
 
         payload = json.loads(result.stdout)
         assets = {asset["name"]: asset for asset in payload["assets"]}
 
         self.assertEqual(result.returncode, 1)
         self.assertFalse(payload["required_ready"])
+        self.assertEqual(payload, output_payload)
         self.assertFalse(assets["nuscenes"]["ready"])
         self.assertFalse(assets["satellite_rasters"]["ready"])
         self.assertFalse(assets["model_weights"]["ready"])
