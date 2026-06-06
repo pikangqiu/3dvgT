@@ -49,6 +49,7 @@ def verify_training_artifacts(
     required_train_metrics: tuple[str, ...] = ("loss",),
     required_eval_metrics: tuple[str, ...] = ("loss",),
     require_occupancy_report: bool = False,
+    required_occupancy_class_count: int | None = None,
 ) -> TrainingArtifactReport:
     """Return whether a completed run has the expected result artifacts."""
 
@@ -130,6 +131,11 @@ def verify_training_artifacts(
             "occupancy_report",
             occupancy_metrics,
             ("occupancy_miou", "class_iou"),
+            errors=errors,
+        )
+        _validate_occupancy_report_values(
+            occupancy_payload,
+            required_class_count=required_occupancy_class_count,
             errors=errors,
         )
 
@@ -238,3 +244,30 @@ def _require_metrics(
     for metric in required_metrics:
         if metric not in present:
             errors.append(f"{label} missing required metric: {metric}")
+
+
+def _validate_occupancy_report_values(
+    payload: dict[str, Any],
+    *,
+    required_class_count: int | None,
+    errors: list[str],
+) -> None:
+    miou = payload.get("occupancy_miou")
+    if not _is_unit_interval_number(miou):
+        errors.append("occupancy_report occupancy_miou must be numeric in [0, 1]")
+
+    class_iou = payload.get("class_iou")
+    if not isinstance(class_iou, dict):
+        errors.append("occupancy_report class_iou must be a JSON object")
+        return
+    if required_class_count is not None and len(class_iou) != required_class_count:
+        errors.append(f"occupancy_report class_iou has {len(class_iou)} classes, expected {required_class_count}")
+    for class_name, score in sorted(class_iou.items(), key=lambda item: str(item[0])):
+        if not _is_unit_interval_number(score):
+            errors.append(f"occupancy_report class_iou[{class_name}] must be numeric in [0, 1]")
+
+
+def _is_unit_interval_number(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    return 0.0 <= float(value) <= 1.0

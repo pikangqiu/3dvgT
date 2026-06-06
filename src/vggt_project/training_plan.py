@@ -324,7 +324,7 @@ def build_training_run_plan(
                     "PYTHONPATH=src python scripts/verify_training_artifacts.py "
                     f"--checkpoint {config.checkpoint} --train-metrics {train_metrics} --eval-metrics {eval_metrics} "
                     f"--occupancy-report {occupancy_report} --required-eval-metric loss "
-                    "--required-eval-metric depth_mae"
+                    "--required-eval-metric depth_mae --required-occupancy-class-count 18"
                 ),
                 ready=False,
                 note="Verifies checkpoint, train/eval report, and optional occupancy benchmark artifacts before recording results.",

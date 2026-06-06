@@ -51,12 +51,82 @@ class TrainingArtifactsTest(unittest.TestCase):
                 experiment_report_path=experiment_report,
                 occupancy_report_path=occupancy_report,
                 required_eval_metrics=("depth_mae", "pointmap_l1"),
+                required_occupancy_class_count=2,
             )
 
         self.assertTrue(report.ready)
         self.assertEqual(report.present_artifacts, ("checkpoint", "experiment_report", "occupancy_report"))
         self.assertEqual(report.missing_artifacts, ())
         self.assertEqual(report.errors, ())
+
+    def test_verify_training_artifacts_rejects_incomplete_occupancy_class_iou(self) -> None:
+        from vggt_project.training_artifacts import verify_training_artifacts
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            checkpoint = root / "model.pt"
+            checkpoint.write_bytes(b"checkpoint placeholder")
+            train_metrics = root / "train_metrics.json"
+            train_metrics.write_text(json.dumps({"loss": 1.0}), encoding="utf-8")
+            eval_metrics = root / "eval_metrics.json"
+            eval_metrics.write_text(json.dumps({"loss": 0.5}), encoding="utf-8")
+            occupancy_report = root / "occupancy.json"
+            occupancy_report.write_text(
+                json.dumps(
+                    {
+                        "sample_count": 1,
+                        "class_iou": {"0": 1.0, "1": 0.5},
+                        "occupancy_miou": 0.75,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            report = verify_training_artifacts(
+                checkpoint_path=checkpoint,
+                train_metrics_path=train_metrics,
+                eval_metrics_path=eval_metrics,
+                occupancy_report_path=occupancy_report,
+                required_occupancy_class_count=3,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("occupancy_report class_iou has 2 classes, expected 3", report.errors)
+
+    def test_verify_training_artifacts_rejects_invalid_occupancy_metric_values(self) -> None:
+        from vggt_project.training_artifacts import verify_training_artifacts
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            checkpoint = root / "model.pt"
+            checkpoint.write_bytes(b"checkpoint placeholder")
+            train_metrics = root / "train_metrics.json"
+            train_metrics.write_text(json.dumps({"loss": 1.0}), encoding="utf-8")
+            eval_metrics = root / "eval_metrics.json"
+            eval_metrics.write_text(json.dumps({"loss": 0.5}), encoding="utf-8")
+            occupancy_report = root / "occupancy.json"
+            occupancy_report.write_text(
+                json.dumps(
+                    {
+                        "sample_count": 1,
+                        "class_iou": {"0": 1.0, "1": 1.25},
+                        "occupancy_miou": "bad",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            report = verify_training_artifacts(
+                checkpoint_path=checkpoint,
+                train_metrics_path=train_metrics,
+                eval_metrics_path=eval_metrics,
+                occupancy_report_path=occupancy_report,
+                required_occupancy_class_count=2,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("occupancy_report occupancy_miou must be numeric in [0, 1]", report.errors)
+        self.assertIn("occupancy_report class_iou[1] must be numeric in [0, 1]", report.errors)
 
     def test_verify_training_artifacts_reports_missing_eval_metric(self) -> None:
         from vggt_project.training_artifacts import verify_training_artifacts
@@ -143,6 +213,8 @@ class TrainingArtifactsTest(unittest.TestCase):
                     str(experiment_report),
                     "--required-eval-metric",
                     "depth_mae",
+                    "--required-occupancy-class-count",
+                    "2",
                     "--json",
                 ],
                 cwd=Path(__file__).resolve().parents[1],

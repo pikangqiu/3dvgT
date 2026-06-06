@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--required-train-metric", action="append", default=None)
     parser.add_argument("--required-eval-metric", action="append", default=None)
     parser.add_argument("--require-occupancy-report", action="store_true")
+    parser.add_argument("--required-occupancy-class-count", type=int, default=None)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -34,6 +35,7 @@ def main() -> int:
         required_train_metrics=tuple(args.required_train_metric or ("loss",)),
         required_eval_metrics=tuple(args.required_eval_metric or ("loss",)),
         require_occupancy_report=args.require_occupancy_report,
+        required_occupancy_class_count=args.required_occupancy_class_count,
     )
 
     if args.json:

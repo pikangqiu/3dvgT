@@ -90,9 +90,17 @@ PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
   --num-classes 18 \
   --output outputs/manifest-smoke/occupancy_benchmark.json \
   --json
+PYTHONPATH=src python scripts/verify_training_artifacts.py \
+  --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt \
+  --train-metrics outputs/manifest-smoke/train_metrics.json \
+  --eval-metrics outputs/manifest-smoke/eval_metrics.json \
+  --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json \
+  --required-eval-metric loss \
+  --required-eval-metric depth_mae \
+  --required-occupancy-class-count 18
 ```
 
-The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. For `.npz`, it automatically checks `semantics`, `occupancy`, `labels`, `prediction`, then `arr_0`. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class ids, exported prediction manifest, and evaluator output are verified end to end.
+The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. For `.npz`, it automatically checks `semantics`, `occupancy`, `labels`, `prediction`, then `arr_0`. The artifact verifier checks that `occupancy_miou` and every `class_iou` value are numeric scores in `[0, 1]`, and `--required-occupancy-class-count 18` makes incomplete public class reports fail. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class ids, exported prediction manifest, and evaluator output are verified end to end.
 
 ## Manifest Bridge
 

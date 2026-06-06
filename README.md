@@ -139,7 +139,7 @@ PYTHONPATH=src python3 scripts/validate_public_occupancy_manifest.py --manifest 
 PYTHONPATH=src python3 scripts/validate_occupancy_labels.py --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --num-classes 18
 PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl
 PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json --output outputs/manifest-smoke/occupancy_benchmark.json
-PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae
+PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae --required-occupancy-class-count 18
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 ```
 

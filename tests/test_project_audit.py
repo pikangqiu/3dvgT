@@ -61,6 +61,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("scripts/attach_occ3d_labels.py", " ".join(report.next_actions))
         self.assertIn("scripts/validate_public_occupancy_manifest.py", " ".join(report.next_actions))
         self.assertIn("scripts/validate_occupancy_labels.py", " ".join(report.next_actions))
+        self.assertIn("--required-occupancy-class-count 18", " ".join(report.next_actions))
         self.assertIn("scripts/prepare_satellite_rasters.sh", " ".join(report.next_actions))
         self.assertIn("next_actions:", rendered)
 
