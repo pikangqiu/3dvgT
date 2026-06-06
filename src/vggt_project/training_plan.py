@@ -283,6 +283,15 @@ def build_training_run_plan(
                 note="Optionally attaches public Occ3D/OpenOccupancy semantic labels for benchmark evaluation.",
             ),
             TrainingPlanStep(
+                name="validate_occupancy_labels",
+                command=(
+                    "PYTHONPATH=src python scripts/validate_occupancy_labels.py "
+                    f"--manifest {occ3d_eval_manifest} --num-classes 18"
+                ),
+                ready=False,
+                note="Validates public occupancy label class ids before prediction export and benchmark evaluation.",
+            ),
+            TrainingPlanStep(
                 name="export_occupancy_predictions",
                 command=(
                     "PYTHONPATH=src python scripts/export_occupancy_predictions.py "

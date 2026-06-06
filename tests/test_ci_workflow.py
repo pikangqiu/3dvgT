@@ -20,6 +20,7 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertIn("scripts/probe_manifest_forward.py --help", content)
         self.assertIn("scripts/verify_training_artifacts.py --help", content)
         self.assertIn("scripts/attach_occ3d_labels.py --help", content)
+        self.assertIn("scripts/validate_occupancy_labels.py --help", content)
         self.assertIn("scripts/export_occupancy_predictions.py --help", content)
         self.assertIn("scripts/evaluate_occupancy_benchmark.py --help", content)
 

@@ -64,7 +64,7 @@ data/occ3d/
 
 The label attachment script also accepts the shorter `occ3d-nuscenes/gts/<scene_name>/<sample_token>/labels.npz` layout for locally reorganized labels. Official Occ3D-nuScenes `labels.npz` files use the `semantics` array for voxel labels and may also include `mask_lidar` and `mask_camera`.
 
-After a model checkpoint exists, attach public labels to the eval manifest, export BEV occupancy predictions into that benchmark manifest, and then compute class IoU plus semantic occupancy mIoU:
+After a model checkpoint exists, attach public labels to the eval manifest, validate class ids against the expected label space, export BEV occupancy predictions into that benchmark manifest, and then compute class IoU plus semantic occupancy mIoU:
 
 ```bash
 PYTHONPATH=src python scripts/attach_occ3d_labels.py \
@@ -73,6 +73,9 @@ PYTHONPATH=src python scripts/attach_occ3d_labels.py \
   --output data/manifests/nuscenes-mini.val.occ3d.jsonl \
   --nuscenes-root data/nuscenes \
   --nuscenes-version v1.0-trainval
+PYTHONPATH=src python scripts/validate_occupancy_labels.py \
+  --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl \
+  --num-classes 18
 PYTHONPATH=src python scripts/export_occupancy_predictions.py \
   --config configs/reconstruction_first.json \
   --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl \

@@ -57,6 +57,9 @@ jobs:
       - name: Check Occ3D label attach CLI
         run: PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --help
 
+      - name: Check occupancy label validation CLI
+        run: PYTHONPATH=src python3 scripts/validate_occupancy_labels.py --help
+
       - name: Check occupancy prediction export CLI
         run: PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --help
 
