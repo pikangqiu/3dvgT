@@ -144,6 +144,68 @@ Our reconstruction model + map auxiliary
 
 Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. The current scaffold reports `depth_mae`, scale-aligned pointmap accuracy/completeness/chamfer, `gravity_error_deg`, and `sequence_translation_drift`; map mAP should remain auxiliary.
 
+## Experiment Execution Priority
+
+The protocol now uses `experiment_phase` in `src/vggt_project/experiment_protocol.py` and `scripts/list_experiment_protocol.py --json` so the benchmark list is actionable instead of just broad.
+
+### `phase1_core`: first trainable paper table
+
+Run these once real nuScenes, satellite rasters, G3T/VGGT weights, and GPU validation are available:
+
+- VGGT camera-only baseline.
+- G3T camera-only/gravity-aligned baseline.
+- BEV+G3T ablation.
+- BEV+Satellite+G3T main model.
+
+Metrics:
+
+- `depth_mae`
+- `scale_aligned_pointmap_chamfer`
+- `gravity_error_deg`
+- `sequence_translation_drift`
+- `relative_pose_l2`
+- runtime and memory
+
+### `phase1_external`: first public-context comparison
+
+Use these to make the first result table defensible in autonomous-driving geometry language:
+
+- Occ3D-nuScenes / OpenOccupancy for public occupancy framing.
+- SA-Occ as the closest satellite-assisted occupancy baseline.
+
+The current repository only has LiDAR-derived binary occupancy proxy targets, so semantic Occ3D/OpenOccupancy evaluation is a later real-data validation step, not something the scaffold can honestly claim now.
+
+### `phase2_external`: broader satellite/cross-view validation
+
+Use these when the main model is already training:
+
+- CrossGeo/Cross3R for satellite-drone-ground point-cloud reconstruction, 6-DoF pose, and on-tile localization.
+- Sky2Ground/SkyNet for satellite/aerial/ground camera localization and reconstruction under altitude/viewpoint shifts.
+- E3D-Bench for general geometric foundation model reporting.
+- UniOcc, M2-Occ, GaussianOcc, and SurroundOcc when occupancy robustness becomes a main claim.
+
+### `phase2_tracking`: dynamic driving-scene reconstruction
+
+Track these once the project moves from sample-level reconstruction to temporal reconstruction:
+
+- DGGT.
+- DrivingForward.
+- ReconDrive.
+- DynamicVGGT.
+- PAGE-4D.
+- DriveTok.
+
+These are useful because they extend feed-forward/VGGT-style reconstruction into autonomous-driving temporal geometry, but they should not block the first static reconstruction experiment.
+
+### `phase3_stretch`: optional or auxiliary paper angles
+
+Use these only after the main result is stable:
+
+- Sat3DGen for satellite-only DSM/street-level generation stress testing.
+- MapTR and PseudoMapTrainer for optional vector-map auxiliary heads.
+- SG-BEV for satellite/BEV alignment design evidence.
+- OpenScene when scaling beyond nuScenes-mini/nuScenes to larger nuPlan-derived occupancy.
+
 ## Protocol Decision As Of 2026-06-06
 
 Use three comparison tables instead of one overloaded table:
@@ -200,6 +262,7 @@ Rationale:
 - SA-Occ ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/html/Chen_SA-Occ_Satellite-Assisted_3D_Occupancy_Prediction_in_Real_World_ICCV_2025_paper.html
 - DriveTok arXiv 2026: https://arxiv.org/abs/2603.19219
 - M2-Occ arXiv 2026: https://arxiv.org/abs/2603.09737
+- PAGE-4D OpenReview / ICLR 2026: https://openreview.net/forum?id=Nfmzp5PBzr
 - Nighttime Autonomous Driving Scene Reconstruction arXiv 2026: https://arxiv.org/abs/2602.13549
 - Real2Sim arXiv 2026: https://arxiv.org/abs/2605.13591
 - ParkGaussian / ParkRecon3D arXiv 2026: https://arxiv.org/abs/2601.01386

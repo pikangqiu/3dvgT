@@ -40,6 +40,7 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("SA-Occ", benchmark_names)
         self.assertIn("DriveTok", benchmark_names)
         self.assertIn("M2-Occ", benchmark_names)
+        self.assertIn("PAGE-4D", benchmark_names)
         self.assertIn("UniOcc", benchmark_names)
         self.assertIn("OpenScene", benchmark_names)
         self.assertIn("SG-BEV", benchmark_names)
@@ -47,6 +48,22 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("driving reconstruction table", rendered)
         self.assertIn("primary reconstruction table", rendered)
         self.assertIn("auxiliary satellite/BEV alignment", rendered)
+
+    def test_protocol_marks_first_wave_experiment_priorities(self) -> None:
+        from vggt_project.experiment_protocol import build_experiment_protocol, format_experiment_protocol
+
+        protocol = build_experiment_protocol()
+        baseline_by_name = {baseline.name: baseline for baseline in protocol.baselines}
+        benchmark_by_name = {benchmark.name: benchmark for benchmark in protocol.benchmarks}
+        rendered = format_experiment_protocol(protocol)
+
+        self.assertEqual("phase1_core", baseline_by_name["G3T"].experiment_phase)
+        self.assertEqual("phase1_core", baseline_by_name["BEV+Satellite+G3T"].experiment_phase)
+        self.assertEqual("phase1_external", benchmark_by_name["SA-Occ"].experiment_phase)
+        self.assertEqual("phase1_external", benchmark_by_name["Occ3D-nuScenes"].experiment_phase)
+        self.assertEqual("phase2_tracking", baseline_by_name["DynamicVGGT"].experiment_phase)
+        self.assertIn("phase=phase1_core", rendered)
+        self.assertIn("phase=phase1_external", rendered)
 
 
 if __name__ == "__main__":
