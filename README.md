@@ -32,6 +32,7 @@ This repository now contains a runnable scaffold for the project structure:
 - camera-specific depth and pointmap heads in the current scaffold model,
 - camera-specific local pose heads and per-camera pose loss/metric routing in the current scaffold model,
 - repo-local G3T/VGGT adapter template for config-driven smoke fine-tuning paths,
+- G3T/VGGT reference-output mapping utilities for depth, pointmap, and pose contract conversion,
 - model adapter contract check for camera-aware reconstruction outputs,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,
