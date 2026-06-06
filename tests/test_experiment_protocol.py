@@ -18,6 +18,8 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("BEV+Satellite+G3T", baseline_names)
         self.assertIn("Cross3R", baseline_names)
         self.assertIn("ReconDrive", baseline_names)
+        self.assertIn("DynamicVGGT", baseline_names)
+        self.assertIn("Sat3DGen", baseline_names)
         self.assertIn("DGGT", baseline_names)
 
     def test_protocol_recommends_benchmarks_by_role(self) -> None:
@@ -31,6 +33,8 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("Occ3D-nuScenes", benchmark_names)
         self.assertIn("Sky2Ground", benchmark_names)
         self.assertIn("CrossGeo", benchmark_names)
+        self.assertIn("Sat3DGen-VIGOR-OOD-DSM", benchmark_names)
+        self.assertIn("DynamicVGGT", benchmark_names)
         self.assertIn("UniOcc", benchmark_names)
         self.assertIn("OpenScene", benchmark_names)
         self.assertIn("SG-BEV", benchmark_names)

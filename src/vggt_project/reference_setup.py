@@ -93,6 +93,12 @@ def reference_specs() -> tuple[ReferenceRepositorySpec, ...]:
             path=Path("refs/benchmarks/UniOcc"),
             purpose="unified occupancy prediction and forecasting benchmark reference",
         ),
+        ReferenceRepositorySpec(
+            name="sat3dgen_reference",
+            url="https://github.com/qianmingduowan/Sat3DGen.git",
+            path=Path("refs/benchmarks/Sat3DGen"),
+            purpose="single-satellite street-level 3D generation reference",
+        ),
     )
 
 

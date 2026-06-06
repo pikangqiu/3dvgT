@@ -30,10 +30,13 @@ These repositories are ignored by the main git repository and should be treated 
   - Remote: `https://github.com/OpenDriveLab/OpenScene.git`
 - `UniOcc`: unified occupancy prediction and forecasting benchmark.
   - Remote: `https://github.com/tasl-lab/UniOcc.git`
+- `Sat3DGen`: single-satellite street-level 3D generation reference.
+  - Remote: `https://github.com/qianmingduowan/Sat3DGen.git`
 
 ## Track Until Public Code Is Confirmed
 
 - `Cross3R/CrossGeo`: closest satellite-drone-ground feed-forward reconstruction benchmark; clone when running cross-view reconstruction experiments.
 - `Sky2Ground/SkyNet`: satellite/aerial/ground site modeling benchmark; clone when code is released and when evaluating satellite-view robustness.
 - `ReconDrive`: VGGT-adapted feed-forward 4D Gaussian splatting baseline for nuScenes-like driving reconstruction.
+- `DynamicVGGT`: VGGT-derived dynamic pointmap and 4D autonomous-driving reconstruction baseline; track until public code is confirmed.
 - `GS-Occ3D`: scalable vision-only occupancy reconstruction benchmark; track project page until an official repository is linked.

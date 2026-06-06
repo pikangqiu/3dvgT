@@ -16,8 +16,10 @@ Primary candidates:
 - UniOcc for current-frame and future-frame occupancy prediction/forecasting.
 - DrivingForward and DGGT as driving-scene feed-forward reconstruction baselines.
 - ReconDrive as a 2026 feed-forward 4D Gaussian Splatting driving-scene reconstruction baseline that extends VGGT-style geometric features.
+- DynamicVGGT as a 2026 VGGT-extension baseline for dynamic pointmaps and 4D autonomous-driving reconstruction.
 - ParkRecon3D/ParkGaussian as a 2026 surround-view parking-scene reconstruction benchmark/baseline.
 - Perception-aware 3DGS as a 2026 evaluation direction for whether reconstructed driving scenes preserve downstream perception behavior.
+- Sat3DGen as a 2026 satellite-only street-level 3D generation benchmark direction with VIGOR-OOD plus DSM geometry supervision.
 - GS-Occ3D / GaussianOcc as Gaussian-splatting occupancy baselines for scalable vision-only or self-supervised driving geometry.
 
 Auxiliary mapping candidates:
@@ -41,12 +43,14 @@ Auxiliary mapping candidates:
 - Sky2Ground / SkyNet: 2026 satellite/aerial/ground benchmark and model for site modeling under varying altitude; directly relevant for satellite images as noisy but useful cross-view priors.
 - CrossGeo / Cross3R: 2026 tri-view satellite-drone-ground benchmark/model for feed-forward 3D point cloud reconstruction, 6-DoF camera pose, and on-tile cross-view localization.
 - SG-BEV: satellite-guided BEV fusion reference for feature alignment, useful as an auxiliary design baseline rather than a reconstruction metric baseline.
+- Sat3DGen: satellite-only street-level 3D generation reference; not a nuScenes driving baseline, but useful for testing whether satellite priors can support geometry-first street-scene reconstruction.
 
 ### Driving-scene reconstruction
 
 - DrivingForward: feed-forward Gaussian splatting for nuScenes driving-scene reconstruction.
 - DGGT: feed-forward 4D dynamic driving reconstruction on Waymo, nuScenes, and Argoverse2.
 - ReconDrive: fast feed-forward 4D Gaussian Splatting for autonomous driving scene reconstruction, explicitly extending VGGT and benchmarking on nuScenes.
+- DynamicVGGT: dynamic pointmap and 3D Gaussian motion baseline for autonomous-driving 4D reconstruction, useful when the project moves from static sample-level reconstruction to temporal scene reconstruction.
 - Nighttime Autonomous Driving Scene Reconstruction: 2026 ICRA direction for low-light driving-scene reconstruction on nuScenes/Waymo.
 - Real2Sim: physics-driven editable 4DGS for driving scenes, useful as a future simulation/editing comparison rather than first-table baseline.
 - Perception-aware 3DGS: evaluates reconstruction by downstream object-perception consistency, useful if our satellite prior claims improve driving-relevant geometry.
@@ -77,7 +81,9 @@ Auxiliary mapping candidates:
 | DrivingForward | Direct driving reconstruction baseline | Feed-forward Gaussian splatting on nuScenes surround-view inputs is close to our reconstruction-first framing | rendered RGB/depth quality, reconstruction quality |
 | DGGT | Direct dynamic driving reconstruction baseline | Feed-forward 4D driving reconstruction with nuScenes/Argoverse2/Waymo generalization settings | reconstruction and cross-dataset generalization metrics |
 | ReconDrive | 2026 direct feed-forward reconstruction baseline | Extends VGGT for fast 4D Gaussian generation and reports nuScenes reconstruction/NVS/perception results | reconstruction metrics, NVS metrics, perception preservation, runtime |
+| DynamicVGGT | 2026 dynamic driving reconstruction baseline | Extends VGGT with dynamic pointmaps, temporal attention, and 3D Gaussian motion heads for autonomous-driving 4D reconstruction | dynamic pointmap error, reconstruction quality, temporal/motion consistency |
 | Perception-aware 3DGS | 2026 evaluation-oriented baseline | Argues visual similarity is insufficient and adds object/perception-aware reconstruction losses | perception consistency, object-zone quality, visual reconstruction metrics |
+| Sat3DGen | 2026 satellite-only 3D generation benchmark direction | Pairs satellite views with DSM geometry on VIGOR-OOD; useful for satellite-only ablations and geometry-first satellite prior evaluation | DSM RMSE, FID/NVS quality, mesh/scene geometry quality |
 | ParkRecon3D / ParkGaussian | 2026 niche reconstruction benchmark | Surround-view parking scene reconstruction benchmark with dense parking-slot annotations | reconstruction quality, slot-aware perception consistency |
 | Nighttime driving 3DGS | Robustness benchmark direction | Tests reconstruction under low-light driving scenes on nuScenes/Waymo | nighttime reconstruction quality, rendering metrics |
 | Real2Sim | Future simulation/editing comparison | Editable physics-aware 4DGS for Waymo driving scenes, less directly aligned with our first nuScenes reconstruction table | rendering, reconstruction, editing/physics consistency |
@@ -137,10 +143,10 @@ Use three comparison tables instead of one overloaded table:
    VGGT, G3T, BEV+G3T, BEV+Satellite+G3T, BEV+Satellite+G3T+valid-mask/map auxiliary.
    Metrics: `depth_mae`, `scale_aligned_pointmap_chamfer`, `gravity_error_deg`, `sequence_translation_drift`, `relative_pose_l2`, runtime/memory.
 2. Satellite/cross-view reconstruction table:
-   Cross3R/CrossGeo and SkyNet/Sky2Ground as the most direct external evidence for satellite/UAV/ground reconstruction and localization.
-   Metrics: point-cloud reconstruction, 6-DoF pose, on-tile localization, RRA/RTA-style camera localization when available.
+   Cross3R/CrossGeo and SkyNet/Sky2Ground as the most direct external evidence for satellite/UAV/ground reconstruction and localization; Sat3DGen as a satellite-only geometry stress test.
+   Metrics: point-cloud reconstruction, 6-DoF pose, on-tile localization, RRA/RTA-style camera localization when available, and DSM RMSE for satellite-only generation.
 3. Driving geometry auxiliary table:
-   Occ3D/OpenOccupancy/SurroundOcc/OpenScene/UniOcc for occupancy; DrivingForward/DGGT/ReconDrive for feed-forward driving reconstruction.
+   Occ3D/OpenOccupancy/SurroundOcc/OpenScene/UniOcc for occupancy; DrivingForward/DGGT/ReconDrive/DynamicVGGT for feed-forward driving reconstruction.
    Metrics: implemented `bev_occupancy_iou` for local LiDAR-proxy smoke labels, semantic occupancy mIoU for public labels, and NVS/perception-preservation metrics when Gaussian-splatting baselines are run.
 
 Rationale:
@@ -151,6 +157,8 @@ Rationale:
 - Sky2Ground is the best stress test for the satellite branch: its paper reports that satellite imagery can degrade naive localization/reconstruction under large altitude changes, so a positive result there is much stronger than only testing segmentation.
 - CrossGeo/Cross3R is the closest task-level match for feed-forward satellite+ground 3D reconstruction and camera pose/localization.
 - ReconDrive and DGGT are the strongest driving-scene feed-forward reconstruction baselines to watch because both explicitly adapt VGGT-style geometry or transformer feed-forward reconstruction to nuScenes-like dynamic driving scenes.
+- DynamicVGGT is the most direct dynamic-pointmap extension of VGGT for autonomous driving, so it should be tracked when temporal reconstruction becomes a main table.
+- Sat3DGen is not a direct nuScenes comparison, but it is a strong satellite-only geometry sanity benchmark because it reports DSM-supervised street-level 3D generation from satellite input.
 - Occ3D/OpenScene/UniOcc provide public occupancy labels and evaluation language; the current project only has LiDAR-derived binary proxy occupancy, so public semantic occupancy validation remains a future milestone.
 
 ## Initial Source List
@@ -174,6 +182,9 @@ Rationale:
 - UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
 - SG-BEV CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/papers/Ye_SG-BEV_Satellite-Guided_BEV_Fusion_for_Cross-View_Semantic_Segmentation_CVPR_2024_paper.pdf
 - ReconDrive arXiv 2026: https://arxiv.org/abs/2603.07552
+- DynamicVGGT arXiv 2026: https://arxiv.org/abs/2603.08254
+- Sat3DGen arXiv 2026: https://arxiv.org/abs/2605.14984
+- Sat3DGen repository: https://github.com/qianmingduowan/Sat3DGen
 - Nighttime Autonomous Driving Scene Reconstruction arXiv 2026: https://arxiv.org/abs/2602.13549
 - Real2Sim arXiv 2026: https://arxiv.org/abs/2605.13591
 - ParkGaussian / ParkRecon3D arXiv 2026: https://arxiv.org/abs/2601.01386

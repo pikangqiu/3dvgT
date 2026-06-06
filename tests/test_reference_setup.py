@@ -21,6 +21,7 @@ class ReferenceSetupTest(unittest.TestCase):
         self.assertIn("gaussianocc_reference", names)
         self.assertIn("openscene_reference", names)
         self.assertIn("uniocc_reference", names)
+        self.assertIn("sat3dgen_reference", names)
 
     def test_clone_plans_are_relative_to_project_root(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -64,6 +65,10 @@ class ReferenceSetupTest(unittest.TestCase):
             "uniocc_reference": (
                 "https://github.com/tasl-lab/UniOcc.git",
                 "refs/benchmarks/UniOcc",
+            ),
+            "sat3dgen_reference": (
+                "https://github.com/qianmingduowan/Sat3DGen.git",
+                "refs/benchmarks/Sat3DGen",
             ),
         }
 

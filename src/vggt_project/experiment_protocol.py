@@ -157,6 +157,20 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 table="driving reconstruction table",
             ),
             ProtocolBaseline(
+                name="DynamicVGGT",
+                family="VGGT-extended dynamic pointmap reconstruction",
+                satellite_conditioning="none",
+                expected_artifact="current/future pointmaps and dynamic 3D Gaussian reconstruction",
+                table="driving reconstruction table",
+            ),
+            ProtocolBaseline(
+                name="Sat3DGen",
+                family="single-satellite street-level 3D generation",
+                satellite_conditioning="satellite-only",
+                expected_artifact="satellite-conditioned street-level 3D scene, DSM, and NVS outputs",
+                table="satellite/cross-view reconstruction table",
+            ),
+            ProtocolBaseline(
                 name="GaussianOcc",
                 family="self-supervised Gaussian occupancy",
                 satellite_conditioning="none",
@@ -205,6 +219,12 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 reason="Tri-view benchmark with satellite tiles, UAV images, and ground images for point-cloud reconstruction, 6-DoF pose, and on-tile localization.",
             ),
             ProtocolBenchmark(
+                name="Sat3DGen-VIGOR-OOD-DSM",
+                role="satellite-only street-level 3D generation benchmark",
+                source_url="https://arxiv.org/abs/2605.14984",
+                reason="Pairs VIGOR-OOD satellite views with high-resolution DSM, giving a satellite-only geometry stress test and DSM RMSE target.",
+            ),
+            ProtocolBenchmark(
                 name="Occ3D-nuScenes",
                 role="driving scene geometry benchmark",
                 source_url="https://tsinghua-mars-lab.github.io/Occ3D/",
@@ -233,6 +253,12 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 role="surround-view occupancy baseline",
                 source_url="https://github.com/weiyithu/SurroundOcc",
                 reason="Useful camera-only occupancy baseline when reporting geometry beyond pointmaps.",
+            ),
+            ProtocolBenchmark(
+                name="DynamicVGGT",
+                role="dynamic driving-scene reconstruction baseline",
+                source_url="https://arxiv.org/abs/2603.08254",
+                reason="Extends VGGT with dynamic pointmaps, temporal attention, and 3D Gaussian motion heads for autonomous-driving 4D reconstruction.",
             ),
             ProtocolBenchmark(
                 name="SG-BEV",
