@@ -243,6 +243,12 @@ def build_training_run_plan(
                 note="Builds the configured model and verifies camera-aware reconstruction outputs.",
             ),
             TrainingPlanStep(
+                name="probe_manifest_forward",
+                command=f"PYTHONPATH=src python scripts/probe_manifest_forward.py --config {config_path}",
+                ready=False,
+                note="Runs one real manifest sample through the configured model before train/eval launch.",
+            ),
+            TrainingPlanStep(
                 name="train",
                 command=f"PYTHONPATH=src python scripts/train.py --config {config_path}",
                 ready=False,

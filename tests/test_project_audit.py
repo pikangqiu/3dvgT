@@ -45,6 +45,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("PYTHONPATH=src python3 scripts/report_training_launch.py", " ".join(report.next_actions))
         self.assertIn("scripts/check_external_assets.py", " ".join(report.next_actions))
         self.assertIn("PYTHONPATH=src python3 scripts/plan_training_run.py", " ".join(report.next_actions))
+        self.assertIn("scripts/probe_manifest_forward.py", " ".join(report.next_actions))
         self.assertIn("scripts/check_training_readiness.py", " ".join(report.next_actions))
         self.assertIn("scripts/prepare_model_weights.sh", " ".join(report.next_actions))
         self.assertIn("scripts/configure_model_weights.py", " ".join(report.next_actions))

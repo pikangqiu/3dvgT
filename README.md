@@ -49,6 +49,7 @@ This repository now contains a runnable scaffold for the project structure:
 - reference-adapter checkpoint loading for raw or wrapper-prefixed state dicts,
 - configurable fine-tuning policies for full, frozen-backbone, heads-only, satellite/fusion/head, and reference-frozen training,
 - model adapter contract check for camera-aware reconstruction outputs and trainable/frozen parameter summaries,
+- manifest forward probe for one-sample real-file model sanity checks before training,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
@@ -69,7 +70,7 @@ This repository now contains a runnable scaffold for the project structure:
 - optional benchmark reference clone plans for DGGT, DrivingForward, GaussianOcc, OpenScene, UniOcc, and Sat3DGen,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs user-provided nuScenes/satellite assets, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning validation, and full real-data head-call validation. `scripts/audit_project_status.py` prints `next_actions`; `scripts/report_training_launch.py --json` also prints `remediation_commands` for fixing current launch blockers before training.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs user-provided nuScenes/satellite assets, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning validation, and a successful real-asset manifest forward probe. `scripts/audit_project_status.py` prints `next_actions`; `scripts/report_training_launch.py --json` also prints `remediation_commands` for fixing current launch blockers before training.
 
 ## Quick Checks
 
@@ -82,6 +83,7 @@ PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/recons
 PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/probe_manifest_forward.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/list_experiment_protocol.py
 PYTHONPATH=src python3 scripts/inspect_manifest_sample.py --help
 PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json

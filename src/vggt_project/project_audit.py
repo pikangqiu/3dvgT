@@ -101,6 +101,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/report_training_launch.py",
             "scripts/check_external_assets.py",
             "scripts/report_real_training_preflight.py",
+            "scripts/probe_manifest_forward.py",
         ),
         "weights": (
             "scripts/prepare_model_weights.sh",
@@ -139,7 +140,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "dense G3T/VGGT reference depth, pointmap, and pose target materialization plus LiDAR-derived occupancy proxy generation are scripted, but real public checkpoint/GPU validation and public occupancy benchmark validation are not complete yet",
-        "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, reference checkpoint loading hooks, and configurable fine-tuning policies are implemented, but full real-data head-call validation is not complete yet",
+        "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, reference checkpoint loading hooks, configurable fine-tuning policies, and manifest forward probing are implemented, but full real-asset/head-call validation is not complete yet",
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete real-checkpoint fine-tuning validation for G3T/VGGT pose heads is not complete yet",
     )
     next_actions = (
@@ -150,7 +151,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "Populate data/nuscenes and run bash scripts/prepare_satellite_rasters.sh, then edit data/satellite_rasters/config.json and run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
         "For public occupancy comparison, run bash scripts/prepare_occ3d.sh and keep Occ3D/OpenOccupancy semantic metrics separate from local LiDAR-proxy bev_occupancy_iou",
         "Run bash scripts/prepare_model_weights.sh, inspect a concrete checkpoint, and write it with PYTHONPATH=src python3 scripts/configure_model_weights.py --weights-path <checkpoint>",
-        "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json after the reference adapter and weights are configured",
+        "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json and PYTHONPATH=src python3 scripts/probe_manifest_forward.py --config configs/reconstruction_first.json after the reference adapter, weights, and manifests are configured",
     )
     return ProjectAuditReport(
         items=items,

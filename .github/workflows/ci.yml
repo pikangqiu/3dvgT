@@ -48,5 +48,8 @@ jobs:
       - name: Check real training preflight CLI
         run: PYTHONPATH=src python3 scripts/report_real_training_preflight.py --help
 
+      - name: Check manifest forward probe CLI
+        run: PYTHONPATH=src python3 scripts/probe_manifest_forward.py --help
+
       - name: Compile Python files
         run: python3 -m compileall src scripts tests

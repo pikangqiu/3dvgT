@@ -17,6 +17,7 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertIn("scripts/configure_model_weights.py --help", content)
         self.assertIn("scripts/check_external_assets.py --help", content)
         self.assertIn("scripts/report_real_training_preflight.py --help", content)
+        self.assertIn("scripts/probe_manifest_forward.py --help", content)
 
 
 if __name__ == "__main__":
