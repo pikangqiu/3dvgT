@@ -22,6 +22,7 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("Sat3DGen", baseline_names)
         self.assertIn("SA-Occ", baseline_names)
         self.assertIn("DriveTok", baseline_names)
+        self.assertIn("DrivingScene", baseline_names)
         self.assertIn("DGGT", baseline_names)
 
     def test_protocol_recommends_benchmarks_by_role(self) -> None:
@@ -39,6 +40,7 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("DynamicVGGT", benchmark_names)
         self.assertIn("SA-Occ", benchmark_names)
         self.assertIn("DriveTok", benchmark_names)
+        self.assertIn("DrivingScene", benchmark_names)
         self.assertIn("M2-Occ", benchmark_names)
         self.assertIn("PAGE-4D", benchmark_names)
         self.assertIn("UniOcc", benchmark_names)

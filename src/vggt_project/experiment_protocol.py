@@ -200,6 +200,14 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 experiment_phase="phase2_tracking",
             ),
             ProtocolBaseline(
+                name="DrivingScene",
+                family="online feed-forward 4D Gaussian driving reconstruction",
+                satellite_conditioning="none",
+                expected_artifact="depth, scene flow, dynamic 3D Gaussian point clouds, and NVS outputs",
+                table="driving reconstruction table",
+                experiment_phase="phase2_tracking",
+            ),
+            ProtocolBaseline(
                 name="GaussianOcc",
                 family="self-supervised Gaussian occupancy",
                 satellite_conditioning="none",
@@ -294,6 +302,13 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 role="multi-view driving reconstruction/tokenization benchmark",
                 source_url="https://arxiv.org/abs/2603.19219",
                 reason="2026 nuScenes multi-view scene-token baseline spanning image reconstruction, depth prediction, semantic segmentation, and 3D occupancy prediction.",
+                experiment_phase="phase2_tracking",
+            ),
+            ProtocolBenchmark(
+                name="DrivingScene",
+                role="online dynamic driving reconstruction baseline",
+                source_url="https://arxiv.org/abs/2510.24734",
+                reason="Feed-forward surround-view dynamic reconstruction on nuScenes with depth, scene flow, 3D Gaussian point clouds, and novel-view synthesis outputs.",
                 experiment_phase="phase2_tracking",
             ),
             ProtocolBenchmark(
