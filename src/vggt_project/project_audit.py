@@ -99,6 +99,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/plan_training_run.py",
             "scripts/bootstrap_training_run.py",
             "scripts/report_training_launch.py",
+            "scripts/check_external_assets.py",
         ),
         "weights": (
             "scripts/prepare_model_weights.sh",
@@ -142,6 +143,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     )
     next_actions = (
         "PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json",
+        "PYTHONPATH=src python3 scripts/check_external_assets.py --config configs/reconstruction_first.json",
         "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json",
         "Populate data/nuscenes and run bash scripts/prepare_satellite_rasters.sh, then edit data/satellite_rasters/config.json and run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
         "For public occupancy comparison, run bash scripts/prepare_occ3d.sh and keep Occ3D/OpenOccupancy semantic metrics separate from local LiDAR-proxy bev_occupancy_iou",

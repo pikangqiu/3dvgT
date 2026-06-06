@@ -42,5 +42,8 @@ jobs:
       - name: Check model weight config CLI
         run: PYTHONPATH=src python3 scripts/configure_model_weights.py --help
 
+      - name: Check external asset CLI
+        run: PYTHONPATH=src python3 scripts/check_external_assets.py --help
+
       - name: Compile Python files
         run: python3 -m compileall src scripts tests
