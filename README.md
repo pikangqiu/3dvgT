@@ -56,6 +56,7 @@ This repository now contains a runnable scaffold for the project structure:
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - machine-readable baseline/benchmark experiment protocol,
+- optional benchmark reference clone plans for DGGT, DrivingForward, GaussianOcc, OpenScene, and UniOcc,
 - baseline/benchmark notes for the next experimental plan.
 
 The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning policies, and full real-data head-call validation.

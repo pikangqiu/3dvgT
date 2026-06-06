@@ -16,12 +16,24 @@ These repositories are ignored by the main git repository and should be treated 
   - Remote: `https://github.com/weiyithu/SurroundOcc.git`
   - Initial HEAD: `419bf5b`
 
-## Not Yet Cloned
+## Scripted Optional References
+
+`scripts/setup_references.py` can restore these official baseline/benchmark repositories when those comparisons become active:
+
+- `DGGT`: pose-free feed-forward 4D driving reconstruction baseline.
+  - Remote: `https://github.com/xiaomi-research/dggt.git`
+- `DrivingForward`: nuScenes feed-forward driving-scene Gaussian splatting baseline.
+  - Remote: `https://github.com/fangzhou2000/DrivingForward.git`
+- `GaussianOcc`: self-supervised Gaussian-splatting occupancy baseline.
+  - Remote: `https://github.com/GANWANSHUI/GaussianOcc.git`
+- `OpenScene`: large-scale nuPlan-derived occupancy benchmark.
+  - Remote: `https://github.com/OpenDriveLab/OpenScene.git`
+- `UniOcc`: unified occupancy prediction and forecasting benchmark.
+  - Remote: `https://github.com/tasl-lab/UniOcc.git`
+
+## Track Until Public Code Is Confirmed
 
 - `Cross3R/CrossGeo`: closest satellite-drone-ground feed-forward reconstruction benchmark; clone when running cross-view reconstruction experiments.
 - `Sky2Ground/SkyNet`: satellite/aerial/ground site modeling benchmark; clone when code is released and when evaluating satellite-view robustness.
-- `DGGT`: relevant driving 4D reconstruction baseline; clone when ready to run that comparison.
-- `DrivingForward`: relevant nuScenes feed-forward reconstruction baseline; clone when selecting Gaussian-splatting reconstruction experiments.
 - `ReconDrive`: VGGT-adapted feed-forward 4D Gaussian splatting baseline for nuScenes-like driving reconstruction.
-- `GaussianOcc` and `GS-Occ3D`: Gaussian-splatting occupancy baselines for occupancy auxiliary experiments.
-- `OpenScene` and `UniOcc`: larger-scale occupancy/prediction benchmark references for post-nuScenes-mini scaling.
+- `GS-Occ3D`: scalable vision-only occupancy reconstruction benchmark; track project page until an official repository is linked.

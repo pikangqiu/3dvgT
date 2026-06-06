@@ -35,6 +35,10 @@ Reference repositories are stored under `refs/` and are ignored by the main git 
 - `refs/g3t`
 - `refs/look-from-above-components/PseudoMapTrainer`
 - `refs/look-from-above-components/MapTR`
+- `refs/benchmarks/E3D-Bench`
+- `refs/benchmarks/OpenOccupancy`
+- `refs/benchmarks/SurroundOcc`
+- optional benchmark references under `refs/benchmarks/` for DGGT, DrivingForward, GaussianOcc, OpenScene, and UniOcc
 
 Run:
 
@@ -51,6 +55,8 @@ PYTHONPATH=src python scripts/setup_references.py
 ```
 
 The dry run prints the `git clone` commands without touching the network. The real run clones missing repositories under `refs/`.
+
+These benchmark clones are optional references for comparison design. They are not required for synthetic smoke tests or for the current scaffold train/eval path.
 
 Before publishing to GitHub, check the local publishing state:
 

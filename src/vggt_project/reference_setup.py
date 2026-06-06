@@ -63,6 +63,36 @@ def reference_specs() -> tuple[ReferenceRepositorySpec, ...]:
             path=Path("refs/benchmarks/SurroundOcc"),
             purpose="surround-view occupancy benchmark reference",
         ),
+        ReferenceRepositorySpec(
+            name="dggt_reference",
+            url="https://github.com/xiaomi-research/dggt.git",
+            path=Path("refs/benchmarks/DGGT"),
+            purpose="pose-free feed-forward 4D driving reconstruction baseline",
+        ),
+        ReferenceRepositorySpec(
+            name="drivingforward_reference",
+            url="https://github.com/fangzhou2000/DrivingForward.git",
+            path=Path("refs/benchmarks/DrivingForward"),
+            purpose="nuScenes feed-forward driving-scene Gaussian splatting baseline",
+        ),
+        ReferenceRepositorySpec(
+            name="gaussianocc_reference",
+            url="https://github.com/GANWANSHUI/GaussianOcc.git",
+            path=Path("refs/benchmarks/GaussianOcc"),
+            purpose="self-supervised Gaussian-splatting occupancy baseline",
+        ),
+        ReferenceRepositorySpec(
+            name="openscene_reference",
+            url="https://github.com/OpenDriveLab/OpenScene.git",
+            path=Path("refs/benchmarks/OpenScene"),
+            purpose="large-scale nuPlan-derived occupancy benchmark reference",
+        ),
+        ReferenceRepositorySpec(
+            name="uniocc_reference",
+            url="https://github.com/tasl-lab/UniOcc.git",
+            path=Path("refs/benchmarks/UniOcc"),
+            purpose="unified occupancy prediction and forecasting benchmark reference",
+        ),
     )
 
 
