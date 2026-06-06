@@ -10,6 +10,13 @@ from typing import Any
 
 from vggt_project.models.scaffold import SatelliteBEVG3TScaffold
 
+REQUIRED_PREDICTION_KEYS = (
+    "gravity_aligned_pointmap",
+    "depth",
+    "local_camera_to_gravity_pose",
+    "relative_yaw_translation",
+)
+
 
 @dataclass(frozen=True)
 class ModelBuildConfig:
@@ -37,6 +44,14 @@ def build_reconstruction_model(config: ModelBuildConfig):
     if config.family in {"external", "g3t", "vggt", "g3t-vggt"}:
         return _build_external_adapter(config)
     raise ValueError(f"Unsupported model family: {config.family}")
+
+
+def validate_reconstruction_prediction(prediction: dict) -> None:
+    """Validate the output contract required by losses and metrics."""
+
+    missing = tuple(key for key in REQUIRED_PREDICTION_KEYS if key not in prediction)
+    if missing:
+        raise ValueError(f"reconstruction prediction missing required keys: {', '.join(missing)}")
 
 
 def _build_external_adapter(config: ModelBuildConfig):

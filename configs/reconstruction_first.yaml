@@ -84,7 +84,7 @@ runtime:
     point_count: 128
   model:
     family: scaffold
-    adapter_module_path: null
+    adapter_module_path: adapters/g3t_vggt_adapter.py
     weights_path: null
     strict_weights: true
     freeze_backbone: false

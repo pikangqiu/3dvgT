@@ -102,6 +102,43 @@ class ModelFactoryTest(unittest.TestCase):
         self.assertFalse(model.backbone.weight.requires_grad)
         self.assertTrue(model.head.weight.requires_grad)
 
+    @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
+    def test_repo_g3t_vggt_adapter_template_builds_with_factory(self) -> None:
+        import torch
+
+        from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
+
+        model = build_reconstruction_model(
+            ModelBuildConfig(
+                family="g3t-vggt",
+                adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+                point_count=4,
+            )
+        )
+
+        prediction = model(
+            {
+                "bev_features": torch.zeros(2, 8, 16, 16),
+                "satellite_patch": torch.zeros(2, 3, 16, 16),
+                "camera_images": torch.zeros(2, 3, 3, 16, 16),
+            }
+        )
+
+        self.assertEqual(tuple(prediction["gravity_aligned_pointmap"].shape), (2, 4, 3))
+        self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (2, 3, 4, 3))
+
+    def test_prediction_contract_reports_missing_keys(self) -> None:
+        from vggt_project.models.factory import validate_reconstruction_prediction
+
+        with self.assertRaisesRegex(ValueError, "depth"):
+            validate_reconstruction_prediction(
+                {
+                    "gravity_aligned_pointmap": object(),
+                    "local_camera_to_gravity_pose": object(),
+                    "relative_yaw_translation": object(),
+                }
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

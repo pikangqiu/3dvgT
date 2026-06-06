@@ -225,6 +225,38 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertIn("loss", eval_metrics)
         self.assertIn("depth_mae", eval_metrics)
 
+    @unittest.skipUnless(
+        find_spec("torch"),
+        "torch is required for adapter config smoke training",
+    )
+    def test_config_driven_external_adapter_synthetic_train_and_eval(self) -> None:
+        from vggt_project.experiments import (
+            ExperimentRunConfig,
+            evaluate_from_config,
+            train_from_config,
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output_dir = root / "adapter-output"
+            config = ExperimentRunConfig(
+                training_mode="synthetic",
+                model_family="g3t-vggt",
+                adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+                output_dir=output_dir,
+                checkpoint=output_dir / "synthetic_scaffold.pt",
+                epochs=1,
+                batch_size=2,
+                point_count=8,
+                seed=0,
+            )
+
+            train_metrics = train_from_config(config)
+            eval_metrics = evaluate_from_config(config)
+
+        self.assertIn("checkpoint", train_metrics)
+        self.assertIn("depth_mae", eval_metrics)
+
 
 if __name__ == "__main__":
     unittest.main()

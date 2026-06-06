@@ -54,6 +54,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/generate_lidar_supervision.py",
         ),
         "model_framework": (
+            "adapters/g3t_vggt_adapter.py",
             "src/vggt_project/models/interfaces.py",
             "src/vggt_project/models/factory.py",
             "src/vggt_project/models/scaffold.py",
@@ -108,7 +109,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "G3T/VGGT dense camera-level pointmap/pose target generation and occupancy target generation are not implemented, though LiDAR camera-frame pointmap target generation is now scripted",
-        "concrete G3T/VGGT adapter module is not implemented, though the train/eval factory can now load an external adapter module and optional weights",
+        "G3T/VGGT adapter template is implemented, but concrete reference head calls are not wired yet",
         "camera-specific G3T/VGGT pose heads are not implemented, though scaffold camera-depth and camera-pointmap heads are wired",
     )
     return ProjectAuditReport(

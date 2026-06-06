@@ -8,7 +8,11 @@ from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
 from vggt_project.metrics import reconstruction_metrics
-from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
+from vggt_project.models.factory import (
+    ModelBuildConfig,
+    build_reconstruction_model,
+    validate_reconstruction_prediction,
+)
 
 
 def evaluate_synthetic(
@@ -51,6 +55,7 @@ def evaluate_synthetic(
                 for key, value in tensor_tuple_to_batch(tensors).items()
             }
             prediction = model(batch)
+            validate_reconstruction_prediction(prediction)
             metrics = detach_float_metrics(reconstruction_losses(prediction, batch))
             metrics.update(reconstruction_metrics(prediction, batch))
             for key, value in metrics.items():
@@ -106,6 +111,7 @@ def evaluate_manifest_smoke(
                 if hasattr(value, "to")
             }
             prediction = model(batch)
+            validate_reconstruction_prediction(prediction)
             metrics = detach_float_metrics(reconstruction_losses(prediction, batch))
             metrics.update(reconstruction_metrics(prediction, batch))
             for key, value in metrics.items():

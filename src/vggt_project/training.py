@@ -7,7 +7,11 @@ from pathlib import Path
 from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
-from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
+from vggt_project.models.factory import (
+    ModelBuildConfig,
+    build_reconstruction_model,
+    validate_reconstruction_prediction,
+)
 
 
 def train_synthetic(
@@ -63,6 +67,7 @@ def train_synthetic(
             }
             optimizer.zero_grad(set_to_none=True)
             prediction = model(batch)
+            validate_reconstruction_prediction(prediction)
             losses = reconstruction_losses(prediction, batch)
             losses["loss"].backward()
             optimizer.step()
@@ -127,6 +132,7 @@ def train_manifest_smoke(
             }
             optimizer.zero_grad(set_to_none=True)
             prediction = model(batch)
+            validate_reconstruction_prediction(prediction)
             losses = reconstruction_losses(prediction, batch)
             losses["loss"].backward()
             optimizer.step()
