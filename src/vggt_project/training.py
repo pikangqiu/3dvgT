@@ -26,6 +26,9 @@ def train_synthetic(
     weights_path: Path | None = None,
     strict_weights: bool = True,
     freeze_backbone: bool = False,
+    use_reference_adapter: bool = False,
+    reference_root: Path | None = None,
+    reference_model: str = "g3t",
 ) -> dict[str, float]:
     """Run a small synthetic training job to verify plumbing."""
 
@@ -50,6 +53,9 @@ def train_synthetic(
             weights_path=weights_path,
             strict_weights=strict_weights,
             freeze_backbone=freeze_backbone,
+            use_reference_adapter=use_reference_adapter,
+            reference_root=reference_root,
+            reference_model=reference_model,
             bev_channels=spec.bev_channels,
             satellite_channels=spec.satellite_channels,
             point_count=spec.point_count,
@@ -94,6 +100,9 @@ def train_manifest_smoke(
     weights_path: Path | None = None,
     strict_weights: bool = True,
     freeze_backbone: bool = False,
+    use_reference_adapter: bool = False,
+    reference_root: Path | None = None,
+    reference_model: str = "g3t",
 ) -> dict[str, float]:
     """Run smoke training from real image files listed in a manifest."""
 
@@ -116,6 +125,9 @@ def train_manifest_smoke(
             weights_path=weights_path,
             strict_weights=strict_weights,
             freeze_backbone=freeze_backbone,
+            use_reference_adapter=use_reference_adapter,
+            reference_root=reference_root,
+            reference_model=reference_model,
             point_count=point_count,
         )
     ).to(device)

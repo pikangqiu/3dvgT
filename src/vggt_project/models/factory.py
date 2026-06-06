@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import inspect
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
@@ -25,6 +26,9 @@ class ModelBuildConfig:
     weights_path: Path | None = None
     strict_weights: bool = True
     freeze_backbone: bool = False
+    use_reference_adapter: bool = False
+    reference_root: Path | None = None
+    reference_model: str = "g3t"
     bev_channels: int = 8
     satellite_channels: int = 3
     latent_dim: int = 128
@@ -61,17 +65,30 @@ def _build_external_adapter(config: ModelBuildConfig):
     build_model = getattr(module, "build_model", None)
     if build_model is None:
         raise ValueError(f"adapter module must define build_model(...): {config.adapter_module_path}")
-    model = build_model(
-        point_count=config.point_count,
-        bev_channels=config.bev_channels,
-        satellite_channels=config.satellite_channels,
-        latent_dim=config.latent_dim,
-    )
+    model = _call_adapter_build_model(build_model, config)
     if config.weights_path is not None:
         _load_weights(model, config.weights_path, strict=config.strict_weights)
     if config.freeze_backbone:
         _freeze_backbone(model)
     return model
+
+
+def _call_adapter_build_model(build_model: Any, config: ModelBuildConfig):
+    kwargs = {
+        "point_count": config.point_count,
+        "bev_channels": config.bev_channels,
+        "satellite_channels": config.satellite_channels,
+        "latent_dim": config.latent_dim,
+        "use_reference_adapter": config.use_reference_adapter,
+        "reference_root": config.reference_root,
+        "reference_model": config.reference_model,
+    }
+    signature = inspect.signature(build_model)
+    accepts_kwargs = any(parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in signature.parameters.values())
+    if accepts_kwargs:
+        return build_model(**kwargs)
+    accepted = {key: value for key, value in kwargs.items() if key in signature.parameters}
+    return build_model(**accepted)
 
 
 def _load_adapter_module(path: Path) -> ModuleType:

@@ -103,6 +103,38 @@ class ModelFactoryTest(unittest.TestCase):
         self.assertTrue(model.head.weight.requires_grad)
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
+    def test_external_adapter_receives_reference_adapter_options(self) -> None:
+        from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            adapter_path = Path(temp_dir) / "fake_adapter.py"
+            adapter_path.write_text(
+                "from torch import nn\n"
+                "class FakeAdapter(nn.Module):\n"
+                "    def __init__(self, kwargs):\n"
+                "        super().__init__()\n"
+                "        self.kwargs = kwargs\n"
+                "def build_model(**kwargs):\n"
+                "    return FakeAdapter(kwargs)\n",
+                encoding="utf-8",
+            )
+
+            model = build_reconstruction_model(
+                ModelBuildConfig(
+                    family="external",
+                    adapter_module_path=adapter_path,
+                    use_reference_adapter=True,
+                    reference_root=Path("refs/g3t"),
+                    reference_model="g3t",
+                    point_count=4,
+                )
+            )
+
+        self.assertTrue(model.kwargs["use_reference_adapter"])
+        self.assertEqual(model.kwargs["reference_root"], Path("refs/g3t"))
+        self.assertEqual(model.kwargs["reference_model"], "g3t")
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
     def test_repo_g3t_vggt_adapter_template_builds_with_factory(self) -> None:
         import torch
 

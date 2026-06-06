@@ -119,7 +119,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "G3T/VGGT dense camera-level pointmap/pose target generation and occupancy target generation are not implemented, though LiDAR camera-frame pointmap target generation is now scripted",
-        "G3T/VGGT adapter template, reference-output mapping, and local reference builder are implemented, but config-level reference instantiation, weights, and full real-data head calls are not wired yet",
+        "G3T/VGGT adapter template, reference-output mapping, local reference builder, and config-level reference instantiation are implemented, but concrete reference weights and full real-data head calls are not wired yet",
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete G3T/VGGT pose heads and full G3T camera-level pose target generation are not implemented",
     )
     return ProjectAuditReport(

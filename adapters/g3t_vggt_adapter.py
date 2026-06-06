@@ -29,6 +29,8 @@ def build_local_reference_adapter(
     if root_text not in sys.path:
         sys.path.insert(0, root_text)
         inserted = True
+    module_snapshot = _snapshot_vggt_modules(sys.modules)
+    _clear_vggt_modules(sys.modules)
     try:
         model_name = reference_model.lower()
         if model_name == "g3t":
@@ -51,6 +53,8 @@ def build_local_reference_adapter(
             f"Could not import {reference_model} from {root}; install refs/g3t requirements first"
         ) from error
     finally:
+        _clear_vggt_modules(sys.modules)
+        sys.modules.update(module_snapshot)
         if inserted:
             try:
                 sys.path.remove(root_text)
@@ -99,8 +103,20 @@ def build_model(
     bev_channels: int = 8,
     satellite_channels: int = 3,
     latent_dim: int = 128,
+    use_reference_adapter: bool = False,
+    reference_root=None,
+    reference_model: str = "g3t",
 ):
     """Build a trainable adapter that satisfies the reconstruction contract."""
+
+    if use_reference_adapter:
+        if reference_root is None:
+            raise ValueError("reference_root is required when use_reference_adapter is true")
+        return build_local_reference_adapter(
+            reference_root=reference_root,
+            reference_model=reference_model,
+            point_count=point_count,
+        )
 
     import torch
     from torch import nn
@@ -144,6 +160,20 @@ def _torch_nn_module_base():
     import torch
 
     return torch.nn.Module
+
+
+def _snapshot_vggt_modules(modules: dict) -> dict:
+    return {name: module for name, module in modules.items() if _is_vggt_module_name(name)}
+
+
+def _clear_vggt_modules(modules: dict) -> None:
+    for name in tuple(modules):
+        if _is_vggt_module_name(name):
+            del modules[name]
+
+
+def _is_vggt_module_name(name: str) -> bool:
+    return name == "vggt" or name.startswith("vggt.")
 
 
 class G3TVGGTReferenceAdapter(_torch_nn_module_base()):

@@ -254,6 +254,9 @@ runtime:
     weights_path: null
     strict_weights: true
     freeze_backbone: false
+    use_reference_adapter: false
+    reference_root: refs/g3t
+    reference_model: g3t
 ```
 
 Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
@@ -269,9 +272,12 @@ runtime:
     weights_path: weights/g3t/model.pt
     strict_weights: false
     freeze_backbone: false
+    use_reference_adapter: true
+    reference_root: refs/g3t
+    reference_model: g3t
 ```
 
-`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. It is the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
+`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
 For a single train+eval run with a JSON report:
 

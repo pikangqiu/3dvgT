@@ -41,6 +41,9 @@ class ExperimentConfigTest(unittest.TestCase):
                         "weights_path": "weights/g3t/model.pt",
                         "strict_weights": False,
                         "freeze_backbone": True,
+                        "use_reference_adapter": True,
+                        "reference_root": "refs/g3t",
+                        "reference_model": "g3t",
                     },
                     "training": {
                         "mode": "manifest-smoke",
@@ -70,6 +73,9 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.weights_path, Path("weights/g3t/model.pt"))
         self.assertFalse(config.strict_weights)
         self.assertTrue(config.freeze_backbone)
+        self.assertTrue(config.use_reference_adapter)
+        self.assertEqual(config.reference_root, Path("refs/g3t"))
+        self.assertEqual(config.reference_model, "g3t")
         self.assertEqual(config.epochs, 2)
         self.assertEqual(config.batch_size, 3)
         self.assertEqual(config.learning_rate, 0.0002)

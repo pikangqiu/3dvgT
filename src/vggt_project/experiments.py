@@ -25,6 +25,9 @@ class ExperimentRunConfig:
     weights_path: Path | None = None
     strict_weights: bool = True
     freeze_backbone: bool = False
+    use_reference_adapter: bool = False
+    reference_root: Path | None = None
+    reference_model: str = "g3t"
     device: str | None = None
     seed: int | None = None
     output_dir: Path = Path("outputs/synthetic")
@@ -66,6 +69,9 @@ class ExperimentRunConfig:
             weights_path=_optional_path(model.get("weights_path")),
             strict_weights=bool(model.get("strict_weights", True)),
             freeze_backbone=bool(model.get("freeze_backbone", False)),
+            use_reference_adapter=bool(model.get("use_reference_adapter", False)),
+            reference_root=_optional_path(model.get("reference_root")),
+            reference_model=str(model.get("reference_model", "g3t")),
             device=runtime.get("device"),
             seed=_optional_int(runtime.get("seed")),
             output_dir=output_dir,
@@ -108,6 +114,9 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            use_reference_adapter=config.use_reference_adapter,
+            reference_root=config.reference_root,
+            reference_model=config.reference_model,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.train_manifest_path or config.manifest_path
@@ -130,6 +139,9 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            use_reference_adapter=config.use_reference_adapter,
+            reference_root=config.reference_root,
+            reference_model=config.reference_model,
         )
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
 
@@ -146,6 +158,9 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             adapter_module_path=config.adapter_module_path,
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
+            use_reference_adapter=config.use_reference_adapter,
+            reference_root=config.reference_root,
+            reference_model=config.reference_model,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.eval_manifest_path or config.manifest_path
@@ -164,6 +179,9 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             adapter_module_path=config.adapter_module_path,
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
+            use_reference_adapter=config.use_reference_adapter,
+            reference_root=config.reference_root,
+            reference_model=config.reference_model,
         )
     raise ValueError(f"Unsupported evaluation mode: {config.training_mode}")
 
