@@ -22,6 +22,12 @@ def main() -> int:
     )
     parser.add_argument("--depth-dir", type=Path, default=Path("lidar_depth"))
     parser.add_argument("--pointmap-dir", type=Path, default=Path("pointmaps"))
+    parser.add_argument(
+        "--pointmap-target-frame",
+        choices=("ego", "camera"),
+        default="ego",
+        help="Write sample-level ego pointmap_path or camera-level pointmap_paths.",
+    )
     parser.add_argument("--max-depth-m", type=float, default=80.0)
     parser.add_argument("--max-points", type=int, default=4096)
     parser.add_argument("--overwrite", action="store_true")
@@ -39,6 +45,7 @@ def main() -> int:
         camera_names=args.camera,
         depth_dir=args.depth_dir,
         pointmap_dir=args.pointmap_dir,
+        pointmap_target_frame=args.pointmap_target_frame,
         max_depth_m=args.max_depth_m,
         max_points=args.max_points,
         overwrite=args.overwrite,

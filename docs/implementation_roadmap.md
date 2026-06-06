@@ -26,8 +26,8 @@ Goal: make nuScenes samples explicit before training.
 - Include ego pose translation/rotation and map location in manifests so satellite crops can be aligned later.
 - Convert manifest ego pose metadata into coarse pose targets for the current train/eval scaffold.
 - Support optional pointmap target files in manifests before implementing G3T-style pointmap target generation.
-- Generate ego-frame LiDAR pointmap targets as the first real pointmap supervision path.
-- Compose LiDAR depth and pointmap preprocessing into one supervised manifest pipeline for training setup.
+- Generate ego-frame and camera-frame LiDAR pointmap targets as the first real sparse pointmap supervision paths.
+- Compose LiDAR depth and ego/camera pointmap preprocessing into one supervised manifest pipeline for training setup.
 - Add coordinate-frame checks for camera, ego, BEV, satellite, and gravity frames.
 - Decide the first satellite patch source and resolution.
 - Provide a satellite raster config for `scripts/materialize_satellite_crops.py`.

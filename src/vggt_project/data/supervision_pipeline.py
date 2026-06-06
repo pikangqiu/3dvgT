@@ -7,7 +7,10 @@ from pathlib import Path
 from typing import Any
 
 from vggt_project.data.nuscenes_depth import materialize_lidar_depth_manifest
-from vggt_project.data.nuscenes_pointmap import materialize_lidar_pointmap_manifest
+from vggt_project.data.nuscenes_pointmap import (
+    materialize_camera_lidar_pointmap_manifest,
+    materialize_lidar_pointmap_manifest,
+)
 
 
 @dataclass(frozen=True)
@@ -30,6 +33,7 @@ def materialize_lidar_supervision_manifest(
     camera_names: tuple[str, ...] | list[str] | None = None,
     depth_dir: Path = Path("lidar_depth"),
     pointmap_dir: Path = Path("pointmaps"),
+    pointmap_target_frame: str = "ego",
     max_depth_m: float = 80.0,
     max_points: int = 4096,
     overwrite: bool = False,
@@ -47,14 +51,28 @@ def materialize_lidar_supervision_manifest(
         max_depth_m=max_depth_m,
         overwrite=overwrite,
     )
-    pointmap_report = materialize_lidar_pointmap_manifest(
-        nusc,
-        depth_manifest,
-        pointmap_dir=pointmap_dir,
-        output_manifest_path=output_manifest_path,
-        max_points=max_points,
-        overwrite=overwrite,
-    )
+    if pointmap_target_frame == "ego":
+        pointmap_report = materialize_lidar_pointmap_manifest(
+            nusc,
+            depth_manifest,
+            pointmap_dir=pointmap_dir,
+            output_manifest_path=output_manifest_path,
+            max_points=max_points,
+            overwrite=overwrite,
+        )
+    elif pointmap_target_frame == "camera":
+        pointmap_report = materialize_camera_lidar_pointmap_manifest(
+            nusc,
+            depth_manifest,
+            camera_name=camera_name,
+            camera_names=camera_names,
+            pointmap_dir=pointmap_dir,
+            output_manifest_path=output_manifest_path,
+            max_points=max_points,
+            overwrite=overwrite,
+        )
+    else:
+        raise ValueError("pointmap_target_frame must be 'ego' or 'camera'")
     return LidarSupervisionReport(
         manifest_path=manifest_path,
         depth_manifest_path=depth_manifest,

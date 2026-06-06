@@ -175,6 +175,20 @@ PYTHONPATH=src python scripts/generate_lidar_pointmap_targets.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.pointmap.jsonl
 ```
 
+Generate camera-frame pointmap targets for camera-specific supervision:
+
+```bash
+PYTHONPATH=src python scripts/generate_camera_lidar_pointmap_targets.py \
+  data/manifests/nuscenes-mini.depth.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --camera CAM_FRONT \
+  --camera CAM_BACK \
+  --pointmap-dir camera_pointmaps \
+  --output data/manifests/nuscenes-mini.camera-pointmap.jsonl
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.camera-pointmap.jsonl
+```
+
 Alternatively, generate depth and pointmap supervision in one pass:
 
 ```bash
@@ -184,6 +198,8 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
   --version v1.0-mini \
   --camera CAM_FRONT \
   --camera CAM_BACK \
+  --pointmap-target-frame camera \
+  --pointmap-dir camera_pointmaps \
   --output data/manifests/nuscenes-mini.supervised.jsonl
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
 ```
@@ -254,4 +270,4 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
 
 This readiness check validates configured manifests, dependencies, requested device, and the optional `satellite_raster_config_path` if it is present.
 
-If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. True G3T/VGGT camera-level pointmap target generation and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.
+If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Dense G3T/VGGT pointmap generation and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.

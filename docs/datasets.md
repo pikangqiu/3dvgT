@@ -154,7 +154,23 @@ PYTHONPATH=src python scripts/generate_lidar_pointmap_targets.py \
   --output data/manifests/nuscenes-mini.pointmap.jsonl
 ```
 
-This writes `.npy` pointmap files and updates `pointmap_path` in the output manifest. The current scaffold treats these as ego-frame pointmap supervision. A future G3T/VGGT adapter should replace or augment them with camera/gravity-aligned pointmap targets.
+This writes `.npy` pointmap files and updates `pointmap_path` in the output manifest. The current scaffold treats these as ego-frame pointmap supervision.
+
+Generate camera-frame pointmap targets from visible LiDAR points:
+
+```bash
+PYTHONPATH=src python scripts/generate_camera_lidar_pointmap_targets.py \
+  data/manifests/nuscenes-mini.depth.jsonl \
+  --root data/nuscenes \
+  --version v1.0-mini \
+  --camera CAM_FRONT \
+  --camera CAM_BACK \
+  --pointmap-dir camera_pointmaps \
+  --max-points 4096 \
+  --output data/manifests/nuscenes-mini.camera-pointmap.jsonl
+```
+
+This transforms `LIDAR_TOP` points into each selected nuScenes camera frame, keeps only positive-depth points that project inside the camera image, saves `.npy` arrays, and updates `pointmap_paths`. These are sparse LiDAR camera-frame targets for training-path validation; a final G3T/VGGT adapter may still replace or augment them with dense pointmaps from the selected reconstruction backbone.
 
 Or generate both LiDAR depth and pointmap supervision in one pass:
 
@@ -165,6 +181,8 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
   --version v1.0-mini \
   --camera CAM_FRONT \
   --camera CAM_BACK \
+  --pointmap-target-frame camera \
+  --pointmap-dir camera_pointmaps \
   --output data/manifests/nuscenes-mini.supervised.jsonl
 ```
 

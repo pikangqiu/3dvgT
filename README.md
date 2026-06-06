@@ -28,6 +28,7 @@ This repository now contains a runnable scaffold for the project structure:
 - multi-camera depth target loading plus loss/metric supervision,
 - camera-specific depth and pointmap heads in the current scaffold model,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
+- nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
 - scene-level train/eval manifest splitting,
 - optional sample-level or camera-level manifest pointmap target loading,
@@ -40,7 +41,7 @@ This repository now contains a runnable scaffold for the project structure:
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and integration with selected G3T/VGGT heads.
 
 ## Quick Checks
 
@@ -70,6 +71,7 @@ PYTHONPATH=src python3 scripts/evaluate.py --checkpoint outputs/synthetic/synthe
 PYTHONPATH=src python3 scripts/materialize_manifest_assets.py data/manifests/nuscenes-mini.jsonl --create-valid-masks --output data/manifests/nuscenes-mini.smoke.jsonl
 PYTHONPATH=src python3 scripts/check_satellite_rasters.py --config data/satellite_rasters/config.json --manifest data/manifests/nuscenes-mini.jsonl
 PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
+PYTHONPATH=src python3 scripts/generate_camera_lidar_pointmap_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.camera-pointmaps.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.smoke.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.supervised.jsonl
 PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
