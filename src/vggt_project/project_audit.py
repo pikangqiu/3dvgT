@@ -55,6 +55,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         ),
         "model_framework": (
             "src/vggt_project/models/interfaces.py",
+            "src/vggt_project/models/factory.py",
             "src/vggt_project/models/scaffold.py",
         ),
         "losses": ("src/vggt_project/losses.py",),
@@ -107,7 +108,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "G3T/VGGT dense camera-level pointmap/pose target generation and occupancy target generation are not implemented, though LiDAR camera-frame pointmap target generation is now scripted",
-        "G3T/VGGT head adapter and fine-tuning path are not implemented",
+        "concrete G3T/VGGT adapter module is not implemented, though the train/eval factory can now load an external adapter module and optional weights",
         "camera-specific G3T/VGGT pose heads are not implemented, though scaffold camera-depth and camera-pointmap heads are wired",
     )
     return ProjectAuditReport(

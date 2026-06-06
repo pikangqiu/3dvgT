@@ -19,6 +19,7 @@ This repository now contains a runnable scaffold for the project structure:
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - training environment readiness checks,
 - satellite raster readiness checks integrated into training preflight,
+- external model adapter and weight-path checks integrated into training preflight,
 - external reference repository setup script,
 - nuScenes manifest generation and loading scaffolds,
 - manifest asset materialization for smoke satellite patches and valid masks,
@@ -35,13 +36,14 @@ This repository now contains a runnable scaffold for the project structure:
 - ego-pose-derived pose targets for manifest smoke training,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
+- config-driven external adapter module loading for future G3T/VGGT fine-tuning,
 - train/eval manifest split support in experiment configs,
 - explicit train/eval device and seed selection through config or CLI,
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and integration with selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and a concrete adapter module for selected G3T/VGGT heads.
 
 ## Quick Checks
 

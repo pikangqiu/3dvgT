@@ -7,7 +7,7 @@ from pathlib import Path
 from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
-from vggt_project.models.scaffold import SatelliteBEVG3TScaffold
+from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
 
 
 def train_synthetic(
@@ -17,6 +17,11 @@ def train_synthetic(
     learning_rate: float = 1e-3,
     device: str | None = None,
     seed: int | None = None,
+    model_family: str = "scaffold",
+    adapter_module_path: Path | None = None,
+    weights_path: Path | None = None,
+    strict_weights: bool = True,
+    freeze_backbone: bool = False,
 ) -> dict[str, float]:
     """Run a small synthetic training job to verify plumbing."""
 
@@ -34,12 +39,19 @@ def train_synthetic(
         shuffle=True,
         generator=generator,
     )
-    model = SatelliteBEVG3TScaffold.build(
-        bev_channels=spec.bev_channels,
-        satellite_channels=spec.satellite_channels,
-        point_count=spec.point_count,
+    model = build_reconstruction_model(
+        ModelBuildConfig(
+            family=model_family,
+            adapter_module_path=adapter_module_path,
+            weights_path=weights_path,
+            strict_weights=strict_weights,
+            freeze_backbone=freeze_backbone,
+            bev_channels=spec.bev_channels,
+            satellite_channels=spec.satellite_channels,
+            point_count=spec.point_count,
+        )
     ).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.AdamW(_trainable_parameters(model), lr=learning_rate)
 
     last_metrics: dict[str, float] = {}
     for _epoch in range(epochs):
@@ -72,6 +84,11 @@ def train_manifest_smoke(
     point_count: int = 128,
     device: str | None = None,
     seed: int | None = None,
+    model_family: str = "scaffold",
+    adapter_module_path: Path | None = None,
+    weights_path: Path | None = None,
+    strict_weights: bool = True,
+    freeze_backbone: bool = False,
 ) -> dict[str, float]:
     """Run smoke training from real image files listed in a manifest."""
 
@@ -87,8 +104,17 @@ def train_manifest_smoke(
         point_count=point_count,
     )
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, generator=generator)
-    model = SatelliteBEVG3TScaffold.build(point_count=point_count).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    model = build_reconstruction_model(
+        ModelBuildConfig(
+            family=model_family,
+            adapter_module_path=adapter_module_path,
+            weights_path=weights_path,
+            strict_weights=strict_weights,
+            freeze_backbone=freeze_backbone,
+            point_count=point_count,
+        )
+    ).to(device)
+    optimizer = torch.optim.AdamW(_trainable_parameters(model), lr=learning_rate)
 
     last_metrics: dict[str, float] = {}
     for _epoch in range(epochs):
@@ -119,3 +145,10 @@ def _seed_training(torch, seed: int | None):
     generator = torch.Generator()
     generator.manual_seed(seed)
     return generator
+
+
+def _trainable_parameters(model):
+    parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
+    if not parameters:
+        raise ValueError("model has no trainable parameters; disable freeze_backbone or expose trainable heads")
+    return parameters

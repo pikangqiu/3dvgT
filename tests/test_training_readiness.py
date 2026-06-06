@@ -154,6 +154,54 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertTrue(report.ready)
         self.assertEqual(report.config_errors, ())
 
+    def test_readiness_reports_external_adapter_without_module_path(self) -> None:
+        config = ExperimentRunConfig(
+            training_mode="synthetic",
+            model_family="external",
+            device="cpu",
+        )
+
+        report = check_training_readiness(
+            config,
+            dependency_probe=lambda: (
+                DependencyStatus("torch", True, "2.0"),
+                DependencyStatus("PIL", True, "10.0"),
+                DependencyStatus("numpy", True, "1.0"),
+                DependencyStatus("yaml", True, "6.0"),
+            ),
+            device_probe=lambda device: True,
+        )
+
+        self.assertFalse(report.ready)
+        self.assertIn("adapter_module_path", report.config_errors[0])
+
+    def test_readiness_reports_missing_external_adapter_weights(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            adapter = root / "adapter.py"
+            adapter.write_text("def build_model(**kwargs):\n    return None\n", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="synthetic",
+                model_family="external",
+                adapter_module_path=adapter,
+                weights_path=root / "missing.pt",
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("weights_path", report.missing_paths)
+
 
 if __name__ == "__main__":
     unittest.main()

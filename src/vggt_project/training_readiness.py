@@ -132,6 +132,8 @@ def _missing_config_paths(config: ExperimentRunConfig) -> dict[str, str]:
         "train_manifest_path": config.train_manifest_path,
         "eval_manifest_path": config.eval_manifest_path,
         "satellite_raster_config_path": config.satellite_raster_config_path,
+        "adapter_module_path": config.adapter_module_path,
+        "weights_path": config.weights_path,
     }.items():
         if path is not None and not Path(path).exists():
             missing[name] = str(path)
@@ -139,15 +141,15 @@ def _missing_config_paths(config: ExperimentRunConfig) -> dict[str, str]:
 
 
 def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    errors = list(_model_config_errors(config))
     if config.satellite_raster_config_path is None:
-        return ()
+        return tuple(errors)
     config_path = Path(config.satellite_raster_config_path)
     if not config_path.exists():
-        return ()
+        return tuple(errors)
 
     manifest_path = _existing_manifest_for_satellite_check(config)
     report = validate_satellite_raster_config(config_path, manifest_path=manifest_path)
-    errors: list[str] = []
     for location in report.missing_manifest_locations:
         errors.append(f"satellite_raster_config missing map_location {location}")
     for path in report.missing_raster_paths:
@@ -155,6 +157,16 @@ def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
     for issue in report.invalid_specs:
         errors.append(f"satellite_raster_config {issue.map_location}.{issue.field}: {issue.reason}")
     return tuple(errors)
+
+
+def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    if config.model_family in {"scaffold", ""}:
+        return ()
+    if config.model_family not in {"external", "g3t", "vggt", "g3t-vggt"}:
+        return (f"unsupported model family {config.model_family}",)
+    if config.adapter_module_path is None:
+        return (f"model family {config.model_family} requires adapter_module_path",)
+    return ()
 
 
 def _existing_manifest_for_satellite_check(config: ExperimentRunConfig) -> Path | None:

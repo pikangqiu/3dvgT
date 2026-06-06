@@ -248,10 +248,28 @@ runtime:
     train_manifest_path: data/manifests/nuscenes-train.supervised.jsonl
     eval_manifest_path: data/manifests/nuscenes-val.supervised.jsonl
     satellite_raster_config_path: data/satellite_rasters/config.json
+  model:
+    family: scaffold
+    adapter_module_path: null
+    weights_path: null
+    strict_weights: true
+    freeze_backbone: false
 ```
 
 Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
 Set `runtime.seed` or pass `--seed` to make model initialization and shuffled DataLoader order reproducible for the current scaffold runs. The experiment report records this seed in its serialized config.
+
+To switch from the scaffold to a future G3T/VGGT adapter, set `runtime.model.family` to `external`, `g3t`, `vggt`, or `g3t-vggt`, and point `adapter_module_path` at a Python file that defines `build_model(point_count, **kwargs)`. The returned torch module must emit the same prediction keys as the scaffold: `gravity_aligned_pointmap`, `depth`, `local_camera_to_gravity_pose`, and `relative_yaw_translation`, with optional `camera_depths` and `camera_pointmaps`.
+
+```yaml
+runtime:
+  model:
+    family: g3t-vggt
+    adapter_module_path: adapters/g3t_vggt_adapter.py
+    weights_path: weights/g3t/model.pt
+    strict_weights: false
+    freeze_backbone: false
+```
 
 For a single train+eval run with a JSON report:
 
@@ -268,6 +286,6 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
   --config configs/reconstruction_first.yaml
 ```
 
-This readiness check validates configured manifests, dependencies, requested device, and the optional `satellite_raster_config_path` if it is present.
+This readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, and external adapter/weight paths if `runtime.model.family` is not `scaffold`.
 
 If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Dense G3T/VGGT pointmap generation and pose targets are still placeholders until the G3T/VGGT supervision adapter is implemented.

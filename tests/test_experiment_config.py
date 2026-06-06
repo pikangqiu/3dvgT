@@ -35,6 +35,13 @@ class ExperimentConfigTest(unittest.TestCase):
                         "image_size": 64,
                         "point_count": 256,
                     },
+                    "model": {
+                        "family": "external",
+                        "adapter_module_path": "adapters/g3t_adapter.py",
+                        "weights_path": "weights/g3t/model.pt",
+                        "strict_weights": False,
+                        "freeze_backbone": True,
+                    },
                     "training": {
                         "mode": "manifest-smoke",
                         "output_dir": "outputs/train",
@@ -58,6 +65,11 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.satellite_raster_config_path, Path("data/satellite_rasters/config.json"))
         self.assertEqual(config.output_dir, Path("outputs/train"))
         self.assertEqual(config.checkpoint, Path("outputs/train/manifest_smoke_scaffold.pt"))
+        self.assertEqual(config.model_family, "external")
+        self.assertEqual(config.adapter_module_path, Path("adapters/g3t_adapter.py"))
+        self.assertEqual(config.weights_path, Path("weights/g3t/model.pt"))
+        self.assertFalse(config.strict_weights)
+        self.assertTrue(config.freeze_backbone)
         self.assertEqual(config.epochs, 2)
         self.assertEqual(config.batch_size, 3)
         self.assertEqual(config.learning_rate, 0.0002)

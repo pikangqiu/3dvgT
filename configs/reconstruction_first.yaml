@@ -82,6 +82,12 @@ runtime:
     satellite_raster_config_path: data/satellite_rasters/config.json
     image_size: 32
     point_count: 128
+  model:
+    family: scaffold
+    adapter_module_path: null
+    weights_path: null
+    strict_weights: true
+    freeze_backbone: false
   training:
     mode: manifest-smoke
     output_dir: outputs/manifest-smoke

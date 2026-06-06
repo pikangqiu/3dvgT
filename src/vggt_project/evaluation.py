@@ -8,10 +8,18 @@ from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.synthetic import SyntheticSpec, make_synthetic_dataset, tensor_tuple_to_batch
 from vggt_project.losses import detach_float_metrics, reconstruction_losses
 from vggt_project.metrics import reconstruction_metrics
-from vggt_project.models.scaffold import SatelliteBEVG3TScaffold
+from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
 
 
-def evaluate_synthetic(checkpoint: Path, batch_size: int = 4, device: str | None = None) -> dict[str, float]:
+def evaluate_synthetic(
+    checkpoint: Path,
+    batch_size: int = 4,
+    device: str | None = None,
+    model_family: str = "scaffold",
+    adapter_module_path: Path | None = None,
+    weights_path: Path | None = None,
+    strict_weights: bool = True,
+) -> dict[str, float]:
     """Evaluate the scaffold checkpoint on synthetic data."""
 
     import torch
@@ -19,10 +27,16 @@ def evaluate_synthetic(checkpoint: Path, batch_size: int = 4, device: str | None
 
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     spec = SyntheticSpec()
-    model = SatelliteBEVG3TScaffold.build(
-        bev_channels=spec.bev_channels,
-        satellite_channels=spec.satellite_channels,
-        point_count=spec.point_count,
+    model = build_reconstruction_model(
+        ModelBuildConfig(
+            family=model_family,
+            adapter_module_path=adapter_module_path,
+            weights_path=weights_path,
+            strict_weights=strict_weights,
+            bev_channels=spec.bev_channels,
+            satellite_channels=spec.satellite_channels,
+            point_count=spec.point_count,
+        )
     ).to(device)
     state = torch.load(checkpoint, map_location=device)
     model.load_state_dict(state["model"])
@@ -53,6 +67,10 @@ def evaluate_manifest_smoke(
     image_size: int = 32,
     point_count: int = 128,
     device: str | None = None,
+    model_family: str = "scaffold",
+    adapter_module_path: Path | None = None,
+    weights_path: Path | None = None,
+    strict_weights: bool = True,
 ) -> dict[str, float]:
     """Evaluate a scaffold checkpoint on real files listed in a manifest."""
 
@@ -65,7 +83,15 @@ def evaluate_manifest_smoke(
         image_size=image_size,
         point_count=point_count,
     )
-    model = SatelliteBEVG3TScaffold.build(point_count=point_count).to(device)
+    model = build_reconstruction_model(
+        ModelBuildConfig(
+            family=model_family,
+            adapter_module_path=adapter_module_path,
+            weights_path=weights_path,
+            strict_weights=strict_weights,
+            point_count=point_count,
+        )
+    ).to(device)
     state = torch.load(checkpoint, map_location=device)
     model.load_state_dict(state["model"])
     model.eval()

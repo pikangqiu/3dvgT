@@ -20,6 +20,11 @@ class ExperimentRunConfig:
     train_manifest_path: Path | None = None
     eval_manifest_path: Path | None = None
     satellite_raster_config_path: Path | None = None
+    model_family: str = "scaffold"
+    adapter_module_path: Path | None = None
+    weights_path: Path | None = None
+    strict_weights: bool = True
+    freeze_backbone: bool = False
     device: str | None = None
     seed: int | None = None
     output_dir: Path = Path("outputs/synthetic")
@@ -34,6 +39,7 @@ class ExperimentRunConfig:
     def from_mapping(cls, mapping: dict[str, Any]) -> "ExperimentRunConfig":
         runtime = _mapping(mapping.get("runtime"))
         data = _mapping(runtime.get("data"))
+        model = _mapping(runtime.get("model"))
         training = _mapping(runtime.get("training"))
         evaluation = _mapping(runtime.get("evaluation"))
 
@@ -55,6 +61,11 @@ class ExperimentRunConfig:
             train_manifest_path=train_manifest,
             eval_manifest_path=eval_manifest,
             satellite_raster_config_path=_optional_path(data.get("satellite_raster_config_path")),
+            model_family=str(model.get("family", "scaffold")),
+            adapter_module_path=_optional_path(model.get("adapter_module_path")),
+            weights_path=_optional_path(model.get("weights_path")),
+            strict_weights=bool(model.get("strict_weights", True)),
+            freeze_backbone=bool(model.get("freeze_backbone", False)),
             device=runtime.get("device"),
             seed=_optional_int(runtime.get("seed")),
             output_dir=output_dir,
@@ -92,6 +103,11 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             learning_rate=config.learning_rate,
             device=config.device,
             seed=config.seed,
+            model_family=config.model_family,
+            adapter_module_path=config.adapter_module_path,
+            weights_path=config.weights_path,
+            strict_weights=config.strict_weights,
+            freeze_backbone=config.freeze_backbone,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.train_manifest_path or config.manifest_path
@@ -109,6 +125,11 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             point_count=config.point_count,
             device=config.device,
             seed=config.seed,
+            model_family=config.model_family,
+            adapter_module_path=config.adapter_module_path,
+            weights_path=config.weights_path,
+            strict_weights=config.strict_weights,
+            freeze_backbone=config.freeze_backbone,
         )
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
 
@@ -121,6 +142,10 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             checkpoint=config.checkpoint,
             batch_size=config.batch_size,
             device=config.device,
+            model_family=config.model_family,
+            adapter_module_path=config.adapter_module_path,
+            weights_path=config.weights_path,
+            strict_weights=config.strict_weights,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.eval_manifest_path or config.manifest_path
@@ -135,6 +160,10 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             image_size=config.image_size,
             point_count=config.point_count,
             device=config.device,
+            model_family=config.model_family,
+            adapter_module_path=config.adapter_module_path,
+            weights_path=config.weights_path,
+            strict_weights=config.strict_weights,
         )
     raise ValueError(f"Unsupported evaluation mode: {config.training_mode}")
 
