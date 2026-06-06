@@ -34,6 +34,7 @@ class TrainingLaunchCliTest(unittest.TestCase):
         self.assertIsNotNone(payload["plan"])
         self.assertIn("remediation_commands", payload)
         self.assertTrue(any("scripts/setup_env.sh" in command for command in payload["remediation_commands"]))
+        self.assertTrue(any("scripts/prepare_nuscenes.sh" in command for command in payload["remediation_commands"]))
 
     def test_launch_report_json_is_parseable_when_training_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

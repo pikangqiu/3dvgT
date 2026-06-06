@@ -138,6 +138,7 @@ def _build_remediation_commands(
             )
         )
     if "manifest_path" in readiness.missing_paths or "train_manifest_path" in readiness.missing_paths:
+        commands.append("bash scripts/prepare_nuscenes.sh")
         commands.extend(
             step.command
             for step in plan.steps
