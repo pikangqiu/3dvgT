@@ -100,6 +100,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/bootstrap_training_run.py",
             "scripts/report_training_launch.py",
             "scripts/check_external_assets.py",
+            "scripts/report_real_training_preflight.py",
         ),
         "weights": (
             "scripts/prepare_model_weights.sh",
@@ -142,6 +143,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete real-checkpoint fine-tuning validation for G3T/VGGT pose heads is not complete yet",
     )
     next_actions = (
+        "PYTHONPATH=src python3 scripts/report_real_training_preflight.py --config configs/reconstruction_first.json --json",
         "PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json",
         "PYTHONPATH=src python3 scripts/check_external_assets.py --config configs/reconstruction_first.json",
         "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json",

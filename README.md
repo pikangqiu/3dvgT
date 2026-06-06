@@ -24,6 +24,7 @@ This repository now contains a runnable scaffold for the project structure:
 - checkpoint structure inspection for downloaded G3T/VGGT weights,
 - training environment readiness checks,
 - external asset readiness checks for real training data/rasters/weights,
+- combined real-training preflight report,
 - ordered real training run-plan generation,
 - combined training launch readiness packet generation,
 - dry-run/executable real training bootstrap runner,
@@ -75,6 +76,7 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
+PYTHONPATH=src python3 scripts/report_real_training_preflight.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/check_external_assets.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json
