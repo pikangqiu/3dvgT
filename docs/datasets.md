@@ -58,9 +58,13 @@ data/occ3d/
     └── infos/
 ```
 
-For exported prediction/target arrays, use the repository's lightweight evaluator to compute class IoU and semantic occupancy mIoU:
+After a model checkpoint exists, export BEV occupancy predictions into a benchmark manifest and then compute class IoU plus semantic occupancy mIoU:
 
 ```bash
+PYTHONPATH=src python scripts/export_occupancy_predictions.py \
+  --config configs/reconstruction_first.json \
+  --manifest data/manifests/nuscenes-mini.val.jsonl \
+  --output data/manifests/occ3d_eval_predictions.jsonl
 PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
   --manifest data/manifests/occ3d_eval_predictions.jsonl \
   --prediction-field predicted_occupancy_path \
@@ -70,7 +74,7 @@ PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
   --json
 ```
 
-The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class mapping, and exported prediction manifest are verified end to end.
+The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class mapping, exported prediction manifest, and evaluator output are verified end to end.
 
 ## Manifest Bridge
 

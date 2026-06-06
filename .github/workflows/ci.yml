@@ -51,6 +51,9 @@ jobs:
       - name: Check manifest forward probe CLI
         run: PYTHONPATH=src python3 scripts/probe_manifest_forward.py --help
 
+      - name: Check occupancy prediction export CLI
+        run: PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --help
+
       - name: Check occupancy benchmark CLI
         run: PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --help
 

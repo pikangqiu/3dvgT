@@ -33,6 +33,8 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/check_model_adapter.py", rendered)
         self.assertIn("scripts/probe_manifest_forward.py", rendered)
         self.assertIn("scripts/split_manifest.py", rendered)
+        self.assertIn("scripts/export_occupancy_predictions.py", rendered)
+        self.assertIn("scripts/evaluate_occupancy_benchmark.py", rendered)
         self.assertIn("data/manifests/nuscenes-mini.train.jsonl", plan.missing_outputs)
         self.assertIn("data/manifests/nuscenes-mini.val.jsonl", plan.missing_outputs)
         self.assertIn("scripts/train.py --config configs/reconstruction_first.json", rendered)
@@ -79,6 +81,8 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertFalse(steps["probe_manifest_forward"].ready)
         self.assertFalse(steps["train"].ready)
         self.assertFalse(steps["evaluate"].ready)
+        self.assertFalse(steps["export_occupancy_predictions"].ready)
+        self.assertFalse(steps["evaluate_occupancy_benchmark"].ready)
 
     def test_plan_validates_split_manifests_before_readiness(self) -> None:
         from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
@@ -103,6 +107,8 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertLess(step_names.index("validate_eval_manifest"), step_names.index("check_training_readiness"))
         self.assertLess(step_names.index("check_model_adapter"), step_names.index("probe_manifest_forward"))
         self.assertLess(step_names.index("probe_manifest_forward"), step_names.index("train"))
+        self.assertLess(step_names.index("evaluate"), step_names.index("export_occupancy_predictions"))
+        self.assertLess(step_names.index("export_occupancy_predictions"), step_names.index("evaluate_occupancy_benchmark"))
         self.assertIn("scripts/validate_manifest.py ready.train.jsonl", rendered)
         self.assertIn("scripts/validate_manifest.py ready.val.jsonl", rendered)
         self.assertFalse(plan.steps[step_names.index("validate_train_manifest")].ready)

@@ -18,6 +18,7 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertIn("scripts/check_external_assets.py --help", content)
         self.assertIn("scripts/report_real_training_preflight.py --help", content)
         self.assertIn("scripts/probe_manifest_forward.py --help", content)
+        self.assertIn("scripts/export_occupancy_predictions.py --help", content)
         self.assertIn("scripts/evaluate_occupancy_benchmark.py --help", content)
 
 

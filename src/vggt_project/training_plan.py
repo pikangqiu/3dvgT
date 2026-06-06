@@ -260,6 +260,24 @@ def build_training_run_plan(
                 ready=False,
                 note="Runs evaluation on the configured eval manifest.",
             ),
+            TrainingPlanStep(
+                name="export_occupancy_predictions",
+                command=(
+                    "PYTHONPATH=src python scripts/export_occupancy_predictions.py "
+                    f"--config {config_path}"
+                ),
+                ready=False,
+                note="Exports BEV occupancy predictions into a manifest for semantic occupancy metrics.",
+            ),
+            TrainingPlanStep(
+                name="evaluate_occupancy_benchmark",
+                command=(
+                    "PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py "
+                    f"--manifest {eval_manifest.with_suffix('.occupancy_predictions.jsonl')} --json"
+                ),
+                ready=False,
+                note="Computes class IoU and occupancy_miou from exported prediction/target arrays.",
+            ),
         ]
     )
 

@@ -29,6 +29,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("scripts/configure_model_weights.py", items_by_name["weights"].evidence)
         self.assertIn("scripts/prepare_occ3d.sh", items_by_name["dataset_setup"].evidence)
         self.assertIn("scripts/prepare_satellite_rasters.sh", items_by_name["dataset_setup"].evidence)
+        self.assertIn("scripts/export_occupancy_predictions.py", items_by_name["benchmarks"].evidence)
         self.assertIn("scripts/evaluate_occupancy_benchmark.py", items_by_name["benchmarks"].evidence)
 
     def test_audit_report_is_not_complete_real_training(self) -> None:

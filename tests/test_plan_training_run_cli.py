@@ -73,7 +73,20 @@ class PlanTrainingRunCliTest(unittest.TestCase):
         self.assertFalse(payload["ready_to_train"])
         self.assertIn("steps", payload)
         self.assertIn("missing_outputs", payload)
-        self.assertEqual(payload["steps"][-2]["name"], "train")
+        step_names = [step["name"] for step in payload["steps"]]
+        self.assertIn("train", step_names)
+        self.assertIn("evaluate", step_names)
+        self.assertIn("export_occupancy_predictions", step_names)
+        self.assertIn("evaluate_occupancy_benchmark", step_names)
+        self.assertLess(step_names.index("train"), step_names.index("evaluate"))
+        self.assertLess(
+            step_names.index("evaluate"),
+            step_names.index("export_occupancy_predictions"),
+        )
+        self.assertLess(
+            step_names.index("export_occupancy_predictions"),
+            step_names.index("evaluate_occupancy_benchmark"),
+        )
 
 
 if __name__ == "__main__":

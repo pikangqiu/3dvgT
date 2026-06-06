@@ -141,8 +141,16 @@ def _build_remediation_commands(
         commands.extend(
             step.command
             for step in plan.steps
-            if not step.ready and step.name not in {"train", "evaluate"}
+            if not step.ready and step.name not in _LAUNCH_ONLY_STEPS
         )
     if "weights_path" in readiness.missing_paths or any("weights" in error for error in readiness.config_errors):
         commands.append("bash scripts/prepare_model_weights.sh")
     return tuple(dict.fromkeys(commands))
+
+
+_LAUNCH_ONLY_STEPS = {
+    "train",
+    "evaluate",
+    "export_occupancy_predictions",
+    "evaluate_occupancy_benchmark",
+}
