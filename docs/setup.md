@@ -74,13 +74,14 @@ Download G3T weights:
 python scripts/download_weights.py --repo-id thatbrguy/g3t --output-dir checkpoints/g3t
 ```
 
-Inspect a downloaded `.pt`/`.pth` checkpoint before wiring it into `runtime.model.weights_path`:
+Inspect a downloaded checkpoint directory or a specific `.pt`/`.pth`/`.bin` file before wiring it into `runtime.model.weights_path`:
 
 ```bash
-PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t/model.pt --sample-limit 30
+PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t
+PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t --inspect-all --sample-limit 30
 ```
 
-The inspector reports the checkpoint container key, tensor count, prefix counts, sample key shapes, and dtypes. Use this before adapter loading to decide whether the file is a raw reference-model state dict, a wrapper-prefixed state dict, or a project checkpoint.
+When given a directory, the inspector first lists likely `.pt`, `.pth`, and `.bin` checkpoint candidates. Add `--inspect-all` to load and summarize every candidate. The inspector reports the checkpoint container key, tensor count, prefix counts, sample key shapes, and dtypes. Use this before adapter loading to decide whether the file is a raw reference-model state dict, a wrapper-prefixed state dict, or a project checkpoint.
 
 VGGT/MapTR/PseudoMapTrainer weights should be downloaded from their own reference repositories when those branches are enabled.
 

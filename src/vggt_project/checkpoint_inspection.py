@@ -10,6 +10,7 @@ from typing import Any, Mapping
 
 
 STATE_DICT_KEYS = ("model", "state_dict", "model_state_dict")
+CHECKPOINT_SUFFIXES = (".pt", ".pth", ".bin")
 
 
 @dataclass(frozen=True)
@@ -54,6 +55,21 @@ def load_checkpoint_summary(path: Path, *, sample_limit: int = 20) -> Checkpoint
     if not isinstance(checkpoint, Mapping):
         raise ValueError(f"checkpoint must load to a mapping: {path}")
     return summarize_checkpoint(checkpoint, sample_limit=sample_limit)
+
+
+def find_checkpoint_candidates(path: Path) -> tuple[Path, ...]:
+    """Return likely PyTorch checkpoint files from a file or directory path."""
+
+    if path.is_file():
+        return (path,) if path.suffix.lower() in CHECKPOINT_SUFFIXES else ()
+    if not path.is_dir():
+        return ()
+    candidates = [
+        candidate
+        for candidate in path.rglob("*")
+        if candidate.is_file() and candidate.suffix.lower() in CHECKPOINT_SUFFIXES
+    ]
+    return tuple(sorted(candidates, key=lambda candidate: str(candidate.relative_to(path))))
 
 
 def format_checkpoint_summary(summary: CheckpointSummary) -> str:
