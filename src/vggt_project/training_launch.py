@@ -133,8 +133,7 @@ def _build_remediation_commands(
     if "satellite_raster_config_path" in readiness.missing_paths:
         commands.extend(
             (
-                "mkdir -p data/satellite_rasters",
-                "cp configs/satellite_rasters.example.json data/satellite_rasters/config.json",
+                "bash scripts/prepare_satellite_rasters.sh",
             )
         )
     if "manifest_path" in readiness.missing_paths or "train_manifest_path" in readiness.missing_paths:

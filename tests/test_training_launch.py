@@ -48,7 +48,7 @@ class TrainingLaunchTest(unittest.TestCase):
             any("scripts/prepare_nuscenes.sh" in command for command in payload["remediation_commands"])
         )
         self.assertTrue(
-            any("configs/satellite_rasters.example.json" in command for command in payload["remediation_commands"])
+            any("scripts/prepare_satellite_rasters.sh" in command for command in payload["remediation_commands"])
         )
         self.assertFalse(any("scripts/train.py" in command for command in payload["remediation_commands"]))
         self.assertFalse(any("scripts/evaluate.py" in command for command in payload["remediation_commands"]))

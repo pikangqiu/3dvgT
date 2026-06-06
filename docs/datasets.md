@@ -266,6 +266,14 @@ PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v
 
 The project still needs a concrete satellite raster source. Until that is selected, the dataset adapter exposes `satellite_patch_path`, `ego_translation`, `ego_rotation`, and `map_location`, keeping satellite alignment logic isolated from the model.
 
+Prepare the local raster config entrypoint:
+
+```bash
+bash scripts/prepare_satellite_rasters.sh
+```
+
+This creates `data/satellite_rasters/config.json` from `configs/satellite_rasters.example.json` if it does not exist. Real training still requires editing that config to point each nuScenes `map_location` to a local satellite raster and a metric-to-pixel transform before running `scripts/check_satellite_rasters.py` and `scripts/materialize_satellite_crops.py`.
+
 The future real implementation should:
 
 - use ego pose/map metadata to select a satellite tile or mosaic,

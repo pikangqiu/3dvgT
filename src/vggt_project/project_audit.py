@@ -108,6 +108,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "dataset_setup": (
             "scripts/prepare_nuscenes.sh",
             "scripts/prepare_occ3d.sh",
+            "scripts/prepare_satellite_rasters.sh",
             "scripts/check_nuscenes.py",
             "configs/satellite_rasters.example.json",
             "docs/datasets.md",
@@ -140,7 +141,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     next_actions = (
         "PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json",
         "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json",
-        "Populate data/nuscenes and data/satellite_rasters/config.json, then run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
+        "Populate data/nuscenes and run bash scripts/prepare_satellite_rasters.sh, then edit data/satellite_rasters/config.json and run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
         "For public occupancy comparison, run bash scripts/prepare_occ3d.sh and keep Occ3D/OpenOccupancy semantic metrics separate from local LiDAR-proxy bev_occupancy_iou",
         "Set runtime.model.weights_path to a concrete G3T/VGGT checkpoint file and run PYTHONPATH=src python3 scripts/inspect_checkpoint.py <checkpoint>",
         "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json after the reference adapter and weights are configured",
