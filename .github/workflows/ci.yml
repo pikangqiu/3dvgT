@@ -33,5 +33,8 @@ jobs:
       - name: Check training bootstrap CLI
         run: PYTHONPATH=src python3 scripts/bootstrap_training_run.py --help
 
+      - name: Check checkpoint inspection CLI
+        run: PYTHONPATH=src python3 scripts/inspect_checkpoint.py --help
+
       - name: Compile Python files
         run: python3 -m compileall src scripts tests
