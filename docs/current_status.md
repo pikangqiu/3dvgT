@@ -37,7 +37,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | LiDAR occupancy target generation | Scripted | `scripts/generate_lidar_occupancy_targets.py` rasterizes ego-frame `LIDAR_TOP` points into binary BEV `.npy` occupancy targets and writes `occupancy_path` into manifests |
 | LiDAR supervision pipeline | Scripted | `scripts/generate_lidar_supervision.py`; generates single- or multi-camera depth plus ego-frame or camera-frame pointmap targets and writes one final supervised manifest |
 | Reference supervision materialization | Scripted | `scripts/generate_reference_supervision_targets.py`; runs the configured model/adapter over a manifest and writes dense `.npy` depth, pointmap, and camera pose targets back into manifest-compatible fields |
-| Manifest train/eval split | Scripted | `scripts/split_manifest.py`; splits JSONL manifests by `scene_token` to avoid scene leakage |
+| Manifest train/eval split | Scripted | `scripts/split_manifest.py`; splits JSONL manifests by `scene_token` to avoid scene leakage and rejects empty train/eval outputs |
 | GitHub upload | Published | `origin` is `https://github.com/pikangqiu/3dvgT.git`; local `main` tracks `origin/main` |
 | GitHub publish preflight | Scripted | `scripts/check_github_publish.py` reports worktree, branch, remote, and whether `gh auth` is needed for repo creation |
 | GitHub CI | Scripted | `.github/workflows/ci.yml` runs lightweight tests, project audit, reference dry-run, and compile checks |

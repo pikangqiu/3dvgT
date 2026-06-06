@@ -28,14 +28,17 @@ def main() -> int:
         if args.eval_scenes
         else None
     )
-    report = split_manifest_by_scene(
-        args.manifest,
-        train_output_path=args.train_output,
-        eval_output_path=args.eval_output,
-        eval_fraction=args.eval_fraction,
-        seed=args.seed,
-        eval_scene_tokens=eval_scene_tokens,
-    )
+    try:
+        report = split_manifest_by_scene(
+            args.manifest,
+            train_output_path=args.train_output,
+            eval_output_path=args.eval_output,
+            eval_fraction=args.eval_fraction,
+            seed=args.seed,
+            eval_scene_tokens=eval_scene_tokens,
+        )
+    except ValueError as error:
+        parser.error(str(error))
 
     print(f"manifest: {report.manifest_path}")
     print(f"train_output: {report.train_output_path}")

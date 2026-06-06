@@ -255,6 +255,8 @@ PYTHONPATH=src python scripts/split_manifest.py \
   --seed 0
 ```
 
+The splitter keeps scene tokens disjoint and exits with an `error:` message if the requested fraction or explicit eval scenes would leave either split empty.
+
 Smoke-test real file loading:
 
 ```bash
