@@ -10,6 +10,20 @@ from vggt_project.training_readiness import (
 
 
 class TrainingReadinessTest(unittest.TestCase):
+    def _write_valid_manifest(self, manifest_path: Path, root: Path, token: str = "sample-1") -> None:
+        (root / "samples/CAM_FRONT").mkdir(parents=True, exist_ok=True)
+        (root / "sat").mkdir(exist_ok=True)
+        (root / "samples/CAM_FRONT/a.jpg").write_text("image", encoding="utf-8")
+        (root / "sat/sample-1.png").write_text("sat", encoding="utf-8")
+        manifest_path.write_text(
+            f'{{"token":"{token}","scene_token":"scene-1","timestamp_us":10,'
+            '"camera_paths":["samples/CAM_FRONT/a.jpg"],'
+            '"satellite_patch_path":"sat/sample-1.png",'
+            '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+            '"satellite_frame":"satellite"}\n',
+            encoding="utf-8",
+        )
+
     def test_readiness_reports_missing_split_manifests(self) -> None:
         config = ExperimentRunConfig(
             training_mode="manifest-smoke",
@@ -39,8 +53,8 @@ class TrainingReadinessTest(unittest.TestCase):
             root = Path(temp_dir)
             train_manifest = root / "train.jsonl"
             eval_manifest = root / "val.jsonl"
-            train_manifest.write_text("", encoding="utf-8")
-            eval_manifest.write_text("", encoding="utf-8")
+            self._write_valid_manifest(train_manifest, root, token="train-1")
+            self._write_valid_manifest(eval_manifest, root, token="eval-1")
             config = ExperimentRunConfig(
                 training_mode="manifest-smoke",
                 train_manifest_path=train_manifest,
@@ -66,6 +80,68 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertEqual(report.config_errors, ())
         self.assertEqual(report.missing_dependencies, ())
 
+    def test_readiness_rejects_empty_train_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            train_manifest.write_text("", encoding="utf-8")
+            self._write_valid_manifest(eval_manifest, root, token="eval-1")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("train_manifest_path has no samples", report.config_errors)
+
+    def test_readiness_rejects_empty_eval_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            self._write_valid_manifest(train_manifest, root, token="train-1")
+            eval_manifest.write_text("", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("eval_manifest_path has no samples", report.config_errors)
+
     def test_readiness_rejects_train_manifest_with_missing_referenced_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -79,7 +155,7 @@ class TrainingReadinessTest(unittest.TestCase):
                 '"satellite_frame":"satellite"}\n',
                 encoding="utf-8",
             )
-            eval_manifest.write_text("", encoding="utf-8")
+            self._write_valid_manifest(eval_manifest, root, token="eval-1")
             config = ExperimentRunConfig(
                 training_mode="manifest-smoke",
                 train_manifest_path=train_manifest,
@@ -110,7 +186,7 @@ class TrainingReadinessTest(unittest.TestCase):
             root = Path(temp_dir)
             train_manifest = root / "train.jsonl"
             eval_manifest = root / "val.jsonl"
-            train_manifest.write_text("", encoding="utf-8")
+            self._write_valid_manifest(train_manifest, root, token="train-1")
             eval_manifest.write_text(
                 '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
                 '"camera_paths":["samples/CAM_FRONT/missing.jpg"],'
@@ -150,7 +226,7 @@ class TrainingReadinessTest(unittest.TestCase):
             train_manifest = root / "train.jsonl"
             eval_manifest = root / "val.jsonl"
             train_manifest.write_text("{not-json}\n", encoding="utf-8")
-            eval_manifest.write_text("", encoding="utf-8")
+            self._write_valid_manifest(eval_manifest, root, token="eval-1")
             config = ExperimentRunConfig(
                 training_mode="manifest-smoke",
                 train_manifest_path=train_manifest,
