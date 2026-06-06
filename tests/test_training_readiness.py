@@ -45,6 +45,8 @@ class TrainingReadinessTest(unittest.TestCase):
                 training_mode="manifest-smoke",
                 train_manifest_path=train_manifest,
                 eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
                 satellite_raster_config_path=None,
                 device="cpu",
             )
@@ -90,6 +92,8 @@ class TrainingReadinessTest(unittest.TestCase):
             config = ExperimentRunConfig(
                 training_mode="manifest-smoke",
                 train_manifest_path=manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
                 satellite_raster_config_path=satellite_config,
                 device="cpu",
             )
@@ -136,6 +140,8 @@ class TrainingReadinessTest(unittest.TestCase):
             config = ExperimentRunConfig(
                 training_mode="manifest-smoke",
                 train_manifest_path=manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
                 satellite_raster_config_path=satellite_config,
                 device="cpu",
             )
@@ -361,6 +367,71 @@ class TrainingReadinessTest(unittest.TestCase):
 
         self.assertFalse(report.ready)
         self.assertIn("fine_tuning_policy", report.config_errors[0])
+
+    def test_readiness_rejects_output_dir_that_is_a_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            output_file = root / "output-file"
+            train_manifest.write_text("", encoding="utf-8")
+            eval_manifest.write_text("", encoding="utf-8")
+            output_file.write_text("not a directory", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=output_file,
+                checkpoint=output_file / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("output_dir must be a directory", report.config_errors[0])
+
+    def test_readiness_rejects_eval_checkpoint_that_training_will_not_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            output_dir = root / "outputs"
+            train_manifest.write_text("", encoding="utf-8")
+            eval_manifest.write_text("", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=output_dir,
+                checkpoint=root / "other.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("evaluation checkpoint must match training output", report.config_errors[0])
 
 
 if __name__ == "__main__":

@@ -168,7 +168,8 @@ def _config_errors(
     *,
     checkpoint_probe: Callable[[Path], str | None],
 ) -> tuple[str, ...]:
-    errors = list(_model_config_errors(config, checkpoint_probe=checkpoint_probe))
+    errors = list(_runtime_config_errors(config))
+    errors.extend(_model_config_errors(config, checkpoint_probe=checkpoint_probe))
     if config.satellite_raster_config_path is None:
         return tuple(errors)
     config_path = Path(config.satellite_raster_config_path)
@@ -184,6 +185,29 @@ def _config_errors(
     for issue in report.invalid_specs:
         errors.append(f"satellite_raster_config {issue.map_location}.{issue.field}: {issue.reason}")
     return tuple(errors)
+
+
+def _runtime_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    errors: list[str] = []
+    output_dir = Path(config.output_dir)
+    if output_dir.exists() and not output_dir.is_dir():
+        errors.append(f"output_dir must be a directory: {output_dir}")
+
+    expected_checkpoint = _expected_training_checkpoint(config)
+    if expected_checkpoint is not None and Path(config.checkpoint) != expected_checkpoint:
+        errors.append(
+            "evaluation checkpoint must match training output: "
+            f"expected {expected_checkpoint}, got {config.checkpoint}"
+        )
+    return tuple(errors)
+
+
+def _expected_training_checkpoint(config: ExperimentRunConfig) -> Path | None:
+    if config.training_mode == "synthetic":
+        return Path(config.output_dir) / "synthetic_scaffold.pt"
+    if config.training_mode == "manifest-smoke":
+        return Path(config.output_dir) / "manifest_smoke_scaffold.pt"
+    return None
 
 
 def _model_config_errors(
