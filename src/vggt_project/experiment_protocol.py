@@ -85,7 +85,7 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 name="occupancy_miou",
                 role="semantic driving scene geometry",
                 lower_is_better=False,
-                note="Use when evaluating against Occ3D/OpenOccupancy/OpenScene-style semantic labels.",
+                note="Implemented for exported Occ3D/OpenOccupancy/OpenScene-style occupancy arrays; requires verified label export and class mapping.",
             ),
             ProtocolMetric(
                 name="vector_map_map",

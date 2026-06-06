@@ -58,7 +58,19 @@ data/occ3d/
     └── infos/
 ```
 
-The first paper table should not claim public semantic occupancy results until this label layout, the matching nuScenes trainval split, and the OpenOccupancy/Occ3D evaluator are wired and verified.
+For exported prediction/target arrays, use the repository's lightweight evaluator to compute class IoU and semantic occupancy mIoU:
+
+```bash
+PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
+  --manifest data/manifests/occ3d_eval_predictions.jsonl \
+  --prediction-field predicted_occupancy_path \
+  --target-field occupancy_path \
+  --num-classes <class_count> \
+  --ignore-index 255 \
+  --json
+```
+
+The evaluator accepts manifest-relative `.json`, `.npy`, `.npz`, and common image arrays. The first paper table should not claim public semantic occupancy results until the Occ3D/OpenOccupancy label layout, matching nuScenes trainval split, class mapping, and exported prediction manifest are verified end to end.
 
 ## Manifest Bridge
 
