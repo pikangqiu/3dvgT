@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -23,6 +24,28 @@ class TrainingRunPlan:
     steps: tuple[TrainingPlanStep, ...]
     missing_outputs: tuple[str, ...]
     ready_to_train: bool
+
+    def to_json(self) -> str:
+        """Render the training plan as machine-readable JSON."""
+
+        return json.dumps(
+            {
+                "missing_outputs": list(self.missing_outputs),
+                "ready_to_train": self.ready_to_train,
+                "steps": [
+                    {
+                        "name": step.name,
+                        "command": step.command,
+                        "output_path": str(step.output_path) if step.output_path is not None else None,
+                        "ready": step.ready,
+                        "note": step.note,
+                    }
+                    for step in self.steps
+                ],
+            },
+            indent=2,
+            sort_keys=True,
+        )
 
 
 def build_training_run_plan(

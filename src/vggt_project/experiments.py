@@ -94,7 +94,13 @@ class ExperimentRunConfig:
 
 
 def load_experiment_config(path: Path) -> ExperimentRunConfig:
-    """Load runtime experiment settings from a YAML file."""
+    """Load runtime experiment settings from a YAML or JSON file."""
+
+    if path.suffix.lower() == ".json":
+        data = json.loads(path.read_text(encoding="utf-8")) or {}
+        if not isinstance(data, dict):
+            raise ValueError(f"Experiment config must be a mapping: {path}")
+        return ExperimentRunConfig.from_mapping(data)
 
     try:
         import yaml

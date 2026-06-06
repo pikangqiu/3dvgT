@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -173,6 +174,28 @@ class TrainingPlanTest(unittest.TestCase):
 
         self.assertFalse(steps["optional_generate_reference_supervision"].ready)
         self.assertIn("dense configured G3T/VGGT", steps["optional_generate_reference_supervision"].note)
+
+    def test_plan_json_serializes_steps_and_paths(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("data/manifests/nuscenes-mini.supervised.jsonl"),
+            train_manifest_path=Path("data/manifests/nuscenes-mini.train.jsonl"),
+            eval_manifest_path=Path("data/manifests/nuscenes-mini.val.jsonl"),
+            satellite_raster_config_path=Path("data/satellite_rasters/config.json"),
+            image_size=32,
+            point_count=128,
+        )
+
+        plan = build_training_run_plan(config)
+        payload = json.loads(plan.to_json())
+
+        self.assertFalse(payload["ready_to_train"])
+        self.assertIn("data/manifests/nuscenes-mini.train.jsonl", payload["missing_outputs"])
+        self.assertEqual(payload["steps"][0]["name"], "check_nuscenes_layout")
+        self.assertEqual(payload["steps"][1]["output_path"], "data/manifests/nuscenes-mini.jsonl")
+        self.assertIsInstance(payload["steps"][1]["ready"], bool)
 
 
 if __name__ == "__main__":
