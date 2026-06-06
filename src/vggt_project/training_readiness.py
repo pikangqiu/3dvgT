@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
 
+from vggt_project.checkpoint_inspection import CHECKPOINT_SUFFIXES, find_checkpoint_candidates
 from vggt_project.data.satellite_crops import validate_satellite_raster_config
 from vggt_project.experiments import ExperimentRunConfig
 from vggt_project.models.factory import FINE_TUNING_POLICIES
@@ -163,6 +164,7 @@ def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
 
 def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
     errors: list[str] = []
+    errors.extend(_weights_path_errors(config.weights_path))
     policy = config.fine_tuning_policy.lower().replace("-", "_")
     if policy == "all":
         policy = "full"
@@ -184,6 +186,27 @@ def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
     if config.use_reference_adapter and config.reference_root is None:
         errors.append("use_reference_adapter requires reference_root")
     return tuple(errors)
+
+
+def _weights_path_errors(weights_path: Path | None) -> tuple[str, ...]:
+    if weights_path is None:
+        return ()
+    path = Path(weights_path)
+    if not path.exists():
+        return ()
+    if path.is_dir():
+        candidates = find_checkpoint_candidates(path)
+        if candidates:
+            candidate_list = ", ".join(str(candidate) for candidate in candidates[:5])
+            suffix = "" if len(candidates) <= 5 else f", ... ({len(candidates)} total)"
+            return (
+                "weights_path points to a directory; choose a concrete checkpoint file "
+                f"such as {candidate_list}{suffix}",
+            )
+        return ("weights_path points to a directory with no .pt, .pth, or .bin checkpoint files",)
+    if path.suffix.lower() not in CHECKPOINT_SUFFIXES:
+        return ("weights_path must be a .pt, .pth, or .bin file",)
+    return ()
 
 
 def _existing_manifest_for_satellite_check(config: ExperimentRunConfig) -> Path | None:

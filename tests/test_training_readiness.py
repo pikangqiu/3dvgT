@@ -202,6 +202,66 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertFalse(report.ready)
         self.assertIn("weights_path", report.missing_paths)
 
+    def test_readiness_rejects_checkpoint_directory_weights_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            adapter = root / "adapter.py"
+            adapter.write_text("def build_model(**kwargs):\n    return None\n", encoding="utf-8")
+            weights_dir = root / "weights"
+            weights_dir.mkdir()
+            (weights_dir / "model.pt").write_text("placeholder", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="synthetic",
+                model_family="external",
+                adapter_module_path=adapter,
+                weights_path=weights_dir,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("weights_path points to a directory", report.config_errors[0])
+        self.assertIn("model.pt", report.config_errors[0])
+
+    def test_readiness_rejects_non_checkpoint_weights_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            adapter = root / "adapter.py"
+            adapter.write_text("def build_model(**kwargs):\n    return None\n", encoding="utf-8")
+            weights_file = root / "config.json"
+            weights_file.write_text("{}", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="synthetic",
+                model_family="external",
+                adapter_module_path=adapter,
+                weights_path=weights_file,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("weights_path must be a .pt, .pth, or .bin file", report.config_errors[0])
+
     def test_readiness_reports_missing_reference_root(self) -> None:
         config = ExperimentRunConfig(
             training_mode="synthetic",

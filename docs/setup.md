@@ -81,7 +81,7 @@ PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t
 PYTHONPATH=src python scripts/inspect_checkpoint.py checkpoints/g3t --inspect-all --sample-limit 30
 ```
 
-When given a directory, the inspector first lists likely `.pt`, `.pth`, and `.bin` checkpoint candidates. Add `--inspect-all` to load and summarize every candidate. The inspector reports the checkpoint container key, tensor count, prefix counts, sample key shapes, and dtypes. Use this before adapter loading to decide whether the file is a raw reference-model state dict, a wrapper-prefixed state dict, or a project checkpoint.
+When given a directory, the inspector first lists likely `.pt`, `.pth`, and `.bin` checkpoint candidates. Add `--inspect-all` to load and summarize every candidate. The inspector reports the checkpoint container key, tensor count, prefix counts, sample key shapes, and dtypes. Use this before adapter loading to decide whether the file is a raw reference-model state dict, a wrapper-prefixed state dict, or a project checkpoint. After inspection, set `runtime.model.weights_path` to the concrete checkpoint file, not the download directory.
 
 VGGT/MapTR/PseudoMapTrainer weights should be downloaded from their own reference repositories when those branches are enabled.
 
@@ -356,6 +356,6 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
   --config configs/reconstruction_first.yaml
 ```
 
-The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. The bootstrap command uses the same plan and defaults to dry-run mode. Add `--execute` to run pending commands, `--until <step_name>` to stop after a specific step, and `--include-ready` to rerun steps already marked ready. The readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, external adapter/weight paths if `runtime.model.family` is not `scaffold`, and `reference_root` when `use_reference_adapter` is enabled.
+The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. The bootstrap command uses the same plan and defaults to dry-run mode. Add `--execute` to run pending commands, `--until <step_name>` to stop after a specific step, and `--include-ready` to rerun steps already marked ready. The readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, external adapter/weight paths, rejects directory or non-checkpoint `weights_path` values, and checks `reference_root` when `use_reference_adapter` is enabled.
 
 If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `occupancy_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Depth and occupancy targets can be image files or `.npy` arrays. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets; if `camera_local_camera_to_gravity_poses` is present, it uses those explicit camera-level pose targets. `scripts/generate_reference_supervision_targets.py` can populate dense configured-model depth, pointmap, and camera pose targets once a scaffold or reference adapter is configured.
