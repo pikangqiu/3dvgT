@@ -77,6 +77,32 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertFalse(steps["train"].ready)
         self.assertFalse(steps["evaluate"].ready)
 
+    def test_plan_validates_split_manifests_before_readiness(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(
+            config,
+            path_exists=lambda path: path.name in {"ready.supervised.jsonl", "ready.train.jsonl", "ready.val.jsonl"},
+        )
+        rendered = format_training_run_plan(plan)
+        step_names = [step.name for step in plan.steps]
+
+        self.assertIn("validate_train_manifest", step_names)
+        self.assertIn("validate_eval_manifest", step_names)
+        self.assertLess(step_names.index("validate_eval_manifest"), step_names.index("check_training_readiness"))
+        self.assertIn("scripts/validate_manifest.py ready.train.jsonl", rendered)
+        self.assertIn("scripts/validate_manifest.py ready.val.jsonl", rendered)
+        self.assertFalse(plan.steps[step_names.index("validate_train_manifest")].ready)
+        self.assertFalse(plan.steps[step_names.index("validate_eval_manifest")].ready)
+
     def test_plan_includes_checkpoint_inspection_when_weights_path_is_configured(self) -> None:
         from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
 

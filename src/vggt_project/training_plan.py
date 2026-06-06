@@ -182,6 +182,18 @@ def build_training_run_plan(
                 ready=split_ready,
                 note="Creates scene-disjoint train/eval manifests.",
             ),
+            TrainingPlanStep(
+                name="validate_train_manifest",
+                command=f"PYTHONPATH=src python scripts/validate_manifest.py {train_manifest}",
+                ready=False,
+                note="Validates that train manifest file references exist before DataLoader construction.",
+            ),
+            TrainingPlanStep(
+                name="validate_eval_manifest",
+                command=f"PYTHONPATH=src python scripts/validate_manifest.py {eval_manifest}",
+                ready=False,
+                note="Validates that eval manifest file references exist before evaluation.",
+            ),
         ]
     )
     if config.weights_path is not None:
