@@ -17,6 +17,7 @@ This repository now contains a runnable scaffold for the project structure:
 - reconstruction-first metrics for depth, pointmaps, gravity, and drift,
 - train and eval entrypoints,
 - setup, dry-runnable weight-download, dataset-preparation, and GitHub-publish scripts,
+- Occ3D/OpenOccupancy benchmark dataset preparation entrypoint,
 - checkpoint structure inspection for downloaded G3T/VGGT weights,
 - training environment readiness checks,
 - ordered real training run-plan generation,
@@ -81,6 +82,7 @@ PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/generate_reference_supervision_targets.py --help
 PYTHONPATH=src python3 scripts/inspect_checkpoint.py --help
+bash scripts/prepare_occ3d.sh
 ```
 
 GitHub remote is already configured. To check or push:

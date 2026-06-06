@@ -25,6 +25,7 @@ class ProjectAuditTest(unittest.TestCase):
         ):
             self.assertIn(name, items_by_name)
             self.assertTrue(items_by_name[name].ready, name)
+        self.assertIn("scripts/prepare_occ3d.sh", items_by_name["dataset_setup"].evidence)
 
     def test_audit_report_is_not_complete_real_training(self) -> None:
         from vggt_project.project_audit import audit_project_files, format_audit_report
@@ -40,6 +41,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertIn("PYTHONPATH=src python3 scripts/report_training_launch.py", " ".join(report.next_actions))
         self.assertIn("PYTHONPATH=src python3 scripts/plan_training_run.py", " ".join(report.next_actions))
         self.assertIn("scripts/check_training_readiness.py", " ".join(report.next_actions))
+        self.assertIn("scripts/prepare_occ3d.sh", " ".join(report.next_actions))
         self.assertIn("next_actions:", rendered)
 
 
