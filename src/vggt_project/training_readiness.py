@@ -8,7 +8,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
 
-from vggt_project.checkpoint_inspection import CHECKPOINT_SUFFIXES, find_checkpoint_candidates
+from vggt_project.checkpoint_inspection import (
+    CHECKPOINT_SUFFIXES,
+    find_checkpoint_candidates,
+    load_checkpoint_summary,
+)
 from vggt_project.data.satellite_crops import validate_satellite_raster_config
 from vggt_project.experiments import ExperimentRunConfig
 from vggt_project.models.factory import FINE_TUNING_POLICIES
@@ -44,15 +48,17 @@ def check_training_readiness(
     *,
     dependency_probe: Callable[[], tuple[DependencyStatus, ...]] | None = None,
     device_probe: Callable[[str | None], bool] | None = None,
+    checkpoint_probe: Callable[[Path], str | None] | None = None,
 ) -> TrainingReadinessReport:
     """Check config paths, dependencies, and requested device availability."""
 
     missing_paths = _missing_config_paths(config)
     dependency_probe = dependency_probe or probe_dependencies
     device_probe = device_probe or probe_device_available
+    checkpoint_probe = checkpoint_probe or probe_checkpoint_loadable
     dependencies = dependency_probe()
     device_available = device_probe(config.device)
-    config_errors = _config_errors(config)
+    config_errors = _config_errors(config, checkpoint_probe=checkpoint_probe)
     ready = not missing_paths and not config_errors and not any(
         not dependency.available for dependency in dependencies
     ) and device_available
@@ -96,6 +102,20 @@ def probe_device_available(device: str | None) -> bool:
     except (RuntimeError, TypeError):
         return False
     return True
+
+
+def probe_checkpoint_loadable(path: Path) -> str | None:
+    """Return an error message when a checkpoint file cannot be inspected."""
+
+    try:
+        load_checkpoint_summary(path, sample_limit=1)
+    except RuntimeError as error:
+        if "torch is required" in str(error):
+            return None
+        return str(error)
+    except Exception as error:
+        return str(error)
+    return None
 
 
 def format_training_readiness_report(report: TrainingReadinessReport) -> str:
@@ -143,8 +163,12 @@ def _missing_config_paths(config: ExperimentRunConfig) -> dict[str, str]:
     return missing
 
 
-def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
-    errors = list(_model_config_errors(config))
+def _config_errors(
+    config: ExperimentRunConfig,
+    *,
+    checkpoint_probe: Callable[[Path], str | None],
+) -> tuple[str, ...]:
+    errors = list(_model_config_errors(config, checkpoint_probe=checkpoint_probe))
     if config.satellite_raster_config_path is None:
         return tuple(errors)
     config_path = Path(config.satellite_raster_config_path)
@@ -162,9 +186,13 @@ def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
     return tuple(errors)
 
 
-def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+def _model_config_errors(
+    config: ExperimentRunConfig,
+    *,
+    checkpoint_probe: Callable[[Path], str | None],
+) -> tuple[str, ...]:
     errors: list[str] = []
-    errors.extend(_weights_path_errors(config.weights_path))
+    errors.extend(_weights_path_errors(config.weights_path, checkpoint_probe=checkpoint_probe))
     policy = config.fine_tuning_policy.lower().replace("-", "_")
     if policy == "all":
         policy = "full"
@@ -188,7 +216,11 @@ def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
     return tuple(errors)
 
 
-def _weights_path_errors(weights_path: Path | None) -> tuple[str, ...]:
+def _weights_path_errors(
+    weights_path: Path | None,
+    *,
+    checkpoint_probe: Callable[[Path], str | None],
+) -> tuple[str, ...]:
     if weights_path is None:
         return ()
     path = Path(weights_path)
@@ -206,6 +238,9 @@ def _weights_path_errors(weights_path: Path | None) -> tuple[str, ...]:
         return ("weights_path points to a directory with no .pt, .pth, or .bin checkpoint files",)
     if path.suffix.lower() not in CHECKPOINT_SUFFIXES:
         return ("weights_path must be a .pt, .pth, or .bin file",)
+    probe_error = checkpoint_probe(path)
+    if probe_error:
+        return (f"weights_path checkpoint inspection failed: {probe_error}",)
     return ()
 
 
