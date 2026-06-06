@@ -35,6 +35,9 @@ These repositories are ignored by the main git repository and should be treated 
 
 ## Track Until Public Code Is Confirmed
 
+- `SA-Occ`: satellite-assisted 3D occupancy baseline on Occ3D-nuScenes; track for the closest public satellite-conditioned geometry comparison.
+- `DriveTok`: 2026 nuScenes multi-view reconstruction/understanding scene-token baseline.
+- `M2-Occ`: 2026 missing-camera robustness occupancy protocol on SurroundOcc/nuScenes.
 - `Cross3R/CrossGeo`: closest satellite-drone-ground feed-forward reconstruction benchmark; clone when running cross-view reconstruction experiments.
 - `Sky2Ground/SkyNet`: satellite/aerial/ground site modeling benchmark; clone when code is released and when evaluating satellite-view robustness.
 - `ReconDrive`: VGGT-adapted feed-forward 4D Gaussian splatting baseline for nuScenes-like driving reconstruction.

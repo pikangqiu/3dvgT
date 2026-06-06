@@ -20,6 +20,9 @@ Primary candidates:
 - ParkRecon3D/ParkGaussian as a 2026 surround-view parking-scene reconstruction benchmark/baseline.
 - Perception-aware 3DGS as a 2026 evaluation direction for whether reconstructed driving scenes preserve downstream perception behavior.
 - Sat3DGen as a 2026 satellite-only street-level 3D generation benchmark direction with VIGOR-OOD plus DSM geometry supervision.
+- SA-Occ as the closest public satellite-assisted 3D occupancy baseline on Occ3D-nuScenes.
+- DriveTok as a 2026 nuScenes multi-view scene-token baseline spanning reconstruction, depth, segmentation, and occupancy.
+- M2-Occ as a 2026 missing-camera robustness protocol on SurroundOcc/nuScenes, useful for testing whether satellite priors help when surround cameras are incomplete.
 - GS-Occ3D / GaussianOcc as Gaussian-splatting occupancy baselines for scalable vision-only or self-supervised driving geometry.
 
 Auxiliary mapping candidates:
@@ -59,6 +62,9 @@ Auxiliary mapping candidates:
 
 - Occ3D-nuScenes and Occ3D-Waymo.
 - UniOcc for unified occupancy prediction/forecasting across nuScenes, Waymo, and CARLA.
+- SA-Occ for satellite-assisted 3D occupancy on Occ3D-nuScenes, directly aligned with the satellite-conditioned geometry claim.
+- M2-Occ for missing-view robustness on nuScenes/SurroundOcc when satellite priors are expected to stabilize incomplete camera inputs.
+- DriveTok for multi-view scene-token reconstruction/understanding on nuScenes.
 - SurroundOcc/OpenOccupancy/OccFormer/TPVFormer as occupancy baselines when using occupancy metrics.
 - GS-Occ3D: vision-only occupancy reconstruction/label curation with Gaussian Splatting, useful if the paper claims scalable geometry labels.
 - GaussianOcc: self-supervised Gaussian Splatting occupancy/depth training on surround-view driving datasets.
@@ -84,6 +90,9 @@ Auxiliary mapping candidates:
 | DynamicVGGT | 2026 dynamic driving reconstruction baseline | Extends VGGT with dynamic pointmaps, temporal attention, and 3D Gaussian motion heads for autonomous-driving 4D reconstruction | dynamic pointmap error, reconstruction quality, temporal/motion consistency |
 | Perception-aware 3DGS | 2026 evaluation-oriented baseline | Argues visual similarity is insufficient and adds object/perception-aware reconstruction losses | perception consistency, object-zone quality, visual reconstruction metrics |
 | Sat3DGen | 2026 satellite-only 3D generation benchmark direction | Pairs satellite views with DSM geometry on VIGOR-OOD; useful for satellite-only ablations and geometry-first satellite prior evaluation | DSM RMSE, FID/NVS quality, mesh/scene geometry quality |
+| SA-Occ | Satellite-assisted occupancy baseline | ICCV 2025 satellite-assisted 3D occupancy on Occ3D-nuScenes; closest public comparison for whether satellite context improves driving-scene geometry | semantic occupancy mIoU, class IoU, latency |
+| DriveTok | 2026 multi-view scene-token baseline | Uses nuScenes to evaluate unified scene tokens for image reconstruction, semantic segmentation, depth prediction, and 3D occupancy prediction | image reconstruction, depth, segmentation, occupancy metrics |
+| M2-Occ | 2026 robustness benchmark direction | Defines deterministic and stochastic missing-view protocols on SurroundOcc/nuScenes; useful to test whether satellite priors compensate for missing cameras | occupancy mIoU under camera dropout |
 | ParkRecon3D / ParkGaussian | 2026 niche reconstruction benchmark | Surround-view parking scene reconstruction benchmark with dense parking-slot annotations | reconstruction quality, slot-aware perception consistency |
 | Nighttime driving 3DGS | Robustness benchmark direction | Tests reconstruction under low-light driving scenes on nuScenes/Waymo | nighttime reconstruction quality, rendering metrics |
 | Real2Sim | Future simulation/editing comparison | Editable physics-aware 4DGS for Waymo driving scenes, less directly aligned with our first nuScenes reconstruction table | rendering, reconstruction, editing/physics consistency |
@@ -146,7 +155,7 @@ Use three comparison tables instead of one overloaded table:
    Cross3R/CrossGeo and SkyNet/Sky2Ground as the most direct external evidence for satellite/UAV/ground reconstruction and localization; Sat3DGen as a satellite-only geometry stress test.
    Metrics: point-cloud reconstruction, 6-DoF pose, on-tile localization, RRA/RTA-style camera localization when available, and DSM RMSE for satellite-only generation.
 3. Driving geometry auxiliary table:
-   Occ3D/OpenOccupancy/SurroundOcc/OpenScene/UniOcc for occupancy; DrivingForward/DGGT/ReconDrive/DynamicVGGT for feed-forward driving reconstruction.
+   Occ3D/OpenOccupancy/SurroundOcc/OpenScene/UniOcc/SA-Occ/M2-Occ for occupancy; DrivingForward/DGGT/ReconDrive/DynamicVGGT/DriveTok for feed-forward driving reconstruction or scene-token reconstruction.
    Metrics: implemented `bev_occupancy_iou` for local LiDAR-proxy smoke labels, semantic occupancy mIoU for public labels, and NVS/perception-preservation metrics when Gaussian-splatting baselines are run.
 
 Rationale:
@@ -159,6 +168,9 @@ Rationale:
 - ReconDrive and DGGT are the strongest driving-scene feed-forward reconstruction baselines to watch because both explicitly adapt VGGT-style geometry or transformer feed-forward reconstruction to nuScenes-like dynamic driving scenes.
 - DynamicVGGT is the most direct dynamic-pointmap extension of VGGT for autonomous driving, so it should be tracked when temporal reconstruction becomes a main table.
 - Sat3DGen is not a direct nuScenes comparison, but it is a strong satellite-only geometry sanity benchmark because it reports DSM-supervised street-level 3D generation from satellite input.
+- SA-Occ is the most directly aligned public satellite-assisted occupancy baseline: it tests satellite context on Occ3D-nuScenes rather than only cross-view segmentation.
+- DriveTok gives a 2026 nuScenes reconstruction/understanding token baseline that can be used once the project reports reconstruction plus occupancy/segmentation auxiliary tasks.
+- M2-Occ supplies a robustness protocol for missing surround-camera inputs, a natural place to test whether satellite priors improve geometry when camera coverage is degraded.
 - Occ3D/OpenScene/UniOcc provide public occupancy labels and evaluation language; the current project only has LiDAR-derived binary proxy occupancy, so public semantic occupancy validation remains a future milestone.
 
 ## Initial Source List
@@ -185,6 +197,9 @@ Rationale:
 - DynamicVGGT arXiv 2026: https://arxiv.org/abs/2603.08254
 - Sat3DGen arXiv 2026: https://arxiv.org/abs/2605.14984
 - Sat3DGen repository: https://github.com/qianmingduowan/Sat3DGen
+- SA-Occ ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/html/Chen_SA-Occ_Satellite-Assisted_3D_Occupancy_Prediction_in_Real_World_ICCV_2025_paper.html
+- DriveTok arXiv 2026: https://arxiv.org/abs/2603.19219
+- M2-Occ arXiv 2026: https://arxiv.org/abs/2603.09737
 - Nighttime Autonomous Driving Scene Reconstruction arXiv 2026: https://arxiv.org/abs/2602.13549
 - Real2Sim arXiv 2026: https://arxiv.org/abs/2605.13591
 - ParkGaussian / ParkRecon3D arXiv 2026: https://arxiv.org/abs/2601.01386

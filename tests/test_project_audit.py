@@ -37,6 +37,7 @@ class ProjectAuditTest(unittest.TestCase):
         self.assertNotIn("multi-camera depth/pointmap", " ".join(report.remaining_gaps))
         self.assertNotIn("camera-specific reconstruction heads are not implemented", " ".join(report.remaining_gaps))
         self.assertNotIn("GitHub upload still requires", " ".join(report.remaining_gaps))
+        self.assertIn("PYTHONPATH=src python3 scripts/report_training_launch.py", " ".join(report.next_actions))
         self.assertIn("PYTHONPATH=src python3 scripts/plan_training_run.py", " ".join(report.next_actions))
         self.assertIn("scripts/check_training_readiness.py", " ".join(report.next_actions))
         self.assertIn("next_actions:", rendered)

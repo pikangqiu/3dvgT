@@ -171,6 +171,20 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 table="satellite/cross-view reconstruction table",
             ),
             ProtocolBaseline(
+                name="SA-Occ",
+                family="satellite-assisted 3D occupancy",
+                satellite_conditioning="satellite+surround-camera",
+                expected_artifact="satellite-assisted Occ3D-nuScenes semantic occupancy predictions",
+                table="occupancy auxiliary table",
+            ),
+            ProtocolBaseline(
+                name="DriveTok",
+                family="3D driving scene tokenization",
+                satellite_conditioning="none",
+                expected_artifact="multi-view reconstruction, depth, segmentation, and 3D occupancy tokens",
+                table="driving reconstruction table",
+            ),
+            ProtocolBaseline(
                 name="GaussianOcc",
                 family="self-supervised Gaussian occupancy",
                 satellite_conditioning="none",
@@ -241,6 +255,24 @@ def build_experiment_protocol() -> ExperimentProtocol:
                 role="unified occupancy prediction and forecasting benchmark",
                 source_url="https://uniocc.github.io/",
                 reason="ICCV 2025 benchmark unifying 2D/3D occupancy labels and flow annotations across multiple autonomous-driving datasets.",
+            ),
+            ProtocolBenchmark(
+                name="SA-Occ",
+                role="satellite-assisted 3D occupancy benchmark/baseline",
+                source_url="https://openaccess.thecvf.com/content/ICCV2025/html/Chen_SA-Occ_Satellite-Assisted_3D_Occupancy_Prediction_in_Real_World_ICCV_2025_paper.html",
+                reason="ICCV 2025 satellite-assisted Occ3D-nuScenes baseline; closest public occupancy comparison to this project's satellite-conditioned 3D geometry claim.",
+            ),
+            ProtocolBenchmark(
+                name="DriveTok",
+                role="multi-view driving reconstruction/tokenization benchmark",
+                source_url="https://arxiv.org/abs/2603.19219",
+                reason="2026 nuScenes multi-view scene-token baseline spanning image reconstruction, depth prediction, semantic segmentation, and 3D occupancy prediction.",
+            ),
+            ProtocolBenchmark(
+                name="M2-Occ",
+                role="missing-view robustness occupancy benchmark",
+                source_url="https://arxiv.org/abs/2603.09737",
+                reason="2026 SurroundOcc/nuScenes protocol for deterministic and stochastic camera dropout, useful for testing robustness of satellite priors when cameras are incomplete.",
             ),
             ProtocolBenchmark(
                 name="OpenOccupancy",
