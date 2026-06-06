@@ -86,6 +86,9 @@ def _load_rgb_tensor(path: Path, image_size: int):
 
 
 def _load_gray_tensor(path: Path, image_size: int):
+    if path.suffix.lower() in {".npy", ".npz"}:
+        return _load_gray_array_tensor(path, image_size)
+
     import numpy as np
     import torch
     from PIL import Image
@@ -93,6 +96,41 @@ def _load_gray_tensor(path: Path, image_size: int):
     image = Image.open(path).convert("L").resize((image_size, image_size))
     array = np.asarray(image, dtype=np.float32) / 255.0
     return torch.from_numpy(array).unsqueeze(0).contiguous()
+
+
+def _load_gray_array_tensor(path: Path, image_size: int):
+    import numpy as np
+    import torch
+    from torch.nn import functional as F
+
+    loaded = np.load(path)
+    if isinstance(loaded, np.lib.npyio.NpzFile):
+        if "depth" in loaded:
+            array = loaded["depth"]
+        elif "mask" in loaded:
+            array = loaded["mask"]
+        else:
+            raise ValueError(f"gray npz must contain a 'depth' or 'mask' array: {path}")
+    else:
+        array = loaded
+    array = np.asarray(array, dtype=np.float32)
+    if array.ndim == 2:
+        array = array[None, :, :]
+    elif array.ndim == 3 and array.shape[-1] == 1:
+        array = array.transpose(2, 0, 1)
+    if array.ndim != 3 or array.shape[0] != 1:
+        raise ValueError(f"gray array target must have shape HxW, 1xHxW, or HxWx1, got {array.shape}: {path}")
+
+    tensor = torch.from_numpy(array).contiguous()
+    if tensor.shape[-2:] == (image_size, image_size):
+        return tensor
+    resized = F.interpolate(
+        tensor.unsqueeze(0),
+        size=(image_size, image_size),
+        mode="bilinear",
+        align_corners=False,
+    )
+    return resized.squeeze(0).contiguous()
 
 
 def _load_camera_depth_tensors(sample, image_size: int):

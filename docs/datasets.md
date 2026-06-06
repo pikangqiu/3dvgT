@@ -172,6 +172,19 @@ PYTHONPATH=src python scripts/generate_camera_lidar_pointmap_targets.py \
 
 This transforms `LIDAR_TOP` points into each selected nuScenes camera frame, keeps only positive-depth points that project inside the camera image, saves `.npy` arrays, and updates `pointmap_paths`. These are sparse LiDAR camera-frame targets for training-path validation; a final G3T/VGGT adapter may still replace or augment them with dense pointmaps from the selected reconstruction backbone.
 
+Generate dense configured-model reference supervision:
+
+```bash
+PYTHONPATH=src python scripts/generate_reference_supervision_targets.py \
+  --config configs/reconstruction_first.yaml \
+  --manifest data/manifests/nuscenes-mini.camera-pointmap.jsonl \
+  --target-dir reference_targets \
+  --max-points 4096 \
+  --output data/manifests/nuscenes-mini.reference.jsonl
+```
+
+This runs the configured model or adapter over each manifest sample and writes dense reference predictions back into manifest-compatible fields: `.npy` depth maps in `lidar_depth_paths`, `.npy` pointmaps in `pointmap_paths`, and quaternions in `camera_local_camera_to_gravity_poses`. It can consume the current scaffold for smoke checks or a configured local `refs/g3t` G3T/VGGT adapter for dense reference targets once weights and environment are available.
+
 Or generate both LiDAR depth and pointmap supervision in one pass:
 
 ```bash
@@ -211,7 +224,7 @@ PYTHONPATH=src python scripts/train.py \
   --output-dir outputs/manifest-smoke
 ```
 
-This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load single- or multi-camera depth, masks, sample-level or camera-level pointmap arrays, and ego-pose-derived pose targets. If both `pointmap_path` and `pointmap_paths` are absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
+This reads real camera and satellite image files into tensors and runs the current scaffold model. It can load single- or multi-camera image or `.npy` depth, masks, sample-level or camera-level pointmap arrays, and ego-pose-derived, calibration-derived, explicit, or reference-predicted camera pose targets. If both `pointmap_path` and `pointmap_paths` are absent, it still uses a placeholder pointmap target, so manifests without real pointmaps remain training-plumbing smoke tests rather than complete supervised experiments.
 
 Check the local layout with:
 

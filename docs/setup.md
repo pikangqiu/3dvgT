@@ -204,6 +204,18 @@ PYTHONPATH=src python scripts/generate_lidar_supervision.py \
 PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.supervised.jsonl
 ```
 
+Optionally replace or augment sparse LiDAR targets with configured G3T/VGGT reference predictions:
+
+```bash
+PYTHONPATH=src python scripts/generate_reference_supervision_targets.py \
+  --config configs/reconstruction_first.yaml \
+  --manifest data/manifests/nuscenes-mini.supervised.jsonl \
+  --target-dir reference_targets \
+  --max-points 4096 \
+  --output data/manifests/nuscenes-mini.reference.jsonl
+PYTHONPATH=src python scripts/validate_manifest.py data/manifests/nuscenes-mini.reference.jsonl
+```
+
 Split the supervised manifest at the scene level:
 
 ```bash
@@ -305,4 +317,4 @@ PYTHONPATH=src python scripts/check_training_readiness.py \
 
 The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. The readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, and external adapter/weight paths if `runtime.model.family` is not `scaffold`.
 
-If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Dense G3T/VGGT pointmap generation and pose targets are still placeholders until the G3T/VGGT supervision adapter internals are replaced with concrete reference head calls.
+If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. Depth targets can be image files or `.npy` arrays. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets; if `camera_local_camera_to_gravity_poses` is present, it uses those explicit camera-level pose targets. `scripts/generate_reference_supervision_targets.py` can populate dense configured-model depth, pointmap, and camera pose targets once a scaffold or reference adapter is configured.

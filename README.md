@@ -41,6 +41,7 @@ This repository now contains a runnable scaffold for the project structure:
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,
 - one-command LiDAR depth+pointmap supervision manifest generation,
+- dense G3T/VGGT reference prediction materialization into manifest depth, pointmap, and pose targets,
 - scene-level train/eval manifest splitting,
 - optional sample-level or camera-level manifest pointmap target loading,
 - ego-pose-derived pose targets for manifest smoke training,
@@ -56,7 +57,7 @@ This repository now contains a runnable scaffold for the project structure:
 - machine-readable baseline/benchmark experiment protocol,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, full G3T camera-level pose target generation, concrete G3T/VGGT pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, real public G3T/VGGT checkpoint and GPU validation, concrete G3T/VGGT fine-tuning policies, and full real-data head-call validation.
 
 ## Quick Checks
 
@@ -70,6 +71,7 @@ PYTHONPATH=src python3 scripts/inspect_manifest_sample.py --help
 PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
+PYTHONPATH=src python3 scripts/generate_reference_supervision_targets.py --help
 ```
 
 GitHub remote is already configured. To check or push:

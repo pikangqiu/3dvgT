@@ -136,6 +136,16 @@ def build_training_run_plan(
                 note="Adds multi-camera depth and camera-frame pointmap targets.",
             ),
             TrainingPlanStep(
+                name="optional_generate_reference_supervision",
+                command=(
+                    "PYTHONPATH=src python scripts/generate_reference_supervision_targets.py "
+                    f"--config {config_path} --manifest {supervised_manifest} "
+                    f"--output {supervised_manifest} --target-dir reference_targets --max-points {point_count}"
+                ),
+                ready=path_exists(supervised_manifest),
+                note="Optionally replaces sparse LiDAR targets with dense configured G3T/VGGT reference predictions.",
+            ),
+            TrainingPlanStep(
                 name="inspect_manifest_sample",
                 command=(
                     "PYTHONPATH=src python scripts/inspect_manifest_sample.py "
