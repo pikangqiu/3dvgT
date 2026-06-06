@@ -24,6 +24,9 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("DriveTok", baseline_names)
         self.assertIn("DrivingScene", baseline_names)
         self.assertIn("DGGT", baseline_names)
+        self.assertIn("UniSplat", baseline_names)
+        self.assertIn("DenoiseGS", baseline_names)
+        self.assertIn("Splat2BEV", baseline_names)
 
     def test_protocol_recommends_benchmarks_by_role(self) -> None:
         from vggt_project.experiment_protocol import build_experiment_protocol, format_experiment_protocol
@@ -43,6 +46,9 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("DrivingScene", benchmark_names)
         self.assertIn("M2-Occ", benchmark_names)
         self.assertIn("PAGE-4D", benchmark_names)
+        self.assertIn("UniSplat", benchmark_names)
+        self.assertIn("DenoiseGS", benchmark_names)
+        self.assertIn("Splat2BEV", benchmark_names)
         self.assertIn("UniOcc", benchmark_names)
         self.assertIn("OpenScene", benchmark_names)
         self.assertIn("SG-BEV", benchmark_names)
@@ -64,6 +70,8 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertEqual("phase1_external", benchmark_by_name["SA-Occ"].experiment_phase)
         self.assertEqual("phase1_external", benchmark_by_name["Occ3D-nuScenes"].experiment_phase)
         self.assertEqual("phase2_tracking", baseline_by_name["DynamicVGGT"].experiment_phase)
+        self.assertEqual("phase2_tracking", baseline_by_name["UniSplat"].experiment_phase)
+        self.assertEqual("phase3_stretch", baseline_by_name["Splat2BEV"].experiment_phase)
         self.assertIn("phase=phase1_core", rendered)
         self.assertIn("phase=phase1_external", rendered)
 

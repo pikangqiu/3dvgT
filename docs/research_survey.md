@@ -18,6 +18,9 @@ Primary candidates:
 - ReconDrive as a 2026 feed-forward 4D Gaussian Splatting driving-scene reconstruction baseline that extends VGGT-style geometric features.
 - DynamicVGGT as a 2026 VGGT-extension baseline for dynamic pointmaps and 4D autonomous-driving reconstruction.
 - DrivingScene as an online feed-forward dynamic driving reconstruction baseline with nuScenes depth, scene-flow, Gaussian point-cloud, and NVS outputs.
+- UniSplat as an ICLR 2026 feed-forward dynamic driving reconstruction baseline using a 3D latent scaffold and spatio-temporal fusion for sparse, non-overlapping surround cameras.
+- DenoiseGS as an AAAI 2026 dynamic driving 3DGS baseline that directly targets noisy camera poses and inaccurate dynamic-object trajectories on nuScenes/Waymo.
+- Splat2BEV as a 2026 design reference arguing that explicit 3D Gaussian reconstruction improves BEV perception on nuScenes/Argoverse.
 - ParkRecon3D/ParkGaussian as a 2026 surround-view parking-scene reconstruction benchmark/baseline.
 - Perception-aware 3DGS as a 2026 evaluation direction for whether reconstructed driving scenes preserve downstream perception behavior.
 - Sat3DGen as a 2026 satellite-only street-level 3D generation benchmark direction with VIGOR-OOD plus DSM geometry supervision.
@@ -31,6 +34,7 @@ Auxiliary mapping candidates:
 - MapTR/MapTRv2 for vectorized HD map heads and nuScenes map mAP.
 - PseudoMapTrainer for pseudo-label generation without HD maps.
 - SG-BEV as a satellite-guided BEV fusion reference, useful for the cross-view feature alignment design even though its task is segmentation rather than 3D reconstruction.
+- Splat2BEV as a reconstruction-to-BEV reference for geometry-aligned BEV representation design.
 
 ## Baseline Families
 
@@ -47,6 +51,7 @@ Auxiliary mapping candidates:
 - Sky2Ground / SkyNet: 2026 satellite/aerial/ground benchmark and model for site modeling under varying altitude; directly relevant for satellite images as noisy but useful cross-view priors.
 - CrossGeo / Cross3R: 2026 tri-view satellite-drone-ground benchmark/model for feed-forward 3D point cloud reconstruction, 6-DoF camera pose, and on-tile cross-view localization.
 - SG-BEV: satellite-guided BEV fusion reference for feature alignment, useful as an auxiliary design baseline rather than a reconstruction metric baseline.
+- Splat2BEV: Gaussian-assisted geometry-aligned BEV perception reference; useful for defending the claim that explicit 3D reconstruction features are a better bridge into BEV than black-box 2D-to-BEV lifting.
 - Sat3DGen: satellite-only street-level 3D generation reference; not a nuScenes driving baseline, but useful for testing whether satellite priors can support geometry-first street-scene reconstruction.
 
 ### Driving-scene reconstruction
@@ -56,6 +61,8 @@ Auxiliary mapping candidates:
 - ReconDrive: fast feed-forward 4D Gaussian Splatting for autonomous driving scene reconstruction, explicitly extending VGGT and benchmarking on nuScenes.
 - DynamicVGGT: dynamic pointmap and 3D Gaussian motion baseline for autonomous-driving 4D reconstruction, useful when the project moves from static sample-level reconstruction to temporal scene reconstruction.
 - DrivingScene: online feed-forward 4D Gaussian driving-scene reconstruction baseline that jointly reports depth, scene flow, dynamic 3D Gaussian point clouds, and novel-view synthesis on nuScenes.
+- UniSplat: ICLR 2026 feed-forward dynamic scene reconstruction baseline that builds a 3D latent scaffold and fuses spatio-temporal evidence before decoding dynamic-aware Gaussians; useful when sparse/non-overlapping camera coverage becomes a main claim.
+- DenoiseGS: AAAI 2026 optimization-based dynamic driving 3DGS baseline that handles camera-parameter noise and dynamic-object trajectory uncertainty on nuScenes and Waymo; useful as a robustness/evaluator baseline rather than a first trainable baseline.
 - Nighttime Autonomous Driving Scene Reconstruction: 2026 ICRA direction for low-light driving-scene reconstruction on nuScenes/Waymo.
 - Real2Sim: physics-driven editable 4DGS for driving scenes, useful as a future simulation/editing comparison rather than first-table baseline.
 - Perception-aware 3DGS: evaluates reconstruction by downstream object-perception consistency, useful if our satellite prior claims improve driving-relevant geometry.
@@ -91,6 +98,9 @@ Auxiliary mapping candidates:
 | ReconDrive | 2026 direct feed-forward reconstruction baseline | Extends VGGT for fast 4D Gaussian generation and reports nuScenes reconstruction/NVS/perception results | reconstruction metrics, NVS metrics, perception preservation, runtime |
 | DynamicVGGT | 2026 dynamic driving reconstruction baseline | Extends VGGT with dynamic pointmaps, temporal attention, and 3D Gaussian motion heads for autonomous-driving 4D reconstruction | dynamic pointmap error, reconstruction quality, temporal/motion consistency |
 | DrivingScene | Online dynamic driving reconstruction baseline | Uses two consecutive surround-view image frames to predict depth, scene flow, and 3D Gaussian point clouds online on nuScenes | depth, scene flow, dynamic reconstruction, NVS metrics |
+| UniSplat | ICLR 2026 dynamic driving reconstruction baseline | Uses 3D latent scaffolds plus spatio-temporal fusion for feed-forward reconstruction from sparse, non-overlapping surround cameras | NVS quality, dynamic reconstruction quality, streaming scene completion |
+| DenoiseGS | AAAI 2026 driving 3DGS robustness baseline | Directly targets noisy camera parameters and inaccurate dynamic-object annotations on nuScenes/Waymo | reconstruction quality, NVS metrics, robustness to pose noise |
+| Splat2BEV | BEV/reconstruction design reference | Uses explicit 3D Gaussian reconstruction to create geometry-aligned BEV features on nuScenes/Argoverse | BEV perception metrics plus geometry-aligned feature ablations |
 | Perception-aware 3DGS | 2026 evaluation-oriented baseline | Argues visual similarity is insufficient and adds object/perception-aware reconstruction losses | perception consistency, object-zone quality, visual reconstruction metrics |
 | Sat3DGen | 2026 satellite-only 3D generation benchmark direction | Pairs satellite views with DSM geometry on VIGOR-OOD; useful for satellite-only ablations and geometry-first satellite prior evaluation | DSM RMSE, FID/NVS quality, mesh/scene geometry quality |
 | SA-Occ | Satellite-assisted occupancy baseline | ICCV 2025 satellite-assisted 3D occupancy on Occ3D-nuScenes; closest public comparison for whether satellite context improves driving-scene geometry | semantic occupancy mIoU, class IoU, latency |
@@ -196,6 +206,8 @@ Track these once the project moves from sample-level reconstruction to temporal 
 - ReconDrive.
 - DynamicVGGT.
 - DrivingScene.
+- UniSplat.
+- DenoiseGS.
 - PAGE-4D.
 - DriveTok.
 
@@ -208,6 +220,7 @@ Use these only after the main result is stable:
 - Sat3DGen for satellite-only DSM/street-level generation stress testing.
 - MapTR and PseudoMapTrainer for optional vector-map auxiliary heads.
 - SG-BEV for satellite/BEV alignment design evidence.
+- Splat2BEV for geometry-aligned BEV representation evidence from explicit 3D reconstruction.
 - OpenScene when scaling beyond nuScenes-mini/nuScenes to larger nuPlan-derived occupancy.
 
 ## Protocol Decision As Of 2026-06-06
@@ -234,6 +247,9 @@ Rationale:
 - ReconDrive and DGGT are the strongest driving-scene feed-forward reconstruction baselines to watch because both explicitly adapt VGGT-style geometry or transformer feed-forward reconstruction to nuScenes-like dynamic driving scenes.
 - DynamicVGGT is the most direct dynamic-pointmap extension of VGGT for autonomous driving, so it should be tracked when temporal reconstruction becomes a main table.
 - DrivingScene is a useful online temporal baseline because it reports nuScenes depth, scene flow, 3D Gaussian point clouds, and NVS from consecutive surround-view frames.
+- UniSplat is a strong feed-forward temporal baseline because it handles sparse, non-overlapping driving cameras with a 3D latent scaffold and streaming completion design.
+- DenoiseGS is valuable for robustness analysis because real driving reconstruction is sensitive to camera pose noise and dynamic-object annotation errors.
+- Splat2BEV is useful for method motivation: it independently supports the idea that explicit 3D reconstruction can improve BEV representations.
 - Sat3DGen is not a direct nuScenes comparison, but it is a strong satellite-only geometry sanity benchmark because it reports DSM-supervised street-level 3D generation from satellite input.
 - SA-Occ is the most directly aligned public satellite-assisted occupancy baseline: it tests satellite context on Occ3D-nuScenes rather than only cross-view segmentation.
 - DriveTok gives a 2026 nuScenes reconstruction/understanding token baseline that can be used once the project reports reconstruction plus occupancy/segmentation auxiliary tasks.
@@ -263,6 +279,10 @@ Rationale:
 - ReconDrive arXiv 2026: https://arxiv.org/abs/2603.07552
 - DynamicVGGT arXiv 2026: https://arxiv.org/abs/2603.08254
 - DrivingScene arXiv 2025/2026 tracking baseline: https://arxiv.org/abs/2510.24734
+- UniSplat OpenReview / ICLR 2026: https://openreview.net/forum?id=Ng2VDbKD4r
+- UniSplat project page: https://chenshi3.github.io/unisplat.github.io/
+- Splat2BEV arXiv 2026: https://arxiv.org/abs/2603.19193
+- DenoiseGS AAAI 2026 page: https://ojs.aaai.org/index.php/AAAI/article/view/37640
 - Sat3DGen arXiv 2026: https://arxiv.org/abs/2605.14984
 - Sat3DGen repository: https://github.com/qianmingduowan/Sat3DGen
 - SA-Occ ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/html/Chen_SA-Occ_Satellite-Assisted_3D_Occupancy_Prediction_in_Real_World_ICCV_2025_paper.html

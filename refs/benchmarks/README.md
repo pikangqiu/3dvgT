@@ -42,4 +42,7 @@ These repositories are ignored by the main git repository and should be treated 
 - `Sky2Ground/SkyNet`: satellite/aerial/ground site modeling benchmark; clone when code is released and when evaluating satellite-view robustness.
 - `ReconDrive`: VGGT-adapted feed-forward 4D Gaussian splatting baseline for nuScenes-like driving reconstruction.
 - `DynamicVGGT`: VGGT-derived dynamic pointmap and 4D autonomous-driving reconstruction baseline; track until public code is confirmed.
+- `UniSplat`: ICLR 2026 feed-forward dynamic driving reconstruction baseline using 3D latent scaffolds and spatio-temporal fusion; clone when running dynamic driving reconstruction comparisons.
+- `DenoiseGS`: AAAI 2026 dynamic driving 3DGS robustness baseline for camera-pose noise and dynamic trajectory errors; use as an evaluation reference when pose/noise robustness is claimed.
+- `Splat2BEV`: 2026 reconstruction-to-BEV design reference; track as supporting evidence for geometry-aligned BEV representations rather than as a direct 3D reconstruction benchmark.
 - `GS-Occ3D`: scalable vision-only occupancy reconstruction benchmark; track project page until an official repository is linked.
