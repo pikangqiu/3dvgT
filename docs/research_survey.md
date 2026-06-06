@@ -90,6 +90,13 @@ Auxiliary mapping candidates:
 
 ## Recommended First Paper Table
 
+The same protocol is available as a machine-readable artifact:
+
+```bash
+PYTHONPATH=src python scripts/list_experiment_protocol.py
+PYTHONPATH=src python scripts/list_experiment_protocol.py --json
+```
+
 Main table:
 
 ```text

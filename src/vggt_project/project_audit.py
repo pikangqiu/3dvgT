@@ -104,6 +104,8 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "benchmarks": (
             "docs/research_survey.md",
             "refs/benchmarks/README.md",
+            "src/vggt_project/experiment_protocol.py",
+            "scripts/list_experiment_protocol.py",
         ),
     }
 

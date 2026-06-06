@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth and pointmap prediction, external adapter module loading, a repo-local G3T/VGGT adapter template, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, ordered training run-plan generation, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, satellite raster config validation, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes ego-frame and camera-frame LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth and pointmap prediction, external adapter module loading, a repo-local G3T/VGGT adapter template, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, ordered training run-plan generation, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, satellite raster config validation, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes ego-frame and camera-frame LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, research baseline notes, and a machine-readable experiment protocol.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, single- or multi-camera depth, mask, sample-level or camera-level pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, replacing the G3T/VGGT adapter template with concrete head calls, and GPU environment validation.
 
@@ -39,6 +39,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | GitHub upload | Published | `origin` is `https://github.com/pikangqiu/3dvgT.git`; local `main` tracks `origin/main` |
 | GitHub publish preflight | Scripted | `scripts/check_github_publish.py` reports worktree, branch, remote, and whether `gh auth` is needed for repo creation |
 | GitHub CI | Scripted | `.github/workflows/ci.yml` runs lightweight tests, project audit, reference dry-run, and compile checks |
+| Experiment protocol | Scripted | `scripts/list_experiment_protocol.py`; prints primary metrics, auxiliary metrics, baseline table rows, and benchmark roles as text or JSON |
 
 ## Commands
 
@@ -49,6 +50,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/check_training_readiness.py --help
 PYTHONPATH=src python3 scripts/plan_training_run.py --help
+PYTHONPATH=src python3 scripts/list_experiment_protocol.py --help
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini

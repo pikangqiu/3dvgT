@@ -43,6 +43,7 @@ This repository now contains a runnable scaffold for the project structure:
 - explicit train/eval device and seed selection through config or CLI,
 - config-driven train+eval experiment report generation,
 - one-command toy manifest train/eval smoke pipeline,
+- machine-readable baseline/benchmark experiment protocol,
 - baseline/benchmark notes for the next experimental plan.
 
 The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
@@ -53,6 +54,7 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python3 scripts/list_experiment_protocol.py
 PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
