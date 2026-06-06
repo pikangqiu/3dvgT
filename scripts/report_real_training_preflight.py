@@ -31,6 +31,7 @@ def main() -> int:
         default=Path("data/manifests/nuscenes-mini.satellite.jsonl"),
     )
     parser.add_argument("--smoke-manifest", type=Path, default=Path("data/manifests/nuscenes-mini.smoke.jsonl"))
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -44,8 +45,12 @@ def main() -> int:
             "launch": None,
             "next_actions": [],
         }
+        serialized = json.dumps(payload, indent=2, sort_keys=True)
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(serialized + "\n", encoding="utf-8")
         if args.json:
-            print(json.dumps(payload, indent=2, sort_keys=True))
+            print(serialized)
         else:
             print("ready_for_real_training: false")
             print(f"config_error: {error}")
@@ -75,19 +80,18 @@ def main() -> int:
         + tuple(launch.next_commands)
     )
 
+    payload = {
+        "ready_for_real_training": ready,
+        "external_assets": json.loads(external_assets.to_json()),
+        "launch": json.loads(launch.to_json()),
+        "next_actions": list(next_actions),
+    }
+    serialized = json.dumps(payload, indent=2, sort_keys=True)
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(serialized + "\n", encoding="utf-8")
     if args.json:
-        print(
-            json.dumps(
-                {
-                    "ready_for_real_training": ready,
-                    "external_assets": json.loads(external_assets.to_json()),
-                    "launch": json.loads(launch.to_json()),
-                    "next_actions": list(next_actions),
-                },
-                indent=2,
-                sort_keys=True,
-            )
-        )
+        print(serialized)
     else:
         print(f"ready_for_real_training: {str(ready).lower()}")
         print("external_assets:")

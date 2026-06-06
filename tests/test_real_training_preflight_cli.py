@@ -12,6 +12,7 @@ class RealTrainingPreflightCliTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             config = root / "config.json"
+            output_report = root / "real_training_preflight.json"
             config.write_text('{"runtime": {"model": {"weights_path": null}}}', encoding="utf-8")
             env = dict(os.environ)
             env["PYTHONPATH"] = "src"
@@ -26,6 +27,8 @@ class RealTrainingPreflightCliTest(unittest.TestCase):
                     str(root / "missing-nuscenes"),
                     "--satellite-config",
                     str(root / "missing-satellite.json"),
+                    "--output",
+                    str(output_report),
                     "--json",
                 ],
                 cwd=Path(__file__).resolve().parents[1],
@@ -34,11 +37,13 @@ class RealTrainingPreflightCliTest(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            output_payload = json.loads(output_report.read_text(encoding="utf-8"))
 
         payload = json.loads(result.stdout)
 
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertFalse(payload["ready_for_real_training"])
+        self.assertEqual(payload, output_payload)
         self.assertIn("external_assets", payload)
         self.assertIn("launch", payload)
         self.assertFalse(payload["external_assets"]["required_ready"])

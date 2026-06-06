@@ -71,6 +71,10 @@ def build_training_run_plan(
     occupancy_prediction_manifest = occ3d_eval_manifest.with_suffix(".predictions.jsonl")
     train_metrics = config.output_dir / "train_metrics.json"
     eval_metrics = config.output_dir / "eval_metrics.json"
+    environment_report = config.output_dir / "environment.json"
+    preflight_report = config.output_dir / "real_training_preflight.json"
+    artifact_report = config.output_dir / "training_artifacts.json"
+    real_run_evidence = config.output_dir / "real_run_evidence.json"
     occupancy_report = config.output_dir / "occupancy_benchmark.json"
     satellite_config = config.satellite_raster_config_path
     point_count = config.point_count
@@ -254,6 +258,15 @@ def build_training_run_plan(
                 note="Runs one real manifest sample through the configured model before train/eval launch.",
             ),
             TrainingPlanStep(
+                name="report_real_training_preflight",
+                command=(
+                    "PYTHONPATH=src python scripts/report_real_training_preflight.py "
+                    f"--config {config_path} --output {preflight_report} --json"
+                ),
+                ready=False,
+                note="Saves external-asset and launch readiness evidence before training starts.",
+            ),
+            TrainingPlanStep(
                 name="train",
                 command=(
                     "PYTHONPATH=src python scripts/train.py "
@@ -324,10 +337,31 @@ def build_training_run_plan(
                     "PYTHONPATH=src python scripts/verify_training_artifacts.py "
                     f"--checkpoint {config.checkpoint} --train-metrics {train_metrics} --eval-metrics {eval_metrics} "
                     f"--occupancy-report {occupancy_report} --required-eval-metric loss "
-                    "--required-eval-metric depth_mae --required-occupancy-class-count 18"
+                    "--required-eval-metric depth_mae --required-occupancy-class-count 18 "
+                    f"--output {artifact_report} --json"
                 ),
                 ready=False,
                 note="Verifies checkpoint, train/eval report, and optional occupancy benchmark artifacts before recording results.",
+            ),
+            TrainingPlanStep(
+                name="report_environment",
+                command=(
+                    "PYTHONPATH=src python scripts/report_environment.py "
+                    f"--output {environment_report} --json"
+                ),
+                ready=False,
+                note="Saves Python, dependency, and accelerator evidence for the final real-run evidence bundle.",
+            ),
+            TrainingPlanStep(
+                name="verify_real_run_evidence",
+                command=(
+                    "PYTHONPATH=src python scripts/verify_real_run_evidence.py "
+                    f"--preflight-report {preflight_report} --artifact-report {artifact_report} "
+                    f"--environment-report {environment_report} --output {real_run_evidence} "
+                    "--require-clean-worktree --json"
+                ),
+                ready=False,
+                note="Writes the final evidence bundle tying run readiness, artifacts, environment, and git commit together.",
             ),
         ]
     )

@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument("--required-eval-metric", action="append", default=None)
     parser.add_argument("--require-occupancy-report", action="store_true")
     parser.add_argument("--required-occupancy-class-count", type=int, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -38,8 +39,12 @@ def main() -> int:
         required_occupancy_class_count=args.required_occupancy_class_count,
     )
 
+    payload = report.to_json()
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(payload + "\n", encoding="utf-8")
     if args.json:
-        print(report.to_json())
+        print(payload)
     else:
         print(format_training_artifact_report(report))
     return 0 if report.ready else 1

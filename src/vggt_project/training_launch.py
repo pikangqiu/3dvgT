@@ -149,6 +149,7 @@ def _build_remediation_commands(
 
 
 _LAUNCH_ONLY_STEPS = {
+    "report_real_training_preflight",
     "train",
     "evaluate",
     "optional_attach_occ3d_labels",
@@ -157,4 +158,6 @@ _LAUNCH_ONLY_STEPS = {
     "export_occupancy_predictions",
     "evaluate_occupancy_benchmark",
     "verify_training_artifacts",
+    "report_environment",
+    "verify_real_run_evidence",
 }

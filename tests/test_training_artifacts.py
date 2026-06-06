@@ -136,6 +136,7 @@ class TrainingArtifactsTest(unittest.TestCase):
             checkpoint = root / "model.pt"
             checkpoint.write_bytes(b"checkpoint placeholder")
             experiment_report = root / "report.json"
+            output_report = root / "training_artifacts.json"
             experiment_report.write_text(
                 json.dumps(
                     {
@@ -185,6 +186,7 @@ class TrainingArtifactsTest(unittest.TestCase):
             checkpoint = root / "model.pt"
             checkpoint.write_bytes(b"checkpoint placeholder")
             experiment_report = root / "report.json"
+            output_report = root / "training_artifacts.json"
             experiment_report.write_text(
                 json.dumps(
                     {
@@ -215,6 +217,8 @@ class TrainingArtifactsTest(unittest.TestCase):
                     "depth_mae",
                     "--required-occupancy-class-count",
                     "2",
+                    "--output",
+                    str(output_report),
                     "--json",
                 ],
                 cwd=Path(__file__).resolve().parents[1],
@@ -223,10 +227,12 @@ class TrainingArtifactsTest(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            output_payload = json.loads(output_report.read_text(encoding="utf-8"))
 
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertTrue(payload["ready"])
+        self.assertEqual(payload, output_payload)
         self.assertIn("checkpoint", payload["present_artifacts"])
 
 
