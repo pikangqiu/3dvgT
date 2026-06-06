@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -29,6 +29,7 @@ class ModelBuildConfig:
     use_reference_adapter: bool = False
     reference_root: Path | None = None
     reference_model: str = "g3t"
+    reference_model_kwargs: dict[str, Any] = field(default_factory=dict)
     bev_channels: int = 8
     satellite_channels: int = 3
     latent_dim: int = 128
@@ -82,6 +83,7 @@ def _call_adapter_build_model(build_model: Any, config: ModelBuildConfig):
         "use_reference_adapter": config.use_reference_adapter,
         "reference_root": config.reference_root,
         "reference_model": config.reference_model,
+        "reference_model_kwargs": config.reference_model_kwargs,
     }
     signature = inspect.signature(build_model)
     accepts_kwargs = any(parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in signature.parameters.values())

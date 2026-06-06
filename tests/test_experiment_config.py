@@ -44,6 +44,10 @@ class ExperimentConfigTest(unittest.TestCase):
                         "use_reference_adapter": True,
                         "reference_root": "refs/g3t",
                         "reference_model": "g3t",
+                        "reference_model_kwargs": {
+                            "img_size": 518,
+                            "enable_depth": True,
+                        },
                     },
                     "training": {
                         "mode": "manifest-smoke",
@@ -76,6 +80,7 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertTrue(config.use_reference_adapter)
         self.assertEqual(config.reference_root, Path("refs/g3t"))
         self.assertEqual(config.reference_model, "g3t")
+        self.assertEqual(config.reference_model_kwargs, {"img_size": 518, "enable_depth": True})
         self.assertEqual(config.epochs, 2)
         self.assertEqual(config.batch_size, 3)
         self.assertEqual(config.learning_rate, 0.0002)

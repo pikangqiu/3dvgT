@@ -26,6 +26,7 @@ def evaluate_synthetic(
     use_reference_adapter: bool = False,
     reference_root: Path | None = None,
     reference_model: str = "g3t",
+    reference_model_kwargs: dict | None = None,
 ) -> dict[str, float]:
     """Evaluate the scaffold checkpoint on synthetic data."""
 
@@ -43,6 +44,7 @@ def evaluate_synthetic(
             use_reference_adapter=use_reference_adapter,
             reference_root=reference_root,
             reference_model=reference_model,
+            reference_model_kwargs=reference_model_kwargs or {},
             bev_channels=spec.bev_channels,
             satellite_channels=spec.satellite_channels,
             point_count=spec.point_count,
@@ -85,6 +87,7 @@ def evaluate_manifest_smoke(
     use_reference_adapter: bool = False,
     reference_root: Path | None = None,
     reference_model: str = "g3t",
+    reference_model_kwargs: dict | None = None,
 ) -> dict[str, float]:
     """Evaluate a scaffold checkpoint on real files listed in a manifest."""
 
@@ -106,6 +109,7 @@ def evaluate_manifest_smoke(
             use_reference_adapter=use_reference_adapter,
             reference_root=reference_root,
             reference_model=reference_model,
+            reference_model_kwargs=reference_model_kwargs or {},
             point_count=point_count,
         )
     ).to(device)

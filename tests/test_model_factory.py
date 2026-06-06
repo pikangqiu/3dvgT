@@ -126,6 +126,7 @@ class ModelFactoryTest(unittest.TestCase):
                     use_reference_adapter=True,
                     reference_root=Path("refs/g3t"),
                     reference_model="g3t",
+                    reference_model_kwargs={"img_size": 518},
                     point_count=4,
                 )
             )
@@ -133,6 +134,7 @@ class ModelFactoryTest(unittest.TestCase):
         self.assertTrue(model.kwargs["use_reference_adapter"])
         self.assertEqual(model.kwargs["reference_root"], Path("refs/g3t"))
         self.assertEqual(model.kwargs["reference_model"], "g3t")
+        self.assertEqual(model.kwargs["reference_model_kwargs"], {"img_size": 518})
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
     def test_external_adapter_can_handle_project_weight_loading(self) -> None:

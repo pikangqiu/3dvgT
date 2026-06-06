@@ -185,10 +185,13 @@ class G3TVGGTAdapterMappingTest(unittest.TestCase):
                 "import torch\n"
                 "from torch import nn\n"
                 "class VGGT(nn.Module):\n"
+                "    def __init__(self, scale=1.0):\n"
+                "        super().__init__()\n"
+                "        self.scale = scale\n"
                 "    def forward(self, images):\n"
                 "        b, c, _, h, w = images.shape\n"
                 "        return {\n"
-                "            'depth': torch.ones(b, c, h, w, 1),\n"
+                "            'depth': self.scale * torch.ones(b, c, h, w, 1),\n"
                 "            'world_points': torch.ones(b, c, h, w, 3),\n"
                 "            'pose_enc': torch.ones(b, c, 9),\n"
                 "        }\n",
@@ -200,6 +203,7 @@ class G3TVGGTAdapterMappingTest(unittest.TestCase):
                 use_reference_adapter=True,
                 reference_root=root,
                 reference_model="vggt",
+                reference_model_kwargs={"scale": 3.0},
             )
 
         prediction = adapter(
@@ -211,4 +215,5 @@ class G3TVGGTAdapterMappingTest(unittest.TestCase):
         )
 
         self.assertEqual(tuple(prediction["camera_depths"].shape), (1, 2, 1, 4, 4))
+        self.assertAlmostEqual(float(prediction["camera_depths"].mean()), 3.0)
         self.assertEqual(adapter.adapter_status["reference_model"], "vggt")

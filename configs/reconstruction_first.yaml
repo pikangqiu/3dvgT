@@ -91,6 +91,8 @@ runtime:
     use_reference_adapter: false
     reference_root: refs/g3t
     reference_model: g3t
+    reference_model_kwargs:
+      img_size: 518
   training:
     mode: manifest-smoke
     output_dir: outputs/manifest-smoke

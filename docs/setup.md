@@ -257,6 +257,8 @@ runtime:
     use_reference_adapter: false
     reference_root: refs/g3t
     reference_model: g3t
+    reference_model_kwargs:
+      img_size: 518
 ```
 
 Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
@@ -275,9 +277,14 @@ runtime:
     use_reference_adapter: true
     reference_root: refs/g3t
     reference_model: g3t
+    reference_model_kwargs:
+      img_size: 518
+      enable_point: true
+      enable_depth: true
+      enable_gravity_camera_heads: true
 ```
 
-`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
+`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. `reference_model_kwargs` is passed directly to the selected reference constructor, so use G3T keys such as `img_size`, `enable_point`, `enable_depth`, and `enable_gravity_camera_heads`, or VGGT keys such as `img_size`, `enable_camera`, `enable_point`, `enable_depth`, and `enable_track`. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
 For a single train+eval run with a JSON report:
 

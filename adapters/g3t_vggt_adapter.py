@@ -106,6 +106,7 @@ def build_model(
     use_reference_adapter: bool = False,
     reference_root=None,
     reference_model: str = "g3t",
+    reference_model_kwargs: dict | None = None,
 ):
     """Build a trainable adapter that satisfies the reconstruction contract."""
 
@@ -116,6 +117,7 @@ def build_model(
             reference_root=reference_root,
             reference_model=reference_model,
             point_count=point_count,
+            model_kwargs=reference_model_kwargs,
         )
 
     import torch

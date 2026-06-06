@@ -29,6 +29,7 @@ def train_synthetic(
     use_reference_adapter: bool = False,
     reference_root: Path | None = None,
     reference_model: str = "g3t",
+    reference_model_kwargs: dict | None = None,
 ) -> dict[str, float]:
     """Run a small synthetic training job to verify plumbing."""
 
@@ -56,6 +57,7 @@ def train_synthetic(
             use_reference_adapter=use_reference_adapter,
             reference_root=reference_root,
             reference_model=reference_model,
+            reference_model_kwargs=reference_model_kwargs or {},
             bev_channels=spec.bev_channels,
             satellite_channels=spec.satellite_channels,
             point_count=spec.point_count,
@@ -103,6 +105,7 @@ def train_manifest_smoke(
     use_reference_adapter: bool = False,
     reference_root: Path | None = None,
     reference_model: str = "g3t",
+    reference_model_kwargs: dict | None = None,
 ) -> dict[str, float]:
     """Run smoke training from real image files listed in a manifest."""
 
@@ -128,6 +131,7 @@ def train_manifest_smoke(
             use_reference_adapter=use_reference_adapter,
             reference_root=reference_root,
             reference_model=reference_model,
+            reference_model_kwargs=reference_model_kwargs or {},
             point_count=point_count,
         )
     ).to(device)

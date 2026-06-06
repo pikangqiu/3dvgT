@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
@@ -28,6 +28,7 @@ class ExperimentRunConfig:
     use_reference_adapter: bool = False
     reference_root: Path | None = None
     reference_model: str = "g3t"
+    reference_model_kwargs: dict[str, Any] = field(default_factory=dict)
     device: str | None = None
     seed: int | None = None
     output_dir: Path = Path("outputs/synthetic")
@@ -72,6 +73,7 @@ class ExperimentRunConfig:
             use_reference_adapter=bool(model.get("use_reference_adapter", False)),
             reference_root=_optional_path(model.get("reference_root")),
             reference_model=str(model.get("reference_model", "g3t")),
+            reference_model_kwargs=_mapping(model.get("reference_model_kwargs")),
             device=runtime.get("device"),
             seed=_optional_int(runtime.get("seed")),
             output_dir=output_dir,
@@ -117,6 +119,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
+            reference_model_kwargs=config.reference_model_kwargs,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.train_manifest_path or config.manifest_path
@@ -142,6 +145,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
+            reference_model_kwargs=config.reference_model_kwargs,
         )
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
 
@@ -161,6 +165,7 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
+            reference_model_kwargs=config.reference_model_kwargs,
         )
     if config.training_mode == "manifest-smoke":
         manifest_path = config.eval_manifest_path or config.manifest_path
@@ -182,6 +187,7 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
+            reference_model_kwargs=config.reference_model_kwargs,
         )
     raise ValueError(f"Unsupported evaluation mode: {config.training_mode}")
 
