@@ -33,6 +33,16 @@ class FakeNuScenes:
                 "translation": [1.0, 2.0, 3.0],
                 "rotation": [1.0, 0.0, 0.0, 0.0],
             }
+        if table_name == "ego_pose" and token == "ego-front":
+            return {
+                "translation": [1.0, 2.0, 3.0],
+                "rotation": [0.0, 1.0, 0.0, 0.0],
+            }
+        if table_name == "ego_pose" and token == "ego-back":
+            return {
+                "translation": [1.0, 2.0, 3.0],
+                "rotation": [0.0, 0.0, 1.0, 0.0],
+            }
         if table_name == "scene" and token == "scene-1":
             return {"token": "scene-1", "log_token": "log-1"}
         if table_name == "log" and token == "log-1":
@@ -60,6 +70,13 @@ class ManifestBuilderTest(unittest.TestCase):
         self.assertEqual(records[0]["gravity_frame"], "gravity")
         self.assertEqual(records[0]["ego_translation"], [1.0, 2.0, 3.0])
         self.assertEqual(records[0]["ego_rotation"], [1.0, 0.0, 0.0, 0.0])
+        self.assertEqual(
+            records[0]["camera_local_camera_to_gravity_poses"],
+            {
+                "CAM_BACK": [0.0, 0.0, 1.0, 0.0],
+                "CAM_FRONT": [0.0, 1.0, 0.0, 0.0],
+            },
+        )
         self.assertEqual(records[0]["map_location"], "boston-seaport")
 
 

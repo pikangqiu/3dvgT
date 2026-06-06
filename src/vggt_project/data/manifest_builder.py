@@ -47,6 +47,9 @@ def build_manifest_records(nusc: Any, satellite_patch_dir: Path) -> Iterator[dic
         if ego_pose is not None:
             record["ego_translation"] = [float(value) for value in ego_pose["translation"]]
             record["ego_rotation"] = [float(value) for value in ego_pose["rotation"]]
+        camera_poses = _camera_ego_pose_rotations(nusc, sample, camera_names)
+        if camera_poses:
+            record["camera_local_camera_to_gravity_poses"] = camera_poses
         if map_location is not None:
             record["map_location"] = map_location
         yield record
@@ -74,6 +77,24 @@ def _sample_ego_pose(nusc: Any, sample: dict) -> dict | None:
     if ego_pose_token is None:
         return None
     return nusc.get("ego_pose", ego_pose_token)
+
+
+def _camera_ego_pose_rotations(nusc: Any, sample: dict, camera_names: list[str]) -> dict[str, list[float]]:
+    rotations: dict[str, list[float]] = {}
+    for camera_name in camera_names:
+        sample_data_token = sample["data"].get(camera_name)
+        if sample_data_token is None:
+            continue
+        try:
+            sample_data = nusc.get("sample_data", sample_data_token)
+            ego_pose = nusc.get("ego_pose", sample_data["ego_pose_token"])
+        except (KeyError, TypeError):
+            continue
+        rotation = ego_pose.get("rotation")
+        if rotation is None:
+            continue
+        rotations[camera_name] = [float(value) for value in rotation]
+    return rotations
 
 
 def _sample_map_location(nusc: Any, sample: dict) -> str | None:

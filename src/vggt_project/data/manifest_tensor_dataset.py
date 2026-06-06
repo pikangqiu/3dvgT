@@ -173,7 +173,19 @@ def _pose_quaternion_tensor(sample):
 
 
 def _camera_pose_quaternion_tensor(sample):
-    return _pose_quaternion_tensor(sample).unsqueeze(0).repeat(len(sample.cameras), 1)
+    import torch
+
+    if sample.camera_local_camera_to_gravity_poses is None:
+        return _pose_quaternion_tensor(sample).unsqueeze(0).repeat(len(sample.cameras), 1)
+    poses = []
+    fallback = _pose_quaternion_tensor(sample)
+    for camera in sample.cameras:
+        pose = sample.camera_local_camera_to_gravity_poses.get(camera.camera_name)
+        if pose is None:
+            poses.append(fallback)
+        else:
+            poses.append(torch.tensor(_normalize_quaternion(pose), dtype=torch.float32))
+    return torch.stack(poses, dim=0)
 
 
 def _relative_yaw_translation_tensor(sample, origin: tuple[float, float, float] | None):

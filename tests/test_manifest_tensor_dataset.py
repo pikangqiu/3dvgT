@@ -277,6 +277,44 @@ class ManifestTensorDatasetTest(unittest.TestCase):
         self.assertAlmostEqual(float(item["target_relative_yaw_translation"][2]), -2.5)
         self.assertAlmostEqual(float(item["target_relative_yaw_translation"][3]), 2.0)
 
+    @unittest.skipUnless(
+        find_spec("PIL") and find_spec("torch"),
+        "Pillow and torch are required for manifest tensor dataset tests",
+    )
+    def test_camera_pose_targets_prefer_manifest_camera_quaternions(self) -> None:
+        from PIL import Image
+
+        from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "samples/CAM_BACK").mkdir(parents=True)
+            (root / "sat").mkdir()
+            Image.new("RGB", (8, 8), color=(255, 0, 0)).save(root / "samples/CAM_FRONT/a.png")
+            Image.new("RGB", (8, 8), color=(0, 0, 255)).save(root / "samples/CAM_BACK/b.png")
+            Image.new("RGB", (8, 8), color=(0, 255, 0)).save(root / "sat/patch.png")
+            manifest = root / "samples.jsonl"
+            manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/a.png","samples/CAM_BACK/b.png"],'
+                '"camera_names":["CAM_FRONT","CAM_BACK"],'
+                '"satellite_patch_path":"sat/patch.png",'
+                '"ego_rotation":[1.0,0.0,0.0,0.0],'
+                '"camera_local_camera_to_gravity_poses":{'
+                '"CAM_FRONT":[0.0,1.0,0.0,0.0],'
+                '"CAM_BACK":[0.0,0.0,1.0,0.0]},'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+
+            item = ManifestTensorDataset(manifest, image_size=16, point_count=4)[0]
+
+        self.assertEqual(tuple(item["target_camera_local_camera_to_gravity_poses"].shape), (2, 4))
+        self.assertAlmostEqual(float(item["target_camera_local_camera_to_gravity_poses"][0, 1]), 1.0)
+        self.assertAlmostEqual(float(item["target_camera_local_camera_to_gravity_poses"][1, 2]), 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

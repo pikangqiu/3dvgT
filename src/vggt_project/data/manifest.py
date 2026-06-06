@@ -67,6 +67,9 @@ def load_manifest(path: Path) -> list[AlignedNuScenesSample]:
                 vector_map_path=_resolve(base, record.get("vector_map_path")),
                 ego_translation=_tuple_or_none(record.get("ego_translation"), 3),
                 ego_rotation=_tuple_or_none(record.get("ego_rotation"), 4),
+                camera_local_camera_to_gravity_poses=_pose_mapping_or_none(
+                    record.get("camera_local_camera_to_gravity_poses")
+                ),
                 map_location=record.get("map_location"),
             )
         )
@@ -85,6 +88,12 @@ def _resolve_path_mapping(base: Path, value: dict | None) -> dict[str, Path] | N
     if value is None:
         return None
     return {str(key): _require_path(_resolve(base, path)) for key, path in value.items()}
+
+
+def _pose_mapping_or_none(value: dict | None) -> dict[str, tuple[float, ...]] | None:
+    if value is None:
+        return None
+    return {str(key): _tuple_or_none(pose, 4) for key, pose in value.items()}
 
 
 def _require_path(path: Path | None) -> Path:

@@ -38,6 +38,7 @@ This repository now contains a runnable scaffold for the project structure:
 - scene-level train/eval manifest splitting,
 - optional sample-level or camera-level manifest pointmap target loading,
 - ego-pose-derived pose targets for manifest smoke training,
+- explicit manifest `camera_local_camera_to_gravity_poses` loading for camera-level pose supervision,
 - manifest smoke training from real image files,
 - config-driven train/eval dispatch for the current scaffold,
 - config-driven external adapter module loading for future G3T/VGGT fine-tuning,
@@ -48,7 +49,7 @@ This repository now contains a runnable scaffold for the project structure:
 - machine-readable baseline/benchmark experiment protocol,
 - baseline/benchmark notes for the next experimental plan.
 
-The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, calibrated camera-level/G3T pose target wiring, concrete G3T/VGGT pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
+The scaffold is not yet a complete nuScenes training implementation. Real training still needs a concrete satellite patch source/alignment implementation, dense G3T-style camera-level pointmap target generation, calibrated G3T camera-level pose target generation, concrete G3T/VGGT pose heads, and replacing the repo-local adapter template with concrete selected G3T/VGGT heads.
 
 ## Quick Checks
 

@@ -42,4 +42,5 @@ class AlignedNuScenesSample:
     vector_map_path: Path | None = None
     ego_translation: tuple[float, float, float] | None = None
     ego_rotation: tuple[float, float, float, float] | None = None
+    camera_local_camera_to_gravity_poses: dict[str, tuple[float, float, float, float]] | None = None
     map_location: str | None = None
