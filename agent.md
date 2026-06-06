@@ -104,6 +104,8 @@ The primary evaluation should use 3D reconstruction metrics, such as:
 
 Map metrics such as nuScenes vector map mAP can be reported as auxiliary evidence, but should not become the main success criterion unless the project framing changes.
 
+Public semantic occupancy metrics such as Occ3D/OpenOccupancy mIoU must stay separate from local LiDAR-proxy `bev_occupancy_iou`. Before claiming public occupancy results, verify the attached manifest split/path alignment, class-id range, exported prediction manifest, and evaluator JSON output.
+
 ## Baselines And Ablations
 
 The minimum ablation ladder should aim for:

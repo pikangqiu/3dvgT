@@ -152,6 +152,7 @@ _LAUNCH_ONLY_STEPS = {
     "train",
     "evaluate",
     "optional_attach_occ3d_labels",
+    "validate_public_occupancy_manifest",
     "validate_occupancy_labels",
     "export_occupancy_predictions",
     "evaluate_occupancy_benchmark",

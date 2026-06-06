@@ -283,6 +283,15 @@ def build_training_run_plan(
                 note="Optionally attaches public Occ3D/OpenOccupancy semantic labels for benchmark evaluation.",
             ),
             TrainingPlanStep(
+                name="validate_public_occupancy_manifest",
+                command=(
+                    "PYTHONPATH=src python scripts/validate_public_occupancy_manifest.py "
+                    f"--manifest {occ3d_eval_manifest} --expected-split trainval"
+                ),
+                ready=False,
+                note="Validates public occupancy manifest split, scene, sample, and label path alignment.",
+            ),
+            TrainingPlanStep(
                 name="validate_occupancy_labels",
                 command=(
                     "PYTHONPATH=src python scripts/validate_occupancy_labels.py "

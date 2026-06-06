@@ -70,8 +70,9 @@ Recommended next steps:
   3. Extract labels under ${OCC3D_ROOT}/occ3d-nuscenes/
   4. Keep nuScenes data under data/nuscenes and run:
      PYTHONPATH=src python scripts/check_nuscenes.py --root data/nuscenes --version v1.0-trainval
-  5. Attach public labels to the eval manifest:
+  5. Attach public labels to the eval manifest and validate public split/path alignment:
      PYTHONPATH=src python scripts/attach_occ3d_labels.py --manifest data/manifests/nuscenes-mini.val.jsonl --occ3d-root ${OCC3D_ROOT} --output data/manifests/nuscenes-mini.val.occ3d.jsonl --nuscenes-root data/nuscenes --nuscenes-version v1.0-trainval
+     PYTHONPATH=src python scripts/validate_public_occupancy_manifest.py --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --expected-split trainval
   6. Keep local LiDAR proxy occupancy and public semantic occupancy reports separate:
      local proxy metric: bev_occupancy_iou
      public benchmark metric: occupancy_miou / class IoU

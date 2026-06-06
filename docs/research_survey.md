@@ -233,7 +233,7 @@ Rationale:
 - SA-Occ is the most directly aligned public satellite-assisted occupancy baseline: it tests satellite context on Occ3D-nuScenes rather than only cross-view segmentation.
 - DriveTok gives a 2026 nuScenes reconstruction/understanding token baseline that can be used once the project reports reconstruction plus occupancy/segmentation auxiliary tasks.
 - M2-Occ supplies a robustness protocol for missing surround-camera inputs, a natural place to test whether satellite priors improve geometry when camera coverage is degraded.
-- Occ3D/OpenScene/UniOcc provide public occupancy labels and evaluation language; the repository now has Occ3D label attachment, class-id validation, and a lightweight class-IoU/mIoU evaluator for exported arrays, but real public semantic occupancy validation still depends on actual-data split alignment and evaluator-output verification.
+- Occ3D/OpenScene/UniOcc provide public occupancy labels and evaluation language; the repository now has Occ3D label attachment, public split/path validation, class-id validation, and a lightweight class-IoU/mIoU evaluator for exported arrays, but real public semantic occupancy validation still depends on evaluator-output verification on actual data.
 
 ## Initial Source List
 
