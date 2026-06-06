@@ -13,6 +13,7 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertIn("scripts/setup_references.py --dry-run", content)
         self.assertIn("scripts/bootstrap_training_run.py --help", content)
         self.assertIn("scripts/inspect_checkpoint.py --help", content)
+        self.assertIn("scripts/prepare_model_weights.sh --help", content)
 
 
 if __name__ == "__main__":

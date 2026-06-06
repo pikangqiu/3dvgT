@@ -60,6 +60,32 @@ class TrainingLaunchTest(unittest.TestCase):
         self.assertIn("remediation_commands:", rendered)
         self.assertIn("next_commands:", rendered)
 
+    def test_launch_packet_recommends_weight_preparation_for_missing_checkpoint(self) -> None:
+        from vggt_project.training_launch import build_training_launch_packet
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=None,
+            train_manifest_path=None,
+            eval_manifest_path=None,
+            weights_path=Path("checkpoints/g3t/model.pt"),
+            image_size=32,
+            point_count=128,
+        )
+
+        packet = build_training_launch_packet(
+            config,
+            config_path=Path("configs/reconstruction_first.json"),
+            dependency_probe=lambda: (),
+            device_probe=lambda device: True,
+            plan_path_exists=lambda path: True,
+        )
+
+        self.assertIn("missing_path: weights_path", packet.blockers)
+        self.assertTrue(
+            any("scripts/prepare_model_weights.sh" in command for command in packet.remediation_commands)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

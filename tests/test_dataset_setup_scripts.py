@@ -6,6 +6,30 @@ from pathlib import Path
 
 
 class DatasetSetupScriptsTest(unittest.TestCase):
+    def test_prepare_model_weights_dry_run_prints_download_and_inspection_steps(self) -> None:
+        script = Path("scripts/prepare_model_weights.sh")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            weights_root = Path(temp_dir) / "weights"
+            env = os.environ.copy()
+            env["MODEL_WEIGHTS_ROOT"] = str(weights_root)
+            env["PYTHON_BIN"] = "python3"
+            result = subprocess.run(
+                ["bash", str(script)],
+                check=False,
+                env=env,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(weights_root.exists())
+        self.assertIn("Model weights root prepared", result.stdout)
+        self.assertIn("scripts/download_weights.py", result.stdout)
+        self.assertIn("scripts/inspect_checkpoint.py", result.stdout)
+        self.assertIn("runtime.model.weights_path", result.stdout)
+        self.assertIn("status: dry-run", result.stdout)
+
     def test_prepare_satellite_rasters_copies_template_config(self) -> None:
         script = Path("scripts/prepare_satellite_rasters.sh")
 

@@ -36,5 +36,8 @@ jobs:
       - name: Check checkpoint inspection CLI
         run: PYTHONPATH=src python3 scripts/inspect_checkpoint.py --help
 
+      - name: Check model weight preparation CLI
+        run: bash scripts/prepare_model_weights.sh --help
+
       - name: Compile Python files
         run: python3 -m compileall src scripts tests

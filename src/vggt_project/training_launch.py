@@ -144,7 +144,5 @@ def _build_remediation_commands(
             if not step.ready and step.name not in {"train", "evaluate"}
         )
     if "weights_path" in readiness.missing_paths or any("weights" in error for error in readiness.config_errors):
-        commands.append(
-            'python scripts/download_weights.py --repo-id thatbrguy/g3t --output-dir checkpoints/g3t --allow-pattern "*.pt" --allow-pattern "*.bin" --dry-run'
-        )
+        commands.append("bash scripts/prepare_model_weights.sh")
     return tuple(dict.fromkeys(commands))

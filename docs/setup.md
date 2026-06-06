@@ -68,7 +68,16 @@ This repository already tracks `https://github.com/pikangqiu/3dvgT.git`, so a cl
 
 ## Weights
 
-Download G3T weights:
+Prepare G3T/VGGT weights with a safe dry-run first:
+
+```bash
+bash scripts/prepare_model_weights.sh
+bash scripts/prepare_model_weights.sh --download
+```
+
+The wrapper creates `checkpoints/g3t`, prints the planned Hugging Face download, and then prints the checkpoint inspection/config wiring commands. It only downloads when `--download` is passed and the model access/license requirements are satisfied.
+
+For lower-level control, call the downloader directly:
 
 ```bash
 python scripts/download_weights.py \
