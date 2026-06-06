@@ -41,7 +41,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | GitHub upload | Published | `origin` is `https://github.com/pikangqiu/3dvgT.git`; local `main` tracks `origin/main` |
 | GitHub publish preflight | Scripted | `scripts/check_github_publish.py` reports worktree, branch, remote, and whether `gh auth` is needed for repo creation |
 | GitHub CI | Scripted | `.github/workflows/ci.yml` runs lightweight tests, project audit, reference dry-run, and compile checks |
-| Experiment protocol | Scripted | `scripts/list_experiment_protocol.py`; prints primary metrics, auxiliary metrics, baseline table rows, and benchmark roles as text or JSON |
+| Experiment protocol | Scripted | `scripts/list_experiment_protocol.py`; prints primary metrics, auxiliary metrics, baseline table rows, and benchmark roles as text or JSON; current protocol separates primary reconstruction, satellite/cross-view reconstruction, driving reconstruction, and occupancy auxiliary comparisons |
 
 ## Commands
 

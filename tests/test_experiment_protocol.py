@@ -12,9 +12,13 @@ class ExperimentProtocolTest(unittest.TestCase):
         self.assertIn("depth_mae", metric_names)
         self.assertIn("scale_aligned_pointmap_chamfer", metric_names)
         self.assertIn("gravity_error_deg", metric_names)
+        self.assertIn("bev_occupancy_iou", {metric.name for metric in protocol.auxiliary_metrics})
         self.assertIn("VGGT", baseline_names)
         self.assertIn("G3T", baseline_names)
         self.assertIn("BEV+Satellite+G3T", baseline_names)
+        self.assertIn("Cross3R", baseline_names)
+        self.assertIn("ReconDrive", baseline_names)
+        self.assertIn("DGGT", baseline_names)
 
     def test_protocol_recommends_benchmarks_by_role(self) -> None:
         from vggt_project.experiment_protocol import build_experiment_protocol, format_experiment_protocol
@@ -25,7 +29,13 @@ class ExperimentProtocolTest(unittest.TestCase):
 
         self.assertIn("E3D-Bench", benchmark_names)
         self.assertIn("Occ3D-nuScenes", benchmark_names)
+        self.assertIn("Sky2Ground", benchmark_names)
+        self.assertIn("CrossGeo", benchmark_names)
+        self.assertIn("UniOcc", benchmark_names)
+        self.assertIn("OpenScene", benchmark_names)
         self.assertIn("SG-BEV", benchmark_names)
+        self.assertIn("satellite/cross-view reconstruction table", rendered)
+        self.assertIn("driving reconstruction table", rendered)
         self.assertIn("primary reconstruction table", rendered)
         self.assertIn("auxiliary satellite/BEV alignment", rendered)
 

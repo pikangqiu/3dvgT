@@ -4,6 +4,8 @@
 
 The project is reconstruction-first, so the strongest first comparison should be against driving-scene reconstruction and occupancy benchmarks rather than pure HD map mAP.
 
+This survey was refreshed on 2026-06-06 against primary project pages, arXiv/CVF/OpenReview pages, and official GitHub repositories. The structured version used by scripts is `src/vggt_project/experiment_protocol.py`.
+
 Primary candidates:
 
 - Sky2Ground for satellite/aerial/ground site modeling, camera localization, and rendering/reconstruction under large viewpoint/altitude changes.
@@ -127,10 +129,36 @@ Our reconstruction model + map auxiliary
 
 Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. The current scaffold reports `depth_mae`, scale-aligned pointmap accuracy/completeness/chamfer, `gravity_error_deg`, and `sequence_translation_drift`; map mAP should remain auxiliary.
 
+## Protocol Decision As Of 2026-06-06
+
+Use three comparison tables instead of one overloaded table:
+
+1. Primary reconstruction table:
+   VGGT, G3T, BEV+G3T, BEV+Satellite+G3T, BEV+Satellite+G3T+valid-mask/map auxiliary.
+   Metrics: `depth_mae`, `scale_aligned_pointmap_chamfer`, `gravity_error_deg`, `sequence_translation_drift`, `relative_pose_l2`, runtime/memory.
+2. Satellite/cross-view reconstruction table:
+   Cross3R/CrossGeo and SkyNet/Sky2Ground as the most direct external evidence for satellite/UAV/ground reconstruction and localization.
+   Metrics: point-cloud reconstruction, 6-DoF pose, on-tile localization, RRA/RTA-style camera localization when available.
+3. Driving geometry auxiliary table:
+   Occ3D/OpenOccupancy/SurroundOcc/OpenScene/UniOcc for occupancy; DrivingForward/DGGT/ReconDrive for feed-forward driving reconstruction.
+   Metrics: implemented `bev_occupancy_iou` for local LiDAR-proxy smoke labels, semantic occupancy mIoU for public labels, and NVS/perception-preservation metrics when Gaussian-splatting baselines are run.
+
+Rationale:
+
+- G3T is the core method reference because it explicitly predicts upright pointmaps and camera-to-gravity poses in gravity-aligned frames.
+- VGGT remains the camera-only geometric foundation baseline because its public repo provides pointmaps, camera parameters, and reconstruction demos.
+- E3D-Bench is the broad external GFM benchmark because it evaluates sparse-view depth, video depth, 3D reconstruction, multi-view pose, and novel-view synthesis.
+- Sky2Ground is the best stress test for the satellite branch: its paper reports that satellite imagery can degrade naive localization/reconstruction under large altitude changes, so a positive result there is much stronger than only testing segmentation.
+- CrossGeo/Cross3R is the closest task-level match for feed-forward satellite+ground 3D reconstruction and camera pose/localization.
+- ReconDrive and DGGT are the strongest driving-scene feed-forward reconstruction baselines to watch because both explicitly adapt VGGT-style geometry or transformer feed-forward reconstruction to nuScenes-like dynamic driving scenes.
+- Occ3D/OpenScene/UniOcc provide public occupancy labels and evaluation language; the current project only has LiDAR-derived binary proxy occupancy, so public semantic occupancy validation remains a future milestone.
+
 ## Initial Source List
 
 - G3T project page: https://g3t-paper.github.io/
+- G3T arXiv: https://arxiv.org/abs/2605.27372
 - VGGT official repository: https://github.com/facebookresearch/vggt
+- VGGT arXiv: https://arxiv.org/abs/2503.11651
 - E3D-Bench project page: https://research.nvidia.com/labs/avg/publication/cong.liang.etal.arxiv2025/
 - E3D-Bench code/project: https://e3dbench.github.io/ and https://github.com/VITA-Group/E3D-Bench
 - E3D-Bench arXiv: https://arxiv.org/abs/2506.01933
@@ -142,6 +170,7 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. The c
 - OpenScene repository: https://github.com/OpenDriveLab/OpenScene
 - OpenOccupancy repository: https://github.com/JeffWang987/OpenOccupancy
 - SurroundOcc repository: https://github.com/weiyithu/SurroundOcc
+- UniOcc project page: https://uniocc.github.io/
 - UniOcc ICCV 2025 paper: https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_UniOcc_A_Unified_Benchmark_for_Occupancy_Forecasting_and_Prediction_in_ICCV_2025_paper.pdf
 - SG-BEV CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/papers/Ye_SG-BEV_Satellite-Guided_BEV_Fusion_for_Cross-View_Semantic_Segmentation_CVPR_2024_paper.pdf
 - ReconDrive arXiv 2026: https://arxiv.org/abs/2603.07552
@@ -153,6 +182,7 @@ Primary metrics should remain depth/pointmap/pose/gravity/alignment drift. The c
 - GaussianOcc project page: https://ganwanshui.github.io/GaussianOcc/
 - InstantSplat project page: https://research.nvidia.com/labs/avg/publication/fan.cong.etal.arxiv2025/
 - DrivingForward project page: https://fangzhou2000.github.io/projects/drivingforward/
+- DrivingForward repository: https://github.com/fangzhou2000/DrivingForward
 - DGGT official repository: https://github.com/xiaomi-research/dggt
 - Drive-OccWorld project page: https://drive-occworld.github.io/
 
