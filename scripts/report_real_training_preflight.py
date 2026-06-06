@@ -21,6 +21,7 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=DEFAULT_EXPERIMENT_CONFIG_PATH)
     parser.add_argument("--nuscenes-root", type=Path, default=Path("data/nuscenes"))
     parser.add_argument("--nuscenes-version", default="v1.0-mini")
+    parser.add_argument("--occ3d-version", default="v1.0-trainval")
     parser.add_argument("--satellite-config", type=Path, default=Path("data/satellite_rasters/config.json"))
     parser.add_argument("--weights-path", type=Path, default=None)
     parser.add_argument("--occ3d-root", type=Path, default=Path("data/occ3d"))
@@ -69,6 +70,7 @@ def main() -> int:
         config_path=args.config,
         nuscenes_root=args.nuscenes_root,
         nuscenes_version=args.nuscenes_version,
+        occ3d_nuscenes_version=args.occ3d_version,
         raw_manifest_path=args.raw_manifest,
         satellite_manifest_path=args.satellite_manifest,
         smoke_manifest_path=args.smoke_manifest,

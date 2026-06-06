@@ -54,6 +54,7 @@ def build_training_run_plan(
     config_path: Path = DEFAULT_EXPERIMENT_CONFIG_PATH,
     nuscenes_root: Path = Path("data/nuscenes"),
     nuscenes_version: str = "v1.0-mini",
+    occ3d_nuscenes_version: str = "v1.0-trainval",
     raw_manifest_path: Path = Path("data/manifests/nuscenes-mini.jsonl"),
     satellite_manifest_path: Path = Path("data/manifests/nuscenes-mini.satellite.jsonl"),
     smoke_manifest_path: Path = Path("data/manifests/nuscenes-mini.smoke.jsonl"),
@@ -286,7 +287,9 @@ def build_training_run_plan(
                 name="report_real_training_preflight",
                 command=(
                     "PYTHONPATH=src python scripts/report_real_training_preflight.py "
-                    f"--config {config_path} --output {preflight_report} --json"
+                    f"--config {config_path} --nuscenes-root {nuscenes_root} "
+                    f"--nuscenes-version {nuscenes_version} --occ3d-version {occ3d_nuscenes_version} "
+                    f"--output {preflight_report} --json"
                 ),
                 ready=False,
                 note="Saves external-asset and launch readiness evidence before training starts.",
@@ -314,7 +317,7 @@ def build_training_run_plan(
                 command=(
                     "PYTHONPATH=src python scripts/attach_occ3d_labels.py "
                     f"--manifest {eval_manifest} --occ3d-root data/occ3d --output {occ3d_eval_manifest} "
-                    f"--nuscenes-root {nuscenes_root} --nuscenes-version {nuscenes_version}"
+                    f"--nuscenes-root {nuscenes_root} --nuscenes-version {occ3d_nuscenes_version}"
                 ),
                 output_path=occ3d_eval_manifest,
                 ready=path_exists(occ3d_eval_manifest),

@@ -149,6 +149,52 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertFalse(plan.steps[step_names.index("validate_train_manifest")].ready)
         self.assertFalse(plan.steps[step_names.index("validate_eval_manifest")].ready)
 
+    def test_public_occ3d_attachment_uses_trainval_version_by_default(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(config, nuscenes_version="v1.0-mini")
+        steps = {step.name: step for step in plan.steps}
+
+        self.assertIn("--version v1.0-mini", steps["generate_base_manifest"].command)
+        self.assertIn(
+            "--nuscenes-version v1.0-trainval",
+            steps["optional_attach_occ3d_labels"].command,
+        )
+
+    def test_public_occ3d_version_override_is_carried_into_preflight_step(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(
+            config,
+            occ3d_nuscenes_version="v1.0-custom",
+        )
+        steps = {step.name: step for step in plan.steps}
+
+        self.assertIn(
+            "--nuscenes-version v1.0-custom",
+            steps["optional_attach_occ3d_labels"].command,
+        )
+        self.assertIn(
+            "--occ3d-version v1.0-custom",
+            steps["report_real_training_preflight"].command,
+        )
+
     def test_plan_includes_checkpoint_inspection_when_weights_path_is_configured(self) -> None:
         from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
 

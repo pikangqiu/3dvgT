@@ -76,6 +76,10 @@ class PlanTrainingRunCliTest(unittest.TestCase):
         step_names = [step["name"] for step in payload["steps"]]
         self.assertIn("train", step_names)
         self.assertIn("evaluate", step_names)
+        attach_command = next(
+            step["command"] for step in payload["steps"] if step["name"] == "optional_attach_occ3d_labels"
+        )
+        self.assertIn("--nuscenes-version v1.0-trainval", attach_command)
         self.assertIn("export_occupancy_predictions", step_names)
         self.assertIn("evaluate_occupancy_benchmark", step_names)
         self.assertLess(step_names.index("train"), step_names.index("evaluate"))
