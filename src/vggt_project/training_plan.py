@@ -358,7 +358,7 @@ def build_training_run_plan(
                     "PYTHONPATH=src python scripts/verify_real_run_evidence.py "
                     f"--preflight-report {preflight_report} --artifact-report {artifact_report} "
                     f"--environment-report {environment_report} --output {real_run_evidence} "
-                    "--require-clean-worktree --json"
+                    '--require-clean-worktree --expected-git-commit "$(git rev-parse HEAD)" --json'
                 ),
                 ready=False,
                 note="Writes the final evidence bundle tying run readiness, artifacts, environment, and git commit together.",

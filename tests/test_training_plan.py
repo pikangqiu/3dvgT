@@ -44,6 +44,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/verify_real_run_evidence.py", rendered)
         self.assertIn("--output outputs/synthetic/training_artifacts.json --json", rendered)
         self.assertIn("--environment-report outputs/synthetic/environment.json", rendered)
+        self.assertIn('--expected-git-commit "$(git rev-parse HEAD)"', rendered)
         self.assertIn("--required-occupancy-class-count 18", rendered)
         self.assertIn("data/manifests/nuscenes-mini.train.jsonl", plan.missing_outputs)
         self.assertIn("data/manifests/nuscenes-mini.val.jsonl", plan.missing_outputs)
