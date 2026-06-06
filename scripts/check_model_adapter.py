@@ -35,6 +35,10 @@ def main() -> int:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            use_reference_adapter=config.use_reference_adapter,
+            reference_root=config.reference_root,
+            reference_model=config.reference_model,
+            reference_model_kwargs=config.reference_model_kwargs,
             point_count=config.point_count,
         )
     )

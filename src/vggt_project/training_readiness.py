@@ -134,6 +134,7 @@ def _missing_config_paths(config: ExperimentRunConfig) -> dict[str, str]:
         "satellite_raster_config_path": config.satellite_raster_config_path,
         "adapter_module_path": config.adapter_module_path,
         "weights_path": config.weights_path,
+        "reference_root": config.reference_root if config.use_reference_adapter else None,
     }.items():
         if path is not None and not Path(path).exists():
             missing[name] = str(path)
@@ -166,6 +167,8 @@ def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
         return (f"unsupported model family {config.model_family}",)
     if config.adapter_module_path is None:
         return (f"model family {config.model_family} requires adapter_module_path",)
+    if config.use_reference_adapter and config.reference_root is None:
+        return ("use_reference_adapter requires reference_root",)
     return ()
 
 

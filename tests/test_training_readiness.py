@@ -202,6 +202,54 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertFalse(report.ready)
         self.assertIn("weights_path", report.missing_paths)
 
+    def test_readiness_reports_missing_reference_root(self) -> None:
+        config = ExperimentRunConfig(
+            training_mode="synthetic",
+            model_family="g3t-vggt",
+            adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+            use_reference_adapter=True,
+            reference_root=Path("missing-reference-root"),
+            device="cpu",
+        )
+
+        report = check_training_readiness(
+            config,
+            dependency_probe=lambda: (
+                DependencyStatus("torch", True, "2.0"),
+                DependencyStatus("PIL", True, "10.0"),
+                DependencyStatus("numpy", True, "1.0"),
+                DependencyStatus("yaml", True, "6.0"),
+            ),
+            device_probe=lambda device: True,
+        )
+
+        self.assertFalse(report.ready)
+        self.assertIn("reference_root", report.missing_paths)
+
+    def test_readiness_requires_reference_root_when_reference_adapter_is_enabled(self) -> None:
+        config = ExperimentRunConfig(
+            training_mode="synthetic",
+            model_family="g3t-vggt",
+            adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+            use_reference_adapter=True,
+            reference_root=None,
+            device="cpu",
+        )
+
+        report = check_training_readiness(
+            config,
+            dependency_probe=lambda: (
+                DependencyStatus("torch", True, "2.0"),
+                DependencyStatus("PIL", True, "10.0"),
+                DependencyStatus("numpy", True, "1.0"),
+                DependencyStatus("yaml", True, "6.0"),
+            ),
+            device_probe=lambda device: True,
+        )
+
+        self.assertFalse(report.ready)
+        self.assertIn("reference_root", report.config_errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()

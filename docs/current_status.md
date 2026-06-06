@@ -26,7 +26,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Experiment report pipeline | Scripted | `scripts/run_experiment.py` runs config-driven train+eval and writes a JSON report |
 | End-to-end smoke pipeline | Smoke-verified scaffold | `scripts/run_smoke_pipeline.py` creates toy image/depth/mask files, trains, and evaluates |
 | Environment setup | Smoke-verified script | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended; PyTorch 2.12.0 imported |
-| Training readiness | Scripted | `scripts/check_training_readiness.py`; checks config manifests, optional satellite raster config readiness, external adapter/weight paths, core dependencies, and requested device availability |
+| Training readiness | Scripted | `scripts/check_training_readiness.py`; checks config manifests, optional satellite raster config readiness, external adapter/weight/reference-root paths, core dependencies, and requested device availability |
 | Training run planning | Scripted | `scripts/plan_training_run.py`; prints ordered commands from nuScenes manifest generation through satellite crops, camera pose targets, LiDAR supervision, manifest sample preview, split manifests, readiness, adapter contract checks, train, and eval |
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
