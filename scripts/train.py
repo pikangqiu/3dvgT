@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from vggt_project.experiments import load_experiment_config, train_from_config
+from vggt_project.experiments import load_experiment_config, train_from_config, write_metrics_json
 from vggt_project.training import train_manifest_smoke, train_synthetic
 
 
@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument("--point-count", type=int, default=128)
     parser.add_argument("--device", default=None)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--metrics-output", type=Path, default=None)
     args = parser.parse_args()
 
     if args.config is not None:
@@ -52,6 +53,9 @@ def main() -> int:
         )
     for key, value in metrics.items():
         print(f"{key}: {value}")
+    if args.metrics_output is not None:
+        write_metrics_json(metrics, args.metrics_output)
+        print(f"metrics_output: {args.metrics_output}")
     return 0
 
 

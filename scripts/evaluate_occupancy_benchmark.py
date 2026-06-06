@@ -21,6 +21,7 @@ def main() -> int:
     parser.add_argument("--ignore-index", type=int, default=None)
     parser.add_argument("--binary-threshold", type=float, default=0.5)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
     try:
@@ -36,29 +37,38 @@ def main() -> int:
         if args.json:
             import json
 
-            print(
-                json.dumps(
-                    {
-                        "manifest_path": str(args.manifest),
-                        "sample_count": 0,
-                        "occupancy_miou": 0.0,
-                        "class_iou": {},
-                        "errors": [str(error)],
-                    },
-                    indent=2,
-                    sort_keys=True,
-                )
+            payload = json.dumps(
+                {
+                    "manifest_path": str(args.manifest),
+                    "sample_count": 0,
+                    "occupancy_miou": 0.0,
+                    "class_iou": {},
+                    "errors": [str(error)],
+                },
+                indent=2,
+                sort_keys=True,
             )
+            _write_output(args.output, payload)
+            print(payload)
         else:
             print("occupancy_benchmark_ready: false")
             print(f"error: {error}")
         return 1
 
     if args.json:
-        print(report.to_json())
+        payload = report.to_json()
     else:
-        print(format_occupancy_benchmark_report(report))
+        payload = format_occupancy_benchmark_report(report)
+    _write_output(args.output, payload)
+    print(payload)
     return 0
+
+
+def _write_output(path: Path | None, text: str) -> None:
+    if path is None:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

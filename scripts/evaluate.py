@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from vggt_project.experiments import evaluate_from_config, load_experiment_config
+from vggt_project.experiments import evaluate_from_config, load_experiment_config, write_metrics_json
 from vggt_project.evaluation import evaluate_manifest_smoke, evaluate_synthetic
 
 
@@ -20,6 +20,7 @@ def main() -> int:
     parser.add_argument("--image-size", type=int, default=32)
     parser.add_argument("--point-count", type=int, default=128)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--metrics-output", type=Path, default=None)
     args = parser.parse_args()
 
     if args.config is not None:
@@ -43,6 +44,9 @@ def main() -> int:
         )
     for key, value in metrics.items():
         print(f"{key}: {value:.6f}")
+    if args.metrics_output is not None:
+        write_metrics_json(metrics, args.metrics_output)
+        print(f"metrics_output: {args.metrics_output}")
     return 0
 
 

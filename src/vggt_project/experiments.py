@@ -234,6 +234,13 @@ def run_experiment_from_config(
     return report
 
 
+def write_metrics_json(metrics: dict[str, Any], output_path: Path) -> None:
+    """Persist a metrics mapping as JSON for later artifact verification."""
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(_jsonable_mapping(metrics), indent=2, sort_keys=True), encoding="utf-8")
+
+
 def _mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
@@ -264,6 +271,10 @@ def _default_checkpoint(mode: str, output_dir: Path) -> Path:
 
 def _jsonable_config(config: ExperimentRunConfig) -> dict[str, Any]:
     data = asdict(config)
+    return _jsonable_mapping(data)
+
+
+def _jsonable_mapping(data: dict[str, Any]) -> dict[str, Any]:
     for key, value in list(data.items()):
         if isinstance(value, Path):
             data[key] = str(value)

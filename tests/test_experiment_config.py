@@ -184,6 +184,24 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(report["train_metrics"]["loss"], 1.0)
         self.assertEqual(report["eval_metrics"]["depth_mae"], 0.25)
 
+    def test_write_metrics_json_serializes_path_values(self) -> None:
+        from vggt_project.experiments import write_metrics_json
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "metrics.json"
+
+            write_metrics_json(
+                {
+                    "loss": 1.0,
+                    "checkpoint": Path(temp_dir) / "model.pt",
+                },
+                output,
+            )
+            payload = output.read_text(encoding="utf-8")
+
+        self.assertIn('"loss": 1.0', payload)
+        self.assertIn('"checkpoint"', payload)
+
     @unittest.skipUnless(
         find_spec("PIL") and find_spec("torch") and find_spec("yaml"),
         "Pillow, torch, and PyYAML are required for config-driven smoke training",

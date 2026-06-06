@@ -154,4 +154,5 @@ _LAUNCH_ONLY_STEPS = {
     "optional_attach_occ3d_labels",
     "export_occupancy_predictions",
     "evaluate_occupancy_benchmark",
+    "verify_training_artifacts",
 }

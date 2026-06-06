@@ -69,6 +69,9 @@ def build_training_run_plan(
     eval_manifest = config.eval_manifest_path or supervised_manifest
     occ3d_eval_manifest = eval_manifest.with_suffix(".occ3d.jsonl")
     occupancy_prediction_manifest = occ3d_eval_manifest.with_suffix(".predictions.jsonl")
+    train_metrics = config.output_dir / "train_metrics.json"
+    eval_metrics = config.output_dir / "eval_metrics.json"
+    occupancy_report = config.output_dir / "occupancy_benchmark.json"
     satellite_config = config.satellite_raster_config_path
     point_count = config.point_count
 
@@ -252,13 +255,19 @@ def build_training_run_plan(
             ),
             TrainingPlanStep(
                 name="train",
-                command=f"PYTHONPATH=src python scripts/train.py --config {config_path}",
+                command=(
+                    "PYTHONPATH=src python scripts/train.py "
+                    f"--config {config_path} --metrics-output {train_metrics}"
+                ),
                 ready=False,
                 note="Launches the configured training run.",
             ),
             TrainingPlanStep(
                 name="evaluate",
-                command=f"PYTHONPATH=src python scripts/evaluate.py --config {config_path}",
+                command=(
+                    "PYTHONPATH=src python scripts/evaluate.py "
+                    f"--config {config_path} --metrics-output {eval_metrics}"
+                ),
                 ready=False,
                 note="Runs evaluation on the configured eval manifest.",
             ),
@@ -286,10 +295,21 @@ def build_training_run_plan(
                 name="evaluate_occupancy_benchmark",
                 command=(
                     "PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py "
-                    f"--manifest {occupancy_prediction_manifest} --num-classes 18 --json"
+                    f"--manifest {occupancy_prediction_manifest} --num-classes 18 --json --output {occupancy_report}"
                 ),
                 ready=False,
                 note="Computes class IoU and occupancy_miou from exported prediction/target arrays.",
+            ),
+            TrainingPlanStep(
+                name="verify_training_artifacts",
+                command=(
+                    "PYTHONPATH=src python scripts/verify_training_artifacts.py "
+                    f"--checkpoint {config.checkpoint} --train-metrics {train_metrics} --eval-metrics {eval_metrics} "
+                    f"--occupancy-report {occupancy_report} --required-eval-metric loss "
+                    "--required-eval-metric depth_mae"
+                ),
+                ready=False,
+                note="Verifies checkpoint, train/eval report, and optional occupancy benchmark artifacts before recording results.",
             ),
         ]
     )

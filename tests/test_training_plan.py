@@ -36,6 +36,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/attach_occ3d_labels.py", rendered)
         self.assertIn("scripts/export_occupancy_predictions.py", rendered)
         self.assertIn("scripts/evaluate_occupancy_benchmark.py", rendered)
+        self.assertIn("scripts/verify_training_artifacts.py", rendered)
         self.assertIn("data/manifests/nuscenes-mini.train.jsonl", plan.missing_outputs)
         self.assertIn("data/manifests/nuscenes-mini.val.jsonl", plan.missing_outputs)
         self.assertIn("scripts/train.py --config configs/reconstruction_first.json", rendered)
@@ -85,6 +86,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertFalse(steps["optional_attach_occ3d_labels"].ready)
         self.assertFalse(steps["export_occupancy_predictions"].ready)
         self.assertFalse(steps["evaluate_occupancy_benchmark"].ready)
+        self.assertFalse(steps["verify_training_artifacts"].ready)
 
     def test_plan_validates_split_manifests_before_readiness(self) -> None:
         from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
@@ -112,6 +114,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertLess(step_names.index("evaluate"), step_names.index("optional_attach_occ3d_labels"))
         self.assertLess(step_names.index("optional_attach_occ3d_labels"), step_names.index("export_occupancy_predictions"))
         self.assertLess(step_names.index("export_occupancy_predictions"), step_names.index("evaluate_occupancy_benchmark"))
+        self.assertLess(step_names.index("evaluate_occupancy_benchmark"), step_names.index("verify_training_artifacts"))
         self.assertIn("scripts/validate_manifest.py ready.train.jsonl", rendered)
         self.assertIn("scripts/validate_manifest.py ready.val.jsonl", rendered)
         self.assertFalse(plan.steps[step_names.index("validate_train_manifest")].ready)

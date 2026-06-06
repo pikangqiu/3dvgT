@@ -65,6 +65,7 @@ This repository now contains a runnable scaffold for the project structure:
 - train/eval manifest split support in experiment configs,
 - explicit train/eval device and seed selection through config or CLI,
 - config-driven train+eval experiment report generation,
+- train/eval metrics JSON export plus post-run artifact verification,
 - one-command toy manifest train/eval smoke pipeline,
 - machine-readable baseline/benchmark experiment protocol,
 - optional benchmark reference clone plans for DGGT, DrivingForward, GaussianOcc, OpenScene, UniOcc, and Sat3DGen,
@@ -86,6 +87,7 @@ PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/recons
 PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/probe_manifest_forward.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/list_experiment_protocol.py
+PYTHONPATH=src python3 scripts/verify_training_artifacts.py --help
 PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --help
 PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --help
 PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --help
@@ -128,11 +130,12 @@ PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.oc
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke
-PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.json
-PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.json --metrics-output outputs/manifest-smoke/train_metrics.json
+PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.json --metrics-output outputs/manifest-smoke/eval_metrics.json
 PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --manifest data/manifests/nuscenes-mini.val.jsonl --occ3d-root data/occ3d --output data/manifests/nuscenes-mini.val.occ3d.jsonl --nuscenes-root data/nuscenes --nuscenes-version v1.0-trainval
 PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl
-PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json
+PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json --output outputs/manifest-smoke/occupancy_benchmark.json
+PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 ```
 

@@ -102,6 +102,8 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/check_external_assets.py",
             "scripts/report_real_training_preflight.py",
             "scripts/probe_manifest_forward.py",
+            "scripts/verify_training_artifacts.py",
+            "src/vggt_project/training_artifacts.py",
             "scripts/export_occupancy_predictions.py",
         ),
         "weights": (
@@ -157,8 +159,9 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "PYTHONPATH=src python3 scripts/check_external_assets.py --config configs/reconstruction_first.json",
         "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json",
         "Populate data/nuscenes and run bash scripts/prepare_satellite_rasters.sh, then edit data/satellite_rasters/config.json and run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
-        "For public occupancy comparison, run bash scripts/prepare_occ3d.sh, attach labels with PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --manifest data/manifests/nuscenes-mini.val.jsonl --occ3d-root data/occ3d --output data/manifests/nuscenes-mini.val.occ3d.jsonl --nuscenes-root data/nuscenes --nuscenes-version v1.0-trainval, export prediction arrays with PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl, then run PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 while keeping semantic metrics separate from local LiDAR-proxy bev_occupancy_iou",
+        "For public occupancy comparison, run bash scripts/prepare_occ3d.sh, attach labels with PYTHONPATH=src python3 scripts/attach_occ3d_labels.py --manifest data/manifests/nuscenes-mini.val.jsonl --occ3d-root data/occ3d --output data/manifests/nuscenes-mini.val.occ3d.jsonl --nuscenes-root data/nuscenes --nuscenes-version v1.0-trainval, export prediction arrays with PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl, then run PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json --output outputs/manifest-smoke/occupancy_benchmark.json while keeping semantic metrics separate from local LiDAR-proxy bev_occupancy_iou",
         "Run bash scripts/prepare_model_weights.sh, inspect a concrete checkpoint, and write it with PYTHONPATH=src python3 scripts/configure_model_weights.py --weights-path <checkpoint>",
+        "After train/eval/benchmark, run PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae",
         "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json and PYTHONPATH=src python3 scripts/probe_manifest_forward.py --config configs/reconstruction_first.json after the reference adapter, weights, and manifests are configured",
     )
     return ProjectAuditReport(

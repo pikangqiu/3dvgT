@@ -82,6 +82,7 @@ PYTHONPATH=src python scripts/evaluate_occupancy_benchmark.py \
   --prediction-field predicted_occupancy_path \
   --target-field occupancy_path \
   --num-classes 18 \
+  --output outputs/manifest-smoke/occupancy_benchmark.json \
   --json
 ```
 
