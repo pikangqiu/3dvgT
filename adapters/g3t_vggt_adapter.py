@@ -176,6 +176,24 @@ def _is_vggt_module_name(name: str) -> bool:
     return name == "vggt" or name.startswith("vggt.")
 
 
+def _extract_checkpoint_state_dict(checkpoint):
+    if not isinstance(checkpoint, dict):
+        raise ValueError("checkpoint must be a state dict or contain a state dict")
+    for key in ("model", "state_dict", "model_state_dict"):
+        value = checkpoint.get(key)
+        if isinstance(value, dict):
+            return value
+    return checkpoint
+
+
+def _strip_prefix_if_present(state: dict, prefix: str) -> dict:
+    if not state or not all(isinstance(key, str) for key in state):
+        return state
+    if not any(key.startswith(prefix) for key in state):
+        return state
+    return {key.removeprefix(prefix): value for key, value in state.items()}
+
+
 class G3TVGGTReferenceAdapter(_torch_nn_module_base()):
     """Wrap a concrete G3T/VGGT module and expose the project prediction contract."""
 
@@ -204,6 +222,19 @@ class G3TVGGTReferenceAdapter(_torch_nn_module_base()):
             batch,
             point_count=self.point_count,
         )
+
+    def load_project_weights(self, weights_path, *, strict: bool = True) -> None:
+        """Load either wrapper-prefixed or raw G3T/VGGT reference checkpoints."""
+
+        import torch
+
+        checkpoint = torch.load(weights_path, map_location="cpu")
+        state = _extract_checkpoint_state_dict(checkpoint)
+        state = _strip_prefix_if_present(state, "module.")
+        if any(key.startswith("reference_model.") for key in state):
+            self.load_state_dict(state, strict=strict)
+            return
+        self.reference_model.load_state_dict(state, strict=strict)
 
     @property
     def adapter_status(self) -> dict[str, str]:

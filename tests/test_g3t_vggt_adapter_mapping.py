@@ -92,6 +92,35 @@ class G3TVGGTAdapterMappingTest(unittest.TestCase):
         self.assertEqual(tuple(prediction["camera_pointmaps"].shape), (2, 3, 6, 3))
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for adapter mapping tests")
+    def test_reference_adapter_loads_unprefixed_reference_checkpoint(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        import torch
+        from torch import nn
+
+        from adapters.g3t_vggt_adapter import G3TVGGTReferenceAdapter
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            weights_path = Path(temp_dir) / "reference.pt"
+            reference = nn.Linear(2, 1)
+            adapter = G3TVGGTReferenceAdapter(reference, point_count=4)
+            torch.save(
+                {
+                    "state_dict": {
+                        "weight": torch.tensor([[2.0, 3.0]]),
+                        "bias": torch.tensor([4.0]),
+                    }
+                },
+                weights_path,
+            )
+
+            adapter.load_project_weights(weights_path, strict=True)
+
+        self.assertEqual(reference.weight.detach().tolist(), [[2.0, 3.0]])
+        self.assertEqual(reference.bias.detach().tolist(), [4.0])
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for adapter mapping tests")
     def test_local_reference_builder_loads_g3t_from_reference_root(self) -> None:
         import tempfile
         from pathlib import Path

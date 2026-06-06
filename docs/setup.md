@@ -277,7 +277,7 @@ runtime:
     reference_model: g3t
 ```
 
-`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
+`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
 For a single train+eval run with a JSON report:
 

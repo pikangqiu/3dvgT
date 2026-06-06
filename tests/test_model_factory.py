@@ -135,6 +135,45 @@ class ModelFactoryTest(unittest.TestCase):
         self.assertEqual(model.kwargs["reference_model"], "g3t")
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
+    def test_external_adapter_can_handle_project_weight_loading(self) -> None:
+        import torch
+
+        from vggt_project.models.factory import ModelBuildConfig, build_reconstruction_model
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            adapter_path = root / "fake_adapter.py"
+            weights_path = root / "weights.pt"
+            adapter_path.write_text(
+                "import torch\n"
+                "from torch import nn\n"
+                "class FakeAdapter(nn.Module):\n"
+                "    def __init__(self):\n"
+                "        super().__init__()\n"
+                "        self.loaded = None\n"
+                "        self.probe = nn.Parameter(torch.tensor(0.0))\n"
+                "    def load_project_weights(self, weights_path, strict=True):\n"
+                "        self.loaded = (str(weights_path), strict)\n"
+                "        self.probe.data.fill_(torch.load(weights_path)['probe'])\n"
+                "def build_model(**kwargs):\n"
+                "    return FakeAdapter()\n",
+                encoding="utf-8",
+            )
+            torch.save({"probe": 3.0}, weights_path)
+
+            model = build_reconstruction_model(
+                ModelBuildConfig(
+                    family="external",
+                    adapter_module_path=adapter_path,
+                    weights_path=weights_path,
+                    strict_weights=False,
+                )
+            )
+
+        self.assertEqual(model.loaded, (str(weights_path), False))
+        self.assertAlmostEqual(float(model.probe.detach()), 3.0)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
     def test_repo_g3t_vggt_adapter_template_builds_with_factory(self) -> None:
         import torch
 

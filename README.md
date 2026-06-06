@@ -35,6 +35,7 @@ This repository now contains a runnable scaffold for the project structure:
 - G3T/VGGT reference-output mapping utilities for depth, pointmap, and pose contract conversion,
 - optional local `refs/g3t` G3T/VGGT reference adapter builder,
 - config-level selection of the local `refs/g3t` G3T/VGGT reference adapter,
+- reference-adapter checkpoint loading for raw or wrapper-prefixed state dicts,
 - model adapter contract check for camera-aware reconstruction outputs,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,

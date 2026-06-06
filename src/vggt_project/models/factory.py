@@ -106,6 +106,11 @@ def _load_weights(model: Any, weights_path: Path, *, strict: bool) -> None:
     if not weights_path.exists():
         raise FileNotFoundError(f"weights_path does not exist: {weights_path}")
 
+    project_weight_loader = getattr(model, "load_project_weights", None)
+    if callable(project_weight_loader):
+        project_weight_loader(weights_path, strict=strict)
+        return
+
     import torch
 
     state = torch.load(weights_path, map_location="cpu")
