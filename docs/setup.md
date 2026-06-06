@@ -326,6 +326,8 @@ runtime:
 
 `adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. `reference_model_kwargs` is passed directly to the selected reference constructor, so use G3T keys such as `img_size`, `enable_point`, `enable_depth`, and `enable_gravity_camera_heads`, or VGGT keys such as `img_size`, `enable_camera`, `enable_point`, `enable_depth`, and `enable_track`. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. The project-level fine-tuning policies are applied after weight loading, so frozen modules will not enter the optimizer. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
+Run `scripts/check_model_adapter.py --config configs/reconstruction_first.yaml` after changing model, weight, or fine-tuning settings. The report validates camera-aware output shapes and lists total, trainable, and frozen parameter tensors plus their names, so a real checkpoint run can confirm that only the intended G3T/VGGT, satellite, fusion, or head modules will be optimized.
+
 For a single train+eval run with a JSON report:
 
 ```bash

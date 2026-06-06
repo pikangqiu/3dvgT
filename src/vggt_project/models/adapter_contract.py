@@ -26,6 +26,11 @@ class ModelAdapterContractReport:
     contract_ready: bool
     template_adapter: bool
     prediction_keys: tuple[str, ...]
+    total_parameter_tensors: int
+    trainable_parameter_tensors: int
+    frozen_parameter_tensors: int
+    trainable_parameter_names: tuple[str, ...]
+    frozen_parameter_names: tuple[str, ...]
     adapter_status: dict[str, str]
     errors: tuple[str, ...]
 
@@ -57,11 +62,17 @@ def probe_model_adapter_contract(
         errors = list(_prediction_contract_errors(prediction, batch_size, camera_count, config.point_count))
         adapter_status = _adapter_status(model)
         template_adapter = adapter_status.get("status") == "template"
+        parameter_summary = _parameter_summary(model)
         return ModelAdapterContractReport(
             model_family=config.family,
             contract_ready=not errors,
             template_adapter=template_adapter,
             prediction_keys=tuple(sorted(prediction.keys())),
+            total_parameter_tensors=parameter_summary["total_parameter_tensors"],
+            trainable_parameter_tensors=parameter_summary["trainable_parameter_tensors"],
+            frozen_parameter_tensors=parameter_summary["frozen_parameter_tensors"],
+            trainable_parameter_names=parameter_summary["trainable_parameter_names"],
+            frozen_parameter_names=parameter_summary["frozen_parameter_names"],
             adapter_status=adapter_status,
             errors=tuple(errors),
         )
@@ -71,6 +82,11 @@ def probe_model_adapter_contract(
             contract_ready=False,
             template_adapter=False,
             prediction_keys=(),
+            total_parameter_tensors=0,
+            trainable_parameter_tensors=0,
+            frozen_parameter_tensors=0,
+            trainable_parameter_names=(),
+            frozen_parameter_names=(),
             adapter_status={},
             errors=(str(error),),
         )
@@ -86,6 +102,24 @@ def format_model_adapter_contract_report(report: ModelAdapterContractReport) -> 
         "prediction_keys:",
     ]
     lines.extend(f"- {key}" for key in report.prediction_keys)
+    lines.extend(
+        [
+            "parameters:",
+            f"- total_tensors: {report.total_parameter_tensors}",
+            f"- trainable_tensors: {report.trainable_parameter_tensors}",
+            f"- frozen_tensors: {report.frozen_parameter_tensors}",
+            "trainable_parameter_names:",
+        ]
+    )
+    if report.trainable_parameter_names:
+        lines.extend(f"- {name}" for name in report.trainable_parameter_names)
+    else:
+        lines.append("- none")
+    lines.append("frozen_parameter_names:")
+    if report.frozen_parameter_names:
+        lines.extend(f"- {name}" for name in report.frozen_parameter_names)
+    else:
+        lines.append("- none")
     lines.append("adapter_status:")
     if report.adapter_status:
         lines.extend(f"- {key}: {value}" for key, value in sorted(report.adapter_status.items()))
@@ -153,3 +187,20 @@ def _adapter_status(model: Any) -> dict[str, str]:
     if isinstance(status, dict):
         return {str(key): str(value) for key, value in status.items()}
     return {}
+
+
+def _parameter_summary(model: Any) -> dict[str, Any]:
+    trainable: list[str] = []
+    frozen: list[str] = []
+    for name, parameter in model.named_parameters():
+        if parameter.requires_grad:
+            trainable.append(str(name))
+        else:
+            frozen.append(str(name))
+    return {
+        "total_parameter_tensors": len(trainable) + len(frozen),
+        "trainable_parameter_tensors": len(trainable),
+        "frozen_parameter_tensors": len(frozen),
+        "trainable_parameter_names": tuple(trainable),
+        "frozen_parameter_names": tuple(frozen),
+    }

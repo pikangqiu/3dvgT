@@ -35,6 +35,35 @@ class ModelAdapterContractTest(unittest.TestCase):
         self.assertTrue(report.contract_ready)
         self.assertTrue(report.template_adapter)
         self.assertEqual(report.adapter_status["status"], "template")
+        self.assertGreater(report.total_parameter_tensors, 0)
+        self.assertGreater(report.trainable_parameter_tensors, 0)
+        self.assertIn("backbone.point_head.weight", report.trainable_parameter_names)
+
+    @unittest.skipUnless(find_spec("torch"), "torch is required for adapter contract tests")
+    def test_contract_probe_reports_frozen_and_trainable_parameter_names(self) -> None:
+        from vggt_project.models.adapter_contract import (
+            format_model_adapter_contract_report,
+            probe_model_adapter_contract,
+        )
+        from vggt_project.models.factory import ModelBuildConfig
+
+        report = probe_model_adapter_contract(
+            ModelBuildConfig(
+                family="g3t-vggt",
+                adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+                fine_tuning_policy="satellite_fusion_heads",
+                point_count=4,
+            )
+        )
+
+        self.assertTrue(report.contract_ready)
+        self.assertIn("backbone.satellite_encoder.0.weight", report.trainable_parameter_names)
+        self.assertIn("backbone.fusion.0.weight", report.trainable_parameter_names)
+        self.assertIn("backbone.point_head.weight", report.trainable_parameter_names)
+        self.assertIn("backbone.bev_encoder.0.weight", report.frozen_parameter_names)
+        rendered = format_model_adapter_contract_report(report)
+        self.assertIn("trainable_parameter_names:\n- backbone.satellite_encoder.0.weight", rendered)
+        self.assertIn("frozen_parameter_names:\n- backbone.bev_encoder.0.weight", rendered)
 
     @unittest.skipUnless(find_spec("torch"), "torch is required for adapter contract tests")
     def test_contract_probe_reports_missing_camera_pose_output(self) -> None:
