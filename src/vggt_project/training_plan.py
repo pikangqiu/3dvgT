@@ -161,6 +161,12 @@ def build_training_run_plan(
                 note="Verifies dependencies, device, paths, satellite config, and adapter config.",
             ),
             TrainingPlanStep(
+                name="check_model_adapter",
+                command=f"PYTHONPATH=src python scripts/check_model_adapter.py --config {config_path}",
+                ready=split_ready,
+                note="Builds the configured model and verifies camera-aware reconstruction outputs.",
+            ),
+            TrainingPlanStep(
                 name="train",
                 command=f"PYTHONPATH=src python scripts/train.py --config {config_path}",
                 ready=split_ready,

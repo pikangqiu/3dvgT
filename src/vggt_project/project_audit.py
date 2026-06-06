@@ -59,6 +59,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         ),
         "model_framework": (
             "adapters/g3t_vggt_adapter.py",
+            "src/vggt_project/models/adapter_contract.py",
             "src/vggt_project/models/interfaces.py",
             "src/vggt_project/models/factory.py",
             "src/vggt_project/models/scaffold.py",
@@ -85,6 +86,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/setup_env.sh",
             "src/vggt_project/training_readiness.py",
             "scripts/check_training_readiness.py",
+            "scripts/check_model_adapter.py",
             "src/vggt_project/training_plan.py",
             "scripts/plan_training_run.py",
         ),

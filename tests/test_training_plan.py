@@ -27,6 +27,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/generate_camera_pose_targets.py", rendered)
         self.assertIn("--pointmap-target-frame camera", rendered)
         self.assertIn("scripts/inspect_manifest_sample.py", rendered)
+        self.assertIn("scripts/check_model_adapter.py", rendered)
         self.assertIn("scripts/split_manifest.py", rendered)
         self.assertIn("data/manifests/nuscenes-mini.train.jsonl", plan.missing_outputs)
         self.assertIn("data/manifests/nuscenes-mini.val.jsonl", plan.missing_outputs)
