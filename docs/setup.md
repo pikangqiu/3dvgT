@@ -71,7 +71,17 @@ This repository already tracks `https://github.com/pikangqiu/3dvgT.git`, so a cl
 Download G3T weights:
 
 ```bash
-python scripts/download_weights.py --repo-id thatbrguy/g3t --output-dir checkpoints/g3t
+python scripts/download_weights.py \
+  --repo-id thatbrguy/g3t \
+  --output-dir checkpoints/g3t \
+  --allow-pattern "*.pt" \
+  --allow-pattern "*.bin" \
+  --dry-run
+python scripts/download_weights.py \
+  --repo-id thatbrguy/g3t \
+  --output-dir checkpoints/g3t \
+  --allow-pattern "*.pt" \
+  --allow-pattern "*.bin"
 ```
 
 Inspect a downloaded checkpoint directory or a specific `.pt`/`.pth`/`.bin` file before wiring it into `runtime.model.weights_path`:

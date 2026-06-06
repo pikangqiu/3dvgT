@@ -16,7 +16,7 @@ This repository now contains a runnable scaffold for the project structure:
 - reconstruction losses,
 - reconstruction-first metrics for depth, pointmaps, gravity, and drift,
 - train and eval entrypoints,
-- setup, weight-download, dataset-preparation, and GitHub-publish scripts,
+- setup, dry-runnable weight-download, dataset-preparation, and GitHub-publish scripts,
 - checkpoint structure inspection for downloaded G3T/VGGT weights,
 - training environment readiness checks,
 - ordered real training run-plan generation,
