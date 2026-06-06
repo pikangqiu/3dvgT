@@ -45,6 +45,9 @@ jobs:
       - name: Check external asset CLI
         run: PYTHONPATH=src python3 scripts/check_external_assets.py --help
 
+      - name: Check environment report CLI
+        run: PYTHONPATH=src python3 scripts/report_environment.py --help
+
       - name: Check real training preflight CLI
         run: PYTHONPATH=src python3 scripts/report_real_training_preflight.py --help
 

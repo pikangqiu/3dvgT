@@ -23,6 +23,7 @@ This repository now contains a runnable scaffold for the project structure:
 - JSON experiment config weight-wiring helper,
 - checkpoint structure inspection for downloaded G3T/VGGT weights,
 - training environment readiness checks,
+- reproducible environment snapshot reporting for real-run evidence,
 - external asset readiness checks for real training data/rasters/weights,
 - combined real-training preflight report,
 - ordered real training run-plan generation,
@@ -81,6 +82,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/report_real_training_preflight.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/check_external_assets.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/report_environment.py --json
 PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json
 PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/reconstruction_first.json
@@ -141,9 +143,10 @@ PYTHONPATH=src python3 scripts/validate_occupancy_labels.py --manifest data/mani
 PYTHONPATH=src python3 scripts/export_occupancy_predictions.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.val.occ3d.jsonl --output data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl
 PYTHONPATH=src python3 scripts/evaluate_occupancy_benchmark.py --manifest data/manifests/nuscenes-mini.val.occ3d.predictions.jsonl --num-classes 18 --json --output outputs/manifest-smoke/occupancy_benchmark.json
 PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae --required-occupancy-class-count 18
+PYTHONPATH=src python3 scripts/report_environment.py --output outputs/manifest-smoke/environment.json --json
 PYTHONPATH=src python3 scripts/report_real_training_preflight.py --config configs/reconstruction_first.json --json > outputs/manifest-smoke/real_training_preflight.json
 PYTHONPATH=src python3 scripts/verify_training_artifacts.py --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt --train-metrics outputs/manifest-smoke/train_metrics.json --eval-metrics outputs/manifest-smoke/eval_metrics.json --occupancy-report outputs/manifest-smoke/occupancy_benchmark.json --required-eval-metric loss --required-eval-metric depth_mae --required-occupancy-class-count 18 --json > outputs/manifest-smoke/training_artifacts.json
-PYTHONPATH=src python3 scripts/verify_real_run_evidence.py --preflight-report outputs/manifest-smoke/real_training_preflight.json --artifact-report outputs/manifest-smoke/training_artifacts.json --output outputs/manifest-smoke/real_run_evidence.json --require-clean-worktree --expected-git-commit "$(git rev-parse HEAD)" --json
+PYTHONPATH=src python3 scripts/verify_real_run_evidence.py --preflight-report outputs/manifest-smoke/real_training_preflight.json --artifact-report outputs/manifest-smoke/training_artifacts.json --environment-report outputs/manifest-smoke/environment.json --output outputs/manifest-smoke/real_run_evidence.json --require-clean-worktree --expected-git-commit "$(git rev-parse HEAD)" --json
 PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 ```
 

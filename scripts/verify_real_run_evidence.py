@@ -16,6 +16,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--preflight-report", type=Path, required=True)
     parser.add_argument("--artifact-report", type=Path, required=True)
+    parser.add_argument("--environment-report", type=Path, default=None)
     parser.add_argument("--expected-git-commit", default=None)
     parser.add_argument("--require-clean-worktree", action="store_true")
     parser.add_argument("--output", type=Path, default=None)
@@ -25,6 +26,7 @@ def main() -> int:
     report = verify_real_run_evidence(
         preflight_report_path=args.preflight_report,
         artifact_report_path=args.artifact_report,
+        environment_report_path=args.environment_report,
         expected_git_commit=args.expected_git_commit,
         require_clean_worktree=args.require_clean_worktree,
     )

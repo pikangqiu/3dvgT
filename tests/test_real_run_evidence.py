@@ -21,6 +21,7 @@ class RealRunEvidenceTest(unittest.TestCase):
             report = verify_real_run_evidence(
                 preflight_report_path=preflight,
                 artifact_report_path=artifacts,
+                environment_report_path=None,
                 expected_git_commit="abc123",
                 require_clean_worktree=True,
                 git_commit_probe=lambda: "abc123",
@@ -41,19 +42,47 @@ class RealRunEvidenceTest(unittest.TestCase):
             root = Path(temp_dir)
             preflight = root / "preflight.json"
             artifacts = root / "artifacts.json"
+            environment = root / "environment.json"
             preflight.write_text(json.dumps({"ready_for_real_training": True}), encoding="utf-8")
             artifacts.write_text(json.dumps({"ready": False, "errors": ["missing checkpoint"]}), encoding="utf-8")
+            environment.write_text(json.dumps({"ready": True}), encoding="utf-8")
 
             report = verify_real_run_evidence(
                 preflight_report_path=preflight,
                 artifact_report_path=artifacts,
+                environment_report_path=environment,
                 git_commit_probe=lambda: "abc123",
                 git_status_probe=lambda: "",
             )
 
         self.assertFalse(report.ready)
         self.assertFalse(report.artifacts_ready)
+        self.assertTrue(report.environment_ready)
         self.assertIn("artifact report is not ready", report.errors)
+
+    def test_real_run_evidence_rejects_unready_environment_report(self) -> None:
+        from vggt_project.real_run_evidence import verify_real_run_evidence
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            preflight = root / "preflight.json"
+            artifacts = root / "artifacts.json"
+            environment = root / "environment.json"
+            preflight.write_text(json.dumps({"ready_for_real_training": True}), encoding="utf-8")
+            artifacts.write_text(json.dumps({"ready": True}), encoding="utf-8")
+            environment.write_text(json.dumps({"ready": False, "missing_dependencies": ["torch"]}), encoding="utf-8")
+
+            report = verify_real_run_evidence(
+                preflight_report_path=preflight,
+                artifact_report_path=artifacts,
+                environment_report_path=environment,
+                git_commit_probe=lambda: "abc123",
+                git_status_probe=lambda: "",
+            )
+
+        self.assertFalse(report.ready)
+        self.assertFalse(report.environment_ready)
+        self.assertIn("environment report is not ready", report.errors)
 
     def test_real_run_evidence_cli_writes_json_output(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -63,6 +92,7 @@ class RealRunEvidenceTest(unittest.TestCase):
             output = root / "evidence.json"
             preflight.write_text(json.dumps({"ready_for_real_training": True}), encoding="utf-8")
             artifacts.write_text(json.dumps({"ready": True}), encoding="utf-8")
+            (root / "environment.json").write_text(json.dumps({"ready": True}), encoding="utf-8")
             env = dict(os.environ)
             env["PYTHONPATH"] = "src"
 
@@ -74,6 +104,8 @@ class RealRunEvidenceTest(unittest.TestCase):
                     str(preflight),
                     "--artifact-report",
                     str(artifacts),
+                    "--environment-report",
+                    str(root / "environment.json"),
                     "--output",
                     str(output),
                     "--json",
@@ -90,6 +122,7 @@ class RealRunEvidenceTest(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(stdout_payload["ready"])
+        self.assertTrue(stdout_payload["environment_ready"])
         self.assertEqual(stdout_payload, output_payload)
 
 
