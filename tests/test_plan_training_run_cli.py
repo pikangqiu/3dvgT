@@ -8,6 +8,29 @@ from pathlib import Path
 
 
 class PlanTrainingRunCliTest(unittest.TestCase):
+    def test_default_config_json_output_is_parseable_without_yaml_dependency(self) -> None:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = "src"
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "scripts/plan_training_run.py",
+                "--json",
+            ],
+            cwd=Path(__file__).resolve().parents[1],
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 1, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertFalse(payload["ready_to_train"])
+        self.assertNotIn("config_error", payload)
+        self.assertGreater(len(payload["steps"]), 0)
+
     def test_json_output_is_parseable_when_training_is_not_ready(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "experiment.json"

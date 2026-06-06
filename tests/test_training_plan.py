@@ -34,7 +34,7 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/split_manifest.py", rendered)
         self.assertIn("data/manifests/nuscenes-mini.train.jsonl", plan.missing_outputs)
         self.assertIn("data/manifests/nuscenes-mini.val.jsonl", plan.missing_outputs)
-        self.assertIn("scripts/train.py --config configs/reconstruction_first.yaml", rendered)
+        self.assertIn("scripts/train.py --config configs/reconstruction_first.json", rendered)
 
     def test_plan_is_ready_when_required_outputs_exist(self) -> None:
         from vggt_project.training_plan import build_training_run_plan

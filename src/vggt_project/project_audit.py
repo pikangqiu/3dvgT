@@ -80,6 +80,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "scripts/evaluate.py",
         ),
         "experiment_config": (
+            "configs/reconstruction_first.json",
             "configs/reconstruction_first.yaml",
             "src/vggt_project/experiments.py",
             "scripts/run_experiment.py",
@@ -136,11 +137,11 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete real-checkpoint fine-tuning validation for G3T/VGGT pose heads is not complete yet",
     )
     next_actions = (
-        "PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.yaml --json",
-        "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml",
-        "Populate data/nuscenes and data/satellite_rasters/config.json, then run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml",
+        "PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json",
+        "PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json",
+        "Populate data/nuscenes and data/satellite_rasters/config.json, then run PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json",
         "Set runtime.model.weights_path to a concrete G3T/VGGT checkpoint file and run PYTHONPATH=src python3 scripts/inspect_checkpoint.py <checkpoint>",
-        "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.yaml after the reference adapter and weights are configured",
+        "Run PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json after the reference adapter and weights are configured",
     )
     return ProjectAuditReport(
         items=items,

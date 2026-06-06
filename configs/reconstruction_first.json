@@ -1,0 +1,43 @@
+{
+  "project": {
+    "name": "vggt_satellite_reconstruction",
+    "deadline": "2026-06-25",
+    "framing": "3d_reconstruction_first"
+  },
+  "runtime": {
+    "device": null,
+    "seed": 0,
+    "data": {
+      "manifest_path": "data/manifests/nuscenes-mini.supervised.jsonl",
+      "train_manifest_path": "data/manifests/nuscenes-mini.train.jsonl",
+      "eval_manifest_path": "data/manifests/nuscenes-mini.val.jsonl",
+      "satellite_raster_config_path": "data/satellite_rasters/config.json",
+      "image_size": 32,
+      "point_count": 128
+    },
+    "model": {
+      "family": "scaffold",
+      "adapter_module_path": "adapters/g3t_vggt_adapter.py",
+      "weights_path": null,
+      "strict_weights": true,
+      "freeze_backbone": false,
+      "fine_tuning_policy": "full",
+      "use_reference_adapter": false,
+      "reference_root": "refs/g3t",
+      "reference_model": "g3t",
+      "reference_model_kwargs": {
+        "img_size": 518
+      }
+    },
+    "training": {
+      "mode": "manifest-smoke",
+      "output_dir": "outputs/manifest-smoke",
+      "epochs": 1,
+      "batch_size": 1,
+      "learning_rate": 0.001
+    },
+    "evaluation": {
+      "checkpoint": "outputs/manifest-smoke/manifest_smoke_scaffold.pt"
+    }
+  }
+}

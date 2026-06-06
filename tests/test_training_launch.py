@@ -22,7 +22,7 @@ class TrainingLaunchTest(unittest.TestCase):
 
         packet = build_training_launch_packet(
             config,
-            config_path=Path("configs/reconstruction_first.yaml"),
+            config_path=Path("configs/reconstruction_first.json"),
             dependency_probe=lambda: (
                 DependencyStatus("torch", True, "test"),
                 DependencyStatus("PIL", True, "test"),

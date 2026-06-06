@@ -70,13 +70,13 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
-PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.yaml --json
-PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python3 scripts/report_training_launch.py --config configs/reconstruction_first.json --json
+PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/bootstrap_training_run.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/check_model_adapter.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/list_experiment_protocol.py
 PYTHONPATH=src python3 scripts/inspect_manifest_sample.py --help
-PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.json
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/generate_reference_supervision_targets.py --help
@@ -110,9 +110,9 @@ PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.oc
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --device cuda --epochs 1 --output-dir outputs/manifest-smoke
-PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json
+PYTHONPATH=src python3 scripts/train.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/evaluate.py --config configs/reconstruction_first.json
+PYTHONPATH=src python3 scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 ```
 
 ## Layout

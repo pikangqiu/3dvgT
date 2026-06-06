@@ -10,6 +10,16 @@ from vggt_project.training_readiness import (
 
 
 class TrainingReadinessTest(unittest.TestCase):
+    def test_probe_dependencies_does_not_require_yaml_for_json_config_runs(self) -> None:
+        from vggt_project.training_readiness import probe_dependencies
+
+        dependency_names = {status.name for status in probe_dependencies()}
+
+        self.assertIn("torch", dependency_names)
+        self.assertIn("PIL", dependency_names)
+        self.assertIn("numpy", dependency_names)
+        self.assertNotIn("yaml", dependency_names)
+
     def _write_valid_manifest(self, manifest_path: Path, root: Path, token: str = "sample-1") -> None:
         (root / "samples/CAM_FRONT").mkdir(parents=True, exist_ok=True)
         (root / "sat").mkdir(exist_ok=True)

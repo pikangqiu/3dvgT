@@ -248,7 +248,7 @@ Optionally replace or augment sparse LiDAR targets with configured G3T/VGGT refe
 
 ```bash
 PYTHONPATH=src python scripts/generate_reference_supervision_targets.py \
-  --config configs/reconstruction_first.yaml \
+  --config configs/reconstruction_first.json \
   --manifest data/manifests/nuscenes-mini.supervised.jsonl \
   --target-dir reference_targets \
   --max-points 4096 \
@@ -287,11 +287,11 @@ PYTHONPATH=src python scripts/evaluate.py \
 The same current scaffold can be launched from the default experiment config after the manifest referenced in that config exists:
 
 ```bash
-PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
+PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.json
+PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.json
 ```
 
-`configs/reconstruction_first.yaml` supports either one shared manifest or separate train/eval manifests:
+`configs/reconstruction_first.json` is the dependency-light default config. `configs/reconstruction_first.yaml` mirrors the same runtime intent in a more readable format and supports either one shared manifest or separate train/eval manifests when PyYAML is installed:
 
 ```yaml
 runtime:
@@ -349,13 +349,13 @@ runtime:
 
 `adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. `reference_model_kwargs` is passed directly to the selected reference constructor, so use G3T keys such as `img_size`, `enable_point`, `enable_depth`, and `enable_gravity_camera_heads`, or VGGT keys such as `img_size`, `enable_camera`, `enable_point`, `enable_depth`, and `enable_track`. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. The project-level fine-tuning policies are applied after weight loading, so frozen modules will not enter the optimizer. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
-Run `scripts/check_model_adapter.py --config configs/reconstruction_first.yaml` after changing model, weight, or fine-tuning settings. The report validates camera-aware output shapes and lists total, trainable, and frozen parameter tensors plus their names, so a real checkpoint run can confirm that only the intended G3T/VGGT, satellite, fusion, or head modules will be optimized.
+Run `scripts/check_model_adapter.py --config configs/reconstruction_first.json` after changing model, weight, or fine-tuning settings. The report validates camera-aware output shapes and lists total, trainable, and frozen parameter tensors plus their names, so a real checkpoint run can confirm that only the intended G3T/VGGT, satellite, fusion, or head modules will be optimized.
 
 For a single train+eval run with a JSON report:
 
 ```bash
 PYTHONPATH=src python scripts/run_experiment.py \
-  --config configs/reconstruction_first.yaml \
+  --config configs/reconstruction_first.json \
   --report outputs/reconstruction_first_report.json
 ```
 
@@ -363,14 +363,14 @@ Before launching a real run, check the environment/config readiness:
 
 ```bash
 PYTHONPATH=src python scripts/report_training_launch.py \
-  --config configs/reconstruction_first.yaml \
+  --config configs/reconstruction_first.json \
   --json
 PYTHONPATH=src python scripts/plan_training_run.py \
-  --config configs/reconstruction_first.yaml
+  --config configs/reconstruction_first.json
 PYTHONPATH=src python scripts/bootstrap_training_run.py \
-  --config configs/reconstruction_first.yaml
+  --config configs/reconstruction_first.json
 PYTHONPATH=src python scripts/check_training_readiness.py \
-  --config configs/reconstruction_first.yaml
+  --config configs/reconstruction_first.json
 ```
 
 The launch report combines readiness, the ordered run plan, current blockers, and next commands in one machine-readable packet. The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. If `runtime.model.weights_path` is configured, the plan includes `scripts/inspect_checkpoint.py` before readiness and adapter checks. Dense reference-supervision generation is skipped by default for the scaffold path and becomes pending only when a G3T/VGGT reference adapter is configured. After splitting train/eval manifests, the plan runs `scripts/validate_manifest.py` on both files so empty manifests or missing camera, satellite, depth, occupancy, or pointmap paths fail before DataLoader construction. The bootstrap command uses the same plan and defaults to dry-run mode. Add `--execute` to run pending commands, `--until <step_name>` to stop after a specific step, and `--include-ready` to rerun preprocessing steps already marked ready. Launch checks, training, and evaluation stay pending so an executable bootstrap does not skip the actual run after manifests already exist. The readiness check validates configured manifests are non-empty and parseable with existing referenced file paths, dependencies, requested device, output/checkpoint consistency, the optional `satellite_raster_config_path`, external adapter/weight paths, rejects directory or non-checkpoint `weights_path` values, lightly inspects concrete checkpoint files when torch is available, and checks `reference_root` when `use_reference_adapter` is enabled.

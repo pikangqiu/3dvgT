@@ -176,7 +176,7 @@ Generate dense configured-model reference supervision:
 
 ```bash
 PYTHONPATH=src python scripts/generate_reference_supervision_targets.py \
-  --config configs/reconstruction_first.yaml \
+  --config configs/reconstruction_first.json \
   --manifest data/manifests/nuscenes-mini.camera-pointmap.jsonl \
   --target-dir reference_targets \
   --max-points 4096 \

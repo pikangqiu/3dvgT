@@ -22,7 +22,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | Evaluation metrics | Reconstruction-first scaffolded | single- or multi-camera depth MAE, pointmap L1, scale-aligned pointmap accuracy/completeness/chamfer, gravity angular error, local pose L2, sequence translation drift, relative pose L2, and optional BEV occupancy IoU in `src/vggt_project/metrics.py`; multi-camera depth, pointmap, and local pose metrics use camera-specific predictions when available |
 | Train loop | Smoke-verified scaffold | synthetic train and manifest-smoke train completed in `/tmp/vggt-satellite-smoke` |
 | Eval/inference loop | Smoke-verified scaffold | synthetic eval completed against `/tmp/vggt-satellite-smoke-output/synthetic_scaffold.pt`; manifest-smoke eval is implemented and covered by tests |
-| Experiment config dispatch | Scripted | `configs/reconstruction_first.yaml` can drive current scaffold train/eval through `scripts/train.py --config ...` and `scripts/evaluate.py --config ...`; `runtime.data.train_manifest_path` and `runtime.data.eval_manifest_path` support train/eval split manifests; `runtime.model` supports `scaffold` or external adapter module paths; `runtime.device` supports explicit `cuda`/`mps`/`cpu` selection; `runtime.seed` supports reproducible scaffold training runs |
+| Experiment config dispatch | Scripted | `configs/reconstruction_first.json` is the dependency-light default config for current scaffold train/eval; `configs/reconstruction_first.yaml` mirrors the same runtime intent in a human-readable research config; `runtime.data.train_manifest_path` and `runtime.data.eval_manifest_path` support train/eval split manifests; `runtime.model` supports `scaffold` or external adapter module paths; `runtime.device` supports explicit `cuda`/`mps`/`cpu` selection; `runtime.seed` supports reproducible scaffold training runs |
 | Experiment report pipeline | Scripted | `scripts/run_experiment.py` runs config-driven train+eval and writes a JSON report |
 | End-to-end smoke pipeline | Smoke-verified scaffold | `scripts/run_smoke_pipeline.py` creates toy image/depth/mask files, trains, and evaluates |
 | Environment setup | Smoke-verified script | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended; PyTorch 2.12.0 imported |
@@ -86,11 +86,11 @@ export MPLCONFIGDIR=.venv/.matplotlib
 PYTHONPATH=src python scripts/train.py --mode synthetic --epochs 1
 PYTHONPATH=src python scripts/evaluate.py --checkpoint outputs/synthetic/synthetic_scaffold.pt
 PYTHONPATH=src python scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.depth.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt
-PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.yaml
-PYTHONPATH=src python scripts/run_experiment.py --config configs/reconstruction_first.yaml --report outputs/reconstruction_first_report.json
+PYTHONPATH=src python scripts/train.py --config configs/reconstruction_first.json
+PYTHONPATH=src python scripts/evaluate.py --config configs/reconstruction_first.json
+PYTHONPATH=src python scripts/run_experiment.py --config configs/reconstruction_first.json --report outputs/reconstruction_first_report.json
 PYTHONPATH=src python scripts/run_smoke_pipeline.py --output-dir outputs/smoke-pipeline --epochs 1
-PYTHONPATH=src python scripts/generate_reference_supervision_targets.py --config configs/reconstruction_first.yaml --manifest data/manifests/nuscenes-mini.supervised.jsonl --output data/manifests/nuscenes-mini.reference.jsonl
+PYTHONPATH=src python scripts/generate_reference_supervision_targets.py --config configs/reconstruction_first.json --manifest data/manifests/nuscenes-mini.supervised.jsonl --output data/manifests/nuscenes-mini.reference.jsonl
 ```
 
 Smoke run evidence from this machine:

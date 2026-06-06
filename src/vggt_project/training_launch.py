@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from vggt_project.experiments import ExperimentRunConfig
+from vggt_project.experiments import DEFAULT_EXPERIMENT_CONFIG_PATH, ExperimentRunConfig
 from vggt_project.training_plan import TrainingRunPlan, build_training_run_plan
 from vggt_project.training_readiness import (
     DependencyStatus,
@@ -41,7 +41,7 @@ class TrainingLaunchPacket:
 def build_training_launch_packet(
     config: ExperimentRunConfig,
     *,
-    config_path: Path = Path("configs/reconstruction_first.yaml"),
+    config_path: Path = DEFAULT_EXPERIMENT_CONFIG_PATH,
     nuscenes_root: Path = Path("data/nuscenes"),
     nuscenes_version: str = "v1.0-mini",
     raw_manifest_path: Path = Path("data/manifests/nuscenes-mini.jsonl"),

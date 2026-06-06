@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from vggt_project.experiments import load_experiment_config
+from vggt_project.experiments import DEFAULT_EXPERIMENT_CONFIG_PATH, load_experiment_config
 from vggt_project.training_readiness import (
     check_training_readiness,
     format_training_readiness_report,
@@ -15,7 +15,7 @@ from vggt_project.training_readiness import (
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, default=Path("configs/reconstruction_first.yaml"))
+    parser.add_argument("--config", type=Path, default=DEFAULT_EXPERIMENT_CONFIG_PATH)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 

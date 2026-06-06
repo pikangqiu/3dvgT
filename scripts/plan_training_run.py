@@ -7,13 +7,13 @@ import argparse
 import json
 from pathlib import Path
 
-from vggt_project.experiments import load_experiment_config
+from vggt_project.experiments import DEFAULT_EXPERIMENT_CONFIG_PATH, load_experiment_config
 from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, default=Path("configs/reconstruction_first.yaml"))
+    parser.add_argument("--config", type=Path, default=DEFAULT_EXPERIMENT_CONFIG_PATH)
     parser.add_argument("--root", type=Path, default=Path("data/nuscenes"))
     parser.add_argument("--version", default="v1.0-mini")
     parser.add_argument("--raw-manifest", type=Path, default=Path("data/manifests/nuscenes-mini.jsonl"))

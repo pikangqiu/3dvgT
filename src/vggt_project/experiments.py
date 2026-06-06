@@ -11,6 +11,9 @@ from vggt_project.evaluation import evaluate_manifest_smoke, evaluate_synthetic
 from vggt_project.training import train_manifest_smoke, train_synthetic
 
 
+DEFAULT_EXPERIMENT_CONFIG_PATH = Path("configs/reconstruction_first.json")
+
+
 @dataclass(frozen=True)
 class ExperimentRunConfig:
     """Runtime knobs for scaffold training and evaluation."""

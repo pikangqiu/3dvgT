@@ -79,7 +79,7 @@ def probe_dependencies() -> tuple[DependencyStatus, ...]:
 
     return tuple(
         _dependency_status(name)
-        for name in ("torch", "PIL", "numpy", "yaml")
+        for name in ("torch", "PIL", "numpy")
     )
 
 
