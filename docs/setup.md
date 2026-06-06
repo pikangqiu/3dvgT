@@ -284,10 +284,12 @@ PYTHONPATH=src python scripts/run_experiment.py \
 Before launching a real run, check the environment/config readiness:
 
 ```bash
+PYTHONPATH=src python scripts/plan_training_run.py \
+  --config configs/reconstruction_first.yaml
 PYTHONPATH=src python scripts/check_training_readiness.py \
   --config configs/reconstruction_first.yaml
 ```
 
-This readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, and external adapter/weight paths if `runtime.model.family` is not `scaffold`.
+The run-plan command prints the ordered commands needed to produce missing manifests and supervision files. The readiness check validates configured manifests, dependencies, requested device, the optional `satellite_raster_config_path`, and external adapter/weight paths if `runtime.model.family` is not `scaffold`.
 
 If `lidar_depth_path`, `lidar_depth_paths`, `valid_area_mask_path`, `pointmap_path`, or `pointmap_paths` fields are present in the manifest, `manifest-smoke` loads them as target tensors. If `ego_translation` and `ego_rotation` are present, it also builds coarse ego-pose-derived targets. Dense G3T/VGGT pointmap generation and pose targets are still placeholders until the G3T/VGGT supervision adapter internals are replaced with concrete reference head calls.

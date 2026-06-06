@@ -18,6 +18,7 @@ This repository now contains a runnable scaffold for the project structure:
 - train and eval entrypoints,
 - setup, weight-download, dataset-preparation, and GitHub-publish scripts,
 - training environment readiness checks,
+- ordered real training run-plan generation,
 - satellite raster readiness checks integrated into training preflight,
 - external model adapter and weight-path checks integrated into training preflight,
 - external reference repository setup script,
@@ -51,6 +52,7 @@ The scaffold is not yet a complete nuScenes training implementation. Real traini
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
+PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run

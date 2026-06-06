@@ -2,7 +2,7 @@
 
 ## Summary
 
-The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth and pointmap prediction, external adapter module loading, a repo-local G3T/VGGT adapter template, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, satellite raster config validation, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes ego-frame and camera-frame LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
+The repository is no longer only a paper/reference folder. It now contains a project scaffold with data contracts, a minimal trainable model scaffold with camera-specific depth and pointmap prediction, external adapter module loading, a repo-local G3T/VGGT adapter template, reconstruction losses, train/eval entrypoints, reconstruction-first metrics, config-driven experiment dispatch and reporting, an end-to-end smoke pipeline, project-status audit scripts, environment/readiness scripts, ordered training run-plan generation, external-reference setup scripts, weight-download scripts, dataset preparation notes, manifest asset materialization, satellite raster config validation, multi-camera nuScenes LiDAR-depth target generation and loss/metric wiring, nuScenes ego-frame and camera-frame LiDAR pointmap target generation, combined LiDAR supervision manifest generation, scene-level manifest splitting, GitHub publishing, and research baseline notes.
 
 It is not yet a complete real nuScenes training codebase. The current train/eval paths are synthetic smoke training/evaluation plus manifest-smoke training that can load real camera, satellite, single- or multi-camera depth, mask, sample-level or camera-level pointmap, and ego-pose-derived target tensors from a JSONL manifest. Real training still needs real satellite patch extraction/alignment, dense G3T-style camera-level pointmap target generation, camera-level/G3T pose target wiring, camera-specific pose heads, replacing the G3T/VGGT adapter template with concrete head calls, and GPU environment validation.
 
@@ -27,6 +27,7 @@ It is not yet a complete real nuScenes training codebase. The current train/eval
 | End-to-end smoke pipeline | Smoke-verified scaffold | `scripts/run_smoke_pipeline.py` creates toy image/depth/mask files, trains, and evaluates |
 | Environment setup | Smoke-verified script | `requirements.txt`, `environment.yml`, `scripts/setup_env.sh`; Python 3.10/3.11 recommended; PyTorch 2.12.0 imported |
 | Training readiness | Scripted | `scripts/check_training_readiness.py`; checks config manifests, optional satellite raster config readiness, external adapter/weight paths, core dependencies, and requested device availability |
+| Training run planning | Scripted | `scripts/plan_training_run.py`; prints ordered commands from nuScenes manifest generation through satellite crops, LiDAR supervision, split manifests, readiness, train, and eval |
 | G3T weight download | Scripted | `scripts/download_weights.py` |
 | nuScenes download/setup | Partially scripted | `scripts/prepare_nuscenes.sh`; real download requires account/license |
 | Manifest asset materialization | Smoke-only scripted | `scripts/materialize_manifest_assets.py`; creates placeholder satellite patches and optional valid masks for pipeline testing |
@@ -47,6 +48,7 @@ Verified locally:
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/check_training_readiness.py --help
+PYTHONPATH=src python3 scripts/plan_training_run.py --help
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
 PYTHONPATH=src python3 scripts/check_nuscenes.py --root data/nuscenes --version v1.0-mini
