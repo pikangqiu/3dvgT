@@ -108,6 +108,46 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertIn("scripts/inspect_checkpoint.py checkpoints/g3t/model.pt", rendered)
         self.assertFalse(plan.steps[step_names.index("inspect_checkpoint")].ready)
 
+    def test_reference_supervision_is_skipped_for_default_scaffold_plan(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            model_family="scaffold",
+            use_reference_adapter=False,
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(config)
+        steps = {step.name: step for step in plan.steps}
+
+        self.assertTrue(steps["optional_generate_reference_supervision"].ready)
+        self.assertIn("Skipped unless", steps["optional_generate_reference_supervision"].note)
+
+    def test_reference_supervision_runs_when_reference_adapter_is_enabled(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            model_family="g3t-vggt",
+            adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+            use_reference_adapter=True,
+            reference_root=Path("refs/g3t"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(config)
+        steps = {step.name: step for step in plan.steps}
+
+        self.assertFalse(steps["optional_generate_reference_supervision"].ready)
+        self.assertIn("dense configured G3T/VGGT", steps["optional_generate_reference_supervision"].note)
+
 
 if __name__ == "__main__":
     unittest.main()

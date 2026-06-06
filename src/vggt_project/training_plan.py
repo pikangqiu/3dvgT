@@ -51,6 +51,7 @@ def build_training_run_plan(
     pose_input_manifest = pose_manifest_path
     occupancy_input_manifest = occupancy_manifest_path
     split_ready = path_exists(train_manifest) and path_exists(eval_manifest)
+    reference_supervision_requested = _reference_supervision_requested(config)
 
     steps = [
         TrainingPlanStep(
@@ -155,8 +156,12 @@ def build_training_run_plan(
                     f"--config {config_path} --manifest {occupancy_input_manifest} "
                     f"--output {occupancy_input_manifest} --target-dir reference_targets --max-points {point_count}"
                 ),
-                ready=path_exists(occupancy_manifest_path),
-                note="Optionally replaces sparse LiDAR targets with dense configured G3T/VGGT reference predictions.",
+                ready=not reference_supervision_requested,
+                note=(
+                    "Optionally replaces sparse LiDAR targets with dense configured G3T/VGGT reference predictions."
+                    if reference_supervision_requested
+                    else "Skipped unless a G3T/VGGT reference adapter is configured."
+                ),
             ),
             TrainingPlanStep(
                 name="inspect_manifest_sample",
@@ -256,3 +261,9 @@ def format_training_run_plan(plan: TrainingRunPlan) -> str:
     else:
         lines.append("- none")
     return "\n".join(lines)
+
+
+def _reference_supervision_requested(config: ExperimentRunConfig) -> bool:
+    if config.use_reference_adapter:
+        return True
+    return config.model_family in {"g3t", "vggt", "g3t-vggt"}
