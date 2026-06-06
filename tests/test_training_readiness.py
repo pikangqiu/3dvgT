@@ -144,6 +144,37 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertIn("eval_manifest_path references missing files", report.config_errors[0])
         self.assertIn("satellite_patch_path", report.config_errors[0])
 
+    def test_readiness_reports_invalid_manifest_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            train_manifest.write_text("{not-json}\n", encoding="utf-8")
+            eval_manifest.write_text("", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("train_manifest_path is invalid", report.config_errors[0])
+
     def test_readiness_reports_satellite_raster_config_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

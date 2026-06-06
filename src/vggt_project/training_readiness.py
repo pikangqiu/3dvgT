@@ -218,7 +218,11 @@ def _manifest_reference_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
         if manifest_path in seen_paths or not manifest_path.exists():
             continue
         seen_paths.add(manifest_path)
-        report = validate_manifest_paths(manifest_path)
+        try:
+            report = validate_manifest_paths(manifest_path)
+        except Exception as error:
+            errors.append(f"{name} is invalid: {error}")
+            continue
         if report.missing_paths:
             first = report.missing_paths[0]
             fields = ", ".join(item.field for item in report.missing_paths[:3])
