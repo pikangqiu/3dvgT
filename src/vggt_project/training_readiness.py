@@ -13,6 +13,7 @@ from vggt_project.checkpoint_inspection import (
     find_checkpoint_candidates,
     load_checkpoint_summary,
 )
+from vggt_project.data.manifest_validation import validate_manifest_paths
 from vggt_project.data.satellite_crops import validate_satellite_raster_config
 from vggt_project.experiments import ExperimentRunConfig
 from vggt_project.models.factory import FINE_TUNING_POLICIES
@@ -169,6 +170,7 @@ def _config_errors(
     checkpoint_probe: Callable[[Path], str | None],
 ) -> tuple[str, ...]:
     errors = list(_runtime_config_errors(config))
+    errors.extend(_manifest_reference_errors(config))
     errors.extend(_model_config_errors(config, checkpoint_probe=checkpoint_probe))
     if config.satellite_raster_config_path is None:
         return tuple(errors)
@@ -199,6 +201,31 @@ def _runtime_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
             "evaluation checkpoint must match training output: "
             f"expected {expected_checkpoint}, got {config.checkpoint}"
         )
+    return tuple(errors)
+
+
+def _manifest_reference_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    errors: list[str] = []
+    seen_paths: set[Path] = set()
+    for name, path in (
+        ("manifest_path", config.manifest_path),
+        ("train_manifest_path", config.train_manifest_path),
+        ("eval_manifest_path", config.eval_manifest_path),
+    ):
+        if path is None:
+            continue
+        manifest_path = Path(path)
+        if manifest_path in seen_paths or not manifest_path.exists():
+            continue
+        seen_paths.add(manifest_path)
+        report = validate_manifest_paths(manifest_path)
+        if report.missing_paths:
+            first = report.missing_paths[0]
+            fields = ", ".join(item.field for item in report.missing_paths[:3])
+            errors.append(
+                f"{name} references missing files: {len(report.missing_paths)} missing; "
+                f"fields {fields}; first {first.field}={first.path}"
+            )
     return tuple(errors)
 
 

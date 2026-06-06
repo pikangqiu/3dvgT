@@ -66,9 +66,91 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertEqual(report.config_errors, ())
         self.assertEqual(report.missing_dependencies, ())
 
+    def test_readiness_rejects_train_manifest_with_missing_referenced_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            train_manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/missing.jpg"],'
+                '"satellite_patch_path":"sat/missing.png",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+            eval_manifest.write_text("", encoding="utf-8")
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("train_manifest_path references missing files", report.config_errors[0])
+        self.assertIn("camera.image_path", report.config_errors[0])
+
+    def test_readiness_rejects_eval_manifest_with_missing_referenced_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_manifest = root / "train.jsonl"
+            eval_manifest = root / "val.jsonl"
+            train_manifest.write_text("", encoding="utf-8")
+            eval_manifest.write_text(
+                '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
+                '"camera_paths":["samples/CAM_FRONT/missing.jpg"],'
+                '"satellite_patch_path":"sat/missing.png",'
+                '"ego_pose_frame":"ego","bev_frame":"bev","gravity_frame":"gravity",'
+                '"satellite_frame":"satellite"}\n',
+                encoding="utf-8",
+            )
+            config = ExperimentRunConfig(
+                training_mode="manifest-smoke",
+                train_manifest_path=train_manifest,
+                eval_manifest_path=eval_manifest,
+                output_dir=root / "outputs",
+                checkpoint=root / "outputs" / "manifest_smoke_scaffold.pt",
+                satellite_raster_config_path=None,
+                device="cpu",
+            )
+
+            report = check_training_readiness(
+                config,
+                dependency_probe=lambda: (
+                    DependencyStatus("torch", True, "2.0"),
+                    DependencyStatus("PIL", True, "10.0"),
+                    DependencyStatus("numpy", True, "1.0"),
+                    DependencyStatus("yaml", True, "6.0"),
+                ),
+                device_probe=lambda device: True,
+            )
+
+        self.assertFalse(report.ready)
+        self.assertIn("eval_manifest_path references missing files", report.config_errors[0])
+        self.assertIn("satellite_patch_path", report.config_errors[0])
+
     def test_readiness_reports_satellite_raster_config_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "sat").mkdir()
+            (root / "samples/CAM_FRONT/a.jpg").write_text("image", encoding="utf-8")
+            (root / "sat/sample-1.png").write_text("sat", encoding="utf-8")
             manifest = root / "train.jsonl"
             manifest.write_text(
                 '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
@@ -116,7 +198,11 @@ class TrainingReadinessTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / "rasters").mkdir()
+            (root / "samples/CAM_FRONT").mkdir(parents=True)
+            (root / "sat").mkdir()
             (root / "rasters/boston.png").write_text("raster", encoding="utf-8")
+            (root / "samples/CAM_FRONT/a.jpg").write_text("image", encoding="utf-8")
+            (root / "sat/sample-1.png").write_text("sat", encoding="utf-8")
             manifest = root / "train.jsonl"
             manifest.write_text(
                 '{"token":"sample-1","scene_token":"scene-1","timestamp_us":10,'
