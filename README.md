@@ -24,6 +24,7 @@ This repository now contains a runnable scaffold for the project structure:
 - external reference repository setup script,
 - nuScenes manifest generation and loading scaffolds,
 - manifest asset materialization for smoke satellite patches and valid masks,
+- manifest sample summary/contact-sheet preview for pre-training sanity checks,
 - local satellite raster crop materialization,
 - satellite raster config template and validation,
 - nuScenes LiDAR-to-camera depth target generation for single- or multi-camera manifest supervision,
@@ -55,6 +56,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 scripts/audit_project_status.py
 PYTHONPATH=src python3 scripts/plan_training_run.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/list_experiment_protocol.py
+PYTHONPATH=src python3 scripts/inspect_manifest_sample.py --help
 PYTHONPATH=src python3 scripts/check_training_readiness.py --config configs/reconstruction_first.yaml
 PYTHONPATH=src python3 scripts/check_references.py
 PYTHONPATH=src python3 scripts/setup_references.py --dry-run
@@ -80,6 +82,7 @@ PYTHONPATH=src python3 scripts/check_satellite_rasters.py --config data/satellit
 PYTHONPATH=src python3 scripts/materialize_satellite_crops.py data/manifests/nuscenes-mini.jsonl --config data/satellite_rasters/config.json --output data/manifests/nuscenes-mini.satellite.jsonl
 PYTHONPATH=src python3 scripts/generate_camera_lidar_pointmap_targets.py data/manifests/nuscenes-mini.satellite.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.camera-pointmaps.jsonl
 PYTHONPATH=src python3 scripts/generate_lidar_supervision.py data/manifests/nuscenes-mini.smoke.jsonl --camera CAM_FRONT --camera CAM_BACK --output data/manifests/nuscenes-mini.supervised.jsonl
+PYTHONPATH=src python3 scripts/inspect_manifest_sample.py data/manifests/nuscenes-mini.supervised.jsonl --output-dir outputs/manifest-preview
 PYTHONPATH=src python3 scripts/split_manifest.py data/manifests/nuscenes-mini.supervised.jsonl --train-output data/manifests/nuscenes-mini.train.jsonl --eval-output data/manifests/nuscenes-mini.val.jsonl
 PYTHONPATH=src python3 scripts/train.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.train.jsonl --epochs 1 --seed 0 --output-dir outputs/manifest-smoke
 PYTHONPATH=src python3 scripts/evaluate.py --mode manifest-smoke --manifest data/manifests/nuscenes-mini.val.jsonl --checkpoint outputs/manifest-smoke/manifest_smoke_scaffold.pt

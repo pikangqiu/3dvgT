@@ -14,6 +14,7 @@ from vggt_project.data.manifest_validation import (
 )
 from vggt_project.data.manifest_tensor_dataset import ManifestTensorDataset
 from vggt_project.data.manifest_assets import ManifestAssetReport, materialize_manifest_assets
+from vggt_project.data.manifest_preview import ManifestSamplePreview, build_manifest_sample_preview
 
 __all__ = [
     "AlignedNuScenesSample",
@@ -28,6 +29,8 @@ __all__ = [
     "ManifestTensorDataset",
     "ManifestAssetReport",
     "materialize_manifest_assets",
+    "ManifestSamplePreview",
+    "build_manifest_sample_preview",
     "LidarDepthReport",
     "materialize_lidar_depth_manifest",
     "rasterize_camera_depth",

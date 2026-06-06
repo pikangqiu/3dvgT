@@ -31,7 +31,7 @@ Goal: make nuScenes samples explicit before training.
 - Add coordinate-frame checks for camera, ego, BEV, satellite, and gravity frames.
 - Decide the first satellite patch source and resolution.
 - Provide a satellite raster config for `scripts/materialize_satellite_crops.py`.
-- Produce one inspectable sample artifact before building a trainer.
+- Produce one inspectable sample artifact before building a trainer; current path is `scripts/inspect_manifest_sample.py`, which writes a JSON summary and contact sheet for one supervised manifest record.
 
 ## Phase 2: Fusion Encoder
 

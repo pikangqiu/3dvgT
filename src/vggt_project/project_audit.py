@@ -37,6 +37,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
         "data_processing": (
             "src/vggt_project/data/manifest.py",
             "src/vggt_project/data/manifest_builder.py",
+            "src/vggt_project/data/manifest_preview.py",
             "src/vggt_project/data/manifest_tensor_dataset.py",
             "src/vggt_project/data/nuscenes_depth.py",
             "src/vggt_project/data/nuscenes_pointmap.py",
@@ -44,6 +45,7 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
             "src/vggt_project/data/manifest_split.py",
             "scripts/generate_manifest.py",
             "scripts/validate_manifest.py",
+            "scripts/inspect_manifest_sample.py",
             "scripts/split_manifest.py",
             "scripts/materialize_manifest_assets.py",
             "scripts/materialize_satellite_crops.py",

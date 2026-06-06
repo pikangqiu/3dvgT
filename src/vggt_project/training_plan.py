@@ -123,6 +123,15 @@ def build_training_run_plan(
                 note="Adds multi-camera depth and camera-frame pointmap targets.",
             ),
             TrainingPlanStep(
+                name="inspect_manifest_sample",
+                command=(
+                    "PYTHONPATH=src python scripts/inspect_manifest_sample.py "
+                    f"{supervised_manifest} --output-dir outputs/manifest-preview --sample-index 0"
+                ),
+                ready=path_exists(supervised_manifest),
+                note="Writes a JSON summary and contact sheet for camera/satellite/target sanity checks.",
+            ),
+            TrainingPlanStep(
                 name="split_manifest",
                 command=(
                     "PYTHONPATH=src python scripts/split_manifest.py "
