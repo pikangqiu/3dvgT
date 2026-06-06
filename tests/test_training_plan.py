@@ -54,6 +54,60 @@ class TrainingPlanTest(unittest.TestCase):
         self.assertTrue(plan.ready_to_train)
         self.assertEqual(plan.missing_outputs, ())
 
+    def test_launch_steps_remain_pending_when_required_outputs_exist(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(
+            config,
+            path_exists=lambda path: path.name in {"ready.supervised.jsonl", "ready.train.jsonl", "ready.val.jsonl"},
+        )
+        steps = {step.name: step for step in plan.steps}
+
+        self.assertTrue(plan.ready_to_train)
+        self.assertFalse(steps["check_training_readiness"].ready)
+        self.assertFalse(steps["check_model_adapter"].ready)
+        self.assertFalse(steps["train"].ready)
+        self.assertFalse(steps["evaluate"].ready)
+
+    def test_plan_includes_checkpoint_inspection_when_weights_path_is_configured(self) -> None:
+        from vggt_project.training_plan import build_training_run_plan, format_training_run_plan
+
+        config = ExperimentRunConfig(
+            training_mode="manifest-smoke",
+            manifest_path=Path("ready.supervised.jsonl"),
+            train_manifest_path=Path("ready.train.jsonl"),
+            eval_manifest_path=Path("ready.val.jsonl"),
+            model_family="external",
+            adapter_module_path=Path("adapters/g3t_vggt_adapter.py"),
+            weights_path=Path("checkpoints/g3t/model.pt"),
+            satellite_raster_config_path=None,
+        )
+
+        plan = build_training_run_plan(
+            config,
+            path_exists=lambda path: path.name in {
+                "ready.supervised.jsonl",
+                "ready.train.jsonl",
+                "ready.val.jsonl",
+                "model.pt",
+            },
+        )
+        rendered = format_training_run_plan(plan)
+        step_names = [step.name for step in plan.steps]
+
+        self.assertIn("inspect_checkpoint", step_names)
+        self.assertLess(step_names.index("inspect_checkpoint"), step_names.index("check_training_readiness"))
+        self.assertIn("scripts/inspect_checkpoint.py checkpoints/g3t/model.pt", rendered)
+        self.assertFalse(plan.steps[step_names.index("inspect_checkpoint")].ready)
+
 
 if __name__ == "__main__":
     unittest.main()

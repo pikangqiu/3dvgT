@@ -177,28 +177,41 @@ def build_training_run_plan(
                 ready=split_ready,
                 note="Creates scene-disjoint train/eval manifests.",
             ),
+        ]
+    )
+    if config.weights_path is not None:
+        steps.append(
+            TrainingPlanStep(
+                name="inspect_checkpoint",
+                command=f"PYTHONPATH=src python scripts/inspect_checkpoint.py {config.weights_path}",
+                ready=False,
+                note="Inspects configured weights before readiness and adapter checks.",
+            )
+        )
+    steps.extend(
+        [
             TrainingPlanStep(
                 name="check_training_readiness",
                 command=f"PYTHONPATH=src python scripts/check_training_readiness.py --config {config_path}",
-                ready=split_ready,
-                note="Verifies dependencies, device, paths, satellite config, and adapter config.",
+                ready=False,
+                note="Verifies dependencies, device, paths, satellite config, checkpoint loadability, and adapter config.",
             ),
             TrainingPlanStep(
                 name="check_model_adapter",
                 command=f"PYTHONPATH=src python scripts/check_model_adapter.py --config {config_path}",
-                ready=split_ready,
+                ready=False,
                 note="Builds the configured model and verifies camera-aware reconstruction outputs.",
             ),
             TrainingPlanStep(
                 name="train",
                 command=f"PYTHONPATH=src python scripts/train.py --config {config_path}",
-                ready=split_ready,
+                ready=False,
                 note="Launches the configured training run.",
             ),
             TrainingPlanStep(
                 name="evaluate",
                 command=f"PYTHONPATH=src python scripts/evaluate.py --config {config_path}",
-                ready=split_ready,
+                ready=False,
                 note="Runs evaluation on the configured eval manifest.",
             ),
         ]
