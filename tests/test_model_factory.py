@@ -4,7 +4,65 @@ from importlib.util import find_spec
 from pathlib import Path
 
 
+class _FakeParameter:
+    def __init__(self) -> None:
+        self.requires_grad = True
+
+
+class _FakeNamedParameterModel:
+    def __init__(self, names: tuple[str, ...]) -> None:
+        self.parameters_by_name = {name: _FakeParameter() for name in names}
+
+    def named_parameters(self):
+        return tuple(self.parameters_by_name.items())
+
+    def parameters(self):
+        return tuple(self.parameters_by_name.values())
+
+
 class ModelFactoryTest(unittest.TestCase):
+    def test_fine_tuning_policy_keeps_satellite_fusion_and_heads_trainable(self) -> None:
+        from vggt_project.models.factory import apply_fine_tuning_policy
+
+        model = _FakeNamedParameterModel(
+            (
+                "bev_encoder.0.weight",
+                "satellite_encoder.0.weight",
+                "fusion.0.weight",
+                "point_head.weight",
+                "camera_depth_head.weight",
+                "reference_model.encoder.weight",
+            )
+        )
+
+        apply_fine_tuning_policy(model, "satellite_fusion_heads")
+
+        self.assertFalse(model.parameters_by_name["bev_encoder.0.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["satellite_encoder.0.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["fusion.0.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["point_head.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["camera_depth_head.weight"].requires_grad)
+        self.assertFalse(model.parameters_by_name["reference_model.encoder.weight"].requires_grad)
+
+    def test_fine_tuning_policy_can_freeze_reference_backbone_only(self) -> None:
+        from vggt_project.models.factory import apply_fine_tuning_policy
+
+        model = _FakeNamedParameterModel(
+            (
+                "reference_model.encoder.weight",
+                "reference_model.depth_head.weight",
+                "satellite_adapter.weight",
+                "pose_head.weight",
+            )
+        )
+
+        apply_fine_tuning_policy(model, "reference_frozen_heads")
+
+        self.assertFalse(model.parameters_by_name["reference_model.encoder.weight"].requires_grad)
+        self.assertFalse(model.parameters_by_name["reference_model.depth_head.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["satellite_adapter.weight"].requires_grad)
+        self.assertTrue(model.parameters_by_name["pose_head.weight"].requires_grad)
+
     @unittest.skipUnless(find_spec("torch"), "torch is required for model factory tests")
     def test_external_adapter_module_builds_reconstruction_model(self) -> None:
         import torch

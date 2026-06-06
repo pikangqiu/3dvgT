@@ -88,6 +88,7 @@ runtime:
     weights_path: null
     strict_weights: true
     freeze_backbone: false
+    fine_tuning_policy: full
     use_reference_adapter: false
     reference_root: refs/g3t
     reference_model: g3t

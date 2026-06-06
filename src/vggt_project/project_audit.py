@@ -123,8 +123,8 @@ def audit_project_files(root: Path = Path(".")) -> ProjectAuditReport:
     remaining_gaps = (
         "real satellite patch extraction requires user-provided satellite rasters/config, though config validation and crop materialization are now scripted",
         "dense G3T/VGGT reference depth, pointmap, and pose target materialization plus LiDAR-derived occupancy proxy generation are scripted, but real public checkpoint/GPU validation and public occupancy benchmark validation are not complete yet",
-        "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, and reference checkpoint loading hooks are implemented, but full real-data head-call validation is not complete yet",
-        "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete fine-tuning policies for G3T/VGGT pose heads are not implemented",
+        "G3T/VGGT adapter template, reference-output mapping, local reference builder, config-level reference instantiation, reference constructor kwargs, reference checkpoint loading hooks, and configurable fine-tuning policies are implemented, but full real-data head-call validation is not complete yet",
+        "camera-specific scaffold pose heads and calibration-derived manifest pose targets are wired, but concrete real-checkpoint fine-tuning validation for G3T/VGGT pose heads is not complete yet",
     )
     return ProjectAuditReport(
         items=items,

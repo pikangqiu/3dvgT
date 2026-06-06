@@ -41,6 +41,7 @@ class ExperimentConfigTest(unittest.TestCase):
                         "weights_path": "weights/g3t/model.pt",
                         "strict_weights": False,
                         "freeze_backbone": True,
+                        "fine_tuning_policy": "satellite_fusion_heads",
                         "use_reference_adapter": True,
                         "reference_root": "refs/g3t",
                         "reference_model": "g3t",
@@ -77,6 +78,7 @@ class ExperimentConfigTest(unittest.TestCase):
         self.assertEqual(config.weights_path, Path("weights/g3t/model.pt"))
         self.assertFalse(config.strict_weights)
         self.assertTrue(config.freeze_backbone)
+        self.assertEqual(config.fine_tuning_policy, "satellite_fusion_heads")
         self.assertTrue(config.use_reference_adapter)
         self.assertEqual(config.reference_root, Path("refs/g3t"))
         self.assertEqual(config.reference_model, "g3t")

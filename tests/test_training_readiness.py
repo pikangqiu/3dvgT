@@ -250,6 +250,27 @@ class TrainingReadinessTest(unittest.TestCase):
         self.assertFalse(report.ready)
         self.assertIn("reference_root", report.config_errors[0])
 
+    def test_readiness_reports_unknown_fine_tuning_policy(self) -> None:
+        config = ExperimentRunConfig(
+            training_mode="synthetic",
+            fine_tuning_policy="unknown-policy",
+            device="cpu",
+        )
+
+        report = check_training_readiness(
+            config,
+            dependency_probe=lambda: (
+                DependencyStatus("torch", True, "2.0"),
+                DependencyStatus("PIL", True, "10.0"),
+                DependencyStatus("numpy", True, "1.0"),
+                DependencyStatus("yaml", True, "6.0"),
+            ),
+            device_probe=lambda device: True,
+        )
+
+        self.assertFalse(report.ready)
+        self.assertIn("fine_tuning_policy", report.config_errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -25,6 +25,7 @@ class ExperimentRunConfig:
     weights_path: Path | None = None
     strict_weights: bool = True
     freeze_backbone: bool = False
+    fine_tuning_policy: str = "full"
     use_reference_adapter: bool = False
     reference_root: Path | None = None
     reference_model: str = "g3t"
@@ -70,6 +71,12 @@ class ExperimentRunConfig:
             weights_path=_optional_path(model.get("weights_path")),
             strict_weights=bool(model.get("strict_weights", True)),
             freeze_backbone=bool(model.get("freeze_backbone", False)),
+            fine_tuning_policy=str(
+                model.get(
+                    "fine_tuning_policy",
+                    "frozen_backbone" if bool(model.get("freeze_backbone", False)) else "full",
+                )
+            ),
             use_reference_adapter=bool(model.get("use_reference_adapter", False)),
             reference_root=_optional_path(model.get("reference_root")),
             reference_model=str(model.get("reference_model", "g3t")),
@@ -116,6 +123,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            fine_tuning_policy=config.fine_tuning_policy,
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
@@ -142,6 +150,7 @@ def train_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
             freeze_backbone=config.freeze_backbone,
+            fine_tuning_policy=config.fine_tuning_policy,
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
@@ -162,6 +171,7 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             adapter_module_path=config.adapter_module_path,
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
+            fine_tuning_policy=config.fine_tuning_policy,
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,
@@ -184,6 +194,7 @@ def evaluate_from_config(config: ExperimentRunConfig) -> dict[str, float]:
             adapter_module_path=config.adapter_module_path,
             weights_path=config.weights_path,
             strict_weights=config.strict_weights,
+            fine_tuning_policy=config.fine_tuning_policy,
             use_reference_adapter=config.use_reference_adapter,
             reference_root=config.reference_root,
             reference_model=config.reference_model,

@@ -285,6 +285,7 @@ runtime:
     weights_path: null
     strict_weights: true
     freeze_backbone: false
+    fine_tuning_policy: full
     use_reference_adapter: false
     reference_root: refs/g3t
     reference_model: g3t
@@ -294,6 +295,13 @@ runtime:
 
 Set `runtime.device` to `cuda`, `mps`, or `cpu` to force a specific training/evaluation device. Leave it as `null` to let PyTorch auto-select CUDA when available, otherwise CPU.
 Set `runtime.seed` or pass `--seed` to make model initialization and shuffled DataLoader order reproducible for the current scaffold runs. The experiment report records this seed in its serialized config.
+Set `runtime.model.fine_tuning_policy` to control trainable parameters:
+
+- `full`: train all parameters.
+- `frozen_backbone`: use an adapter's `freeze_backbone()` hook or freeze all parameters if no hook exists.
+- `heads_only`: train only parameters whose names belong to prediction heads.
+- `satellite_fusion_heads`: train satellite encoder, fusion, and prediction heads while freezing BEV/camera/reference backbones.
+- `reference_frozen_heads`: freeze `reference_model.*` parameters while keeping adapter-side modules trainable.
 
 To switch from the scaffold to a future G3T/VGGT adapter, set `runtime.model.family` to `external`, `g3t`, `vggt`, or `g3t-vggt`, and point `adapter_module_path` at a Python file that defines `build_model(point_count, **kwargs)`. The returned torch module must emit the same prediction keys as the scaffold: `gravity_aligned_pointmap`, `depth`, `local_camera_to_gravity_pose`, and `relative_yaw_translation`, with optional `camera_depths` and `camera_pointmaps`.
 
@@ -305,6 +313,7 @@ runtime:
     weights_path: weights/g3t/model.pt
     strict_weights: false
     freeze_backbone: false
+    fine_tuning_policy: satellite_fusion_heads
     use_reference_adapter: true
     reference_root: refs/g3t
     reference_model: g3t
@@ -315,7 +324,7 @@ runtime:
       enable_gravity_camera_heads: true
 ```
 
-`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. `reference_model_kwargs` is passed directly to the selected reference constructor, so use G3T keys such as `img_size`, `enable_point`, `enable_depth`, and `enable_gravity_camera_heads`, or VGGT keys such as `img_size`, `enable_camera`, `enable_point`, `enable_depth`, and `enable_track`. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
+`adapters/g3t_vggt_adapter.py` is currently a smoke-trainable template that satisfies the project contract and exposes `freeze_backbone()`. When `use_reference_adapter` is true, the same adapter instantiates a local `refs/g3t` `G3T` or `VGGT` model and maps its reference outputs back into the project contract. `reference_model_kwargs` is passed directly to the selected reference constructor, so use G3T keys such as `img_size`, `enable_point`, `enable_depth`, and `enable_gravity_camera_heads`, or VGGT keys such as `img_size`, `enable_camera`, `enable_point`, `enable_depth`, and `enable_track`. If `weights_path` is set, the reference wrapper can load raw reference-model state dicts or wrapper-prefixed state dicts through `load_project_weights`. The project-level fine-tuning policies are applied after weight loading, so frozen modules will not enter the optimizer. It remains the intended replacement point for concrete G3T/VGGT head calls once that integration is implemented.
 
 For a single train+eval run with a JSON report:
 

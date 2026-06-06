@@ -10,6 +10,7 @@ from typing import Callable
 
 from vggt_project.data.satellite_crops import validate_satellite_raster_config
 from vggt_project.experiments import ExperimentRunConfig
+from vggt_project.models.factory import FINE_TUNING_POLICIES
 
 
 @dataclass(frozen=True)
@@ -161,15 +162,28 @@ def _config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
 
 
 def _model_config_errors(config: ExperimentRunConfig) -> tuple[str, ...]:
+    errors: list[str] = []
+    policy = config.fine_tuning_policy.lower().replace("-", "_")
+    if policy == "all":
+        policy = "full"
+    if policy == "freeze_backbone":
+        policy = "frozen_backbone"
+    if policy not in FINE_TUNING_POLICIES:
+        errors.append(
+            "fine_tuning_policy must be one of "
+            + ", ".join(FINE_TUNING_POLICIES)
+            + f"; got {config.fine_tuning_policy}"
+        )
     if config.model_family in {"scaffold", ""}:
-        return ()
+        return tuple(errors)
     if config.model_family not in {"external", "g3t", "vggt", "g3t-vggt"}:
-        return (f"unsupported model family {config.model_family}",)
+        errors.append(f"unsupported model family {config.model_family}")
+        return tuple(errors)
     if config.adapter_module_path is None:
-        return (f"model family {config.model_family} requires adapter_module_path",)
+        errors.append(f"model family {config.model_family} requires adapter_module_path")
     if config.use_reference_adapter and config.reference_root is None:
-        return ("use_reference_adapter requires reference_root",)
-    return ()
+        errors.append("use_reference_adapter requires reference_root")
+    return tuple(errors)
 
 
 def _existing_manifest_for_satellite_check(config: ExperimentRunConfig) -> Path | None:

@@ -18,6 +18,14 @@ REQUIRED_PREDICTION_KEYS = (
     "relative_yaw_translation",
 )
 
+FINE_TUNING_POLICIES = (
+    "full",
+    "frozen_backbone",
+    "heads_only",
+    "satellite_fusion_heads",
+    "reference_frozen_heads",
+)
+
 
 @dataclass(frozen=True)
 class ModelBuildConfig:
@@ -26,6 +34,7 @@ class ModelBuildConfig:
     weights_path: Path | None = None
     strict_weights: bool = True
     freeze_backbone: bool = False
+    fine_tuning_policy: str = "full"
     use_reference_adapter: bool = False
     reference_root: Path | None = None
     reference_model: str = "g3t"
@@ -40,12 +49,17 @@ def build_reconstruction_model(config: ModelBuildConfig):
     """Build the configured reconstruction model."""
 
     if config.family == "scaffold":
-        return SatelliteBEVG3TScaffold.build(
+        model = SatelliteBEVG3TScaffold.build(
             bev_channels=config.bev_channels,
             satellite_channels=config.satellite_channels,
             latent_dim=config.latent_dim,
             point_count=config.point_count,
         )
+        if config.fine_tuning_policy != "full":
+            apply_fine_tuning_policy(model, config.fine_tuning_policy)
+        elif config.freeze_backbone:
+            _freeze_backbone(model)
+        return model
     if config.family in {"external", "g3t", "vggt", "g3t-vggt"}:
         return _build_external_adapter(config)
     raise ValueError(f"Unsupported model family: {config.family}")
@@ -69,7 +83,9 @@ def _build_external_adapter(config: ModelBuildConfig):
     model = _call_adapter_build_model(build_model, config)
     if config.weights_path is not None:
         _load_weights(model, config.weights_path, strict=config.strict_weights)
-    if config.freeze_backbone:
+    if config.fine_tuning_policy != "full":
+        apply_fine_tuning_policy(model, config.fine_tuning_policy)
+    elif config.freeze_backbone:
         _freeze_backbone(model)
     return model
 
@@ -123,6 +139,37 @@ def _load_weights(model: Any, weights_path: Path, *, strict: bool) -> None:
     model.load_state_dict(state, strict=strict)
 
 
+def apply_fine_tuning_policy(model: Any, policy: str) -> None:
+    """Set trainable parameters for common G3T/VGGT fine-tuning regimes."""
+
+    policy = policy.lower().replace("-", "_")
+    if policy == "all":
+        policy = "full"
+    if policy == "freeze_backbone":
+        policy = "frozen_backbone"
+    if policy == "full":
+        for _name, parameter in _iter_named_parameters(model):
+            parameter.requires_grad = True
+        return
+    if policy == "frozen_backbone":
+        _freeze_backbone(model)
+        return
+    if policy == "heads_only":
+        _set_trainable_by_name(model, _is_head_parameter)
+        return
+    if policy == "satellite_fusion_heads":
+        _set_trainable_by_name(
+            model,
+            lambda name: _is_satellite_fusion_or_head_parameter(name),
+        )
+        return
+    if policy == "reference_frozen_heads":
+        for name, parameter in _iter_named_parameters(model):
+            parameter.requires_grad = not name.startswith("reference_model.")
+        return
+    raise ValueError(f"Unsupported fine_tuning_policy: {policy}")
+
+
 def _freeze_backbone(model: Any) -> None:
     freeze_hook = getattr(model, "freeze_backbone", None)
     if callable(freeze_hook):
@@ -130,3 +177,28 @@ def _freeze_backbone(model: Any) -> None:
         return
     for parameter in model.parameters():
         parameter.requires_grad = False
+
+
+def _set_trainable_by_name(model: Any, predicate) -> None:
+    for name, parameter in _iter_named_parameters(model):
+        parameter.requires_grad = bool(predicate(name))
+
+
+def _iter_named_parameters(model: Any):
+    named_parameters = getattr(model, "named_parameters", None)
+    if callable(named_parameters):
+        return tuple(named_parameters())
+    return tuple((str(index), parameter) for index, parameter in enumerate(model.parameters()))
+
+
+def _is_head_parameter(name: str) -> bool:
+    return "_head." in name or name.endswith("_head.weight") or name.endswith("_head.bias")
+
+
+def _is_satellite_fusion_or_head_parameter(name: str) -> bool:
+    return (
+        "satellite_encoder." in name
+        or "fusion." in name
+        or "satellite_adapter." in name
+        or _is_head_parameter(name)
+    ) and not name.startswith("reference_model.")

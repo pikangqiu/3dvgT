@@ -38,6 +38,7 @@ This repository now contains a runnable scaffold for the project structure:
 - config-level selection of the local `refs/g3t` G3T/VGGT reference adapter,
 - config-level G3T/VGGT reference constructor kwargs such as `img_size`,
 - reference-adapter checkpoint loading for raw or wrapper-prefixed state dicts,
+- configurable fine-tuning policies for full, frozen-backbone, heads-only, satellite/fusion/head, and reference-frozen training,
 - model adapter contract check for camera-aware reconstruction outputs,
 - nuScenes LiDAR-to-ego pointmap target generation for manifest supervision,
 - nuScenes LiDAR-to-camera pointmap target generation for `pointmap_paths` supervision,
